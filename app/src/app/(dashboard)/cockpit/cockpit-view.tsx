@@ -1,0 +1,510 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import Link from "next/link";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import type { CadenceReport } from "@/lib/cadence-intelligence";
+
+const ARTIFACT_LINK_MAP: Record<string, string> = {
+  vision_page: "/vision",
+  quarterly_bets: "/bets",
+  scoreboard: "/scoreboard",
+  meeting_cadence: "/sync",
+  role_cards: "/profile",
+  process_library: "/processes",
+  media_calendar: "/content",
+};
+
+interface BlockedMove {
+  id: string;
+  title: string;
+  bet_outcome: string;
+  blocker_description: string;
+  blocker_severity: string;
+}
+
+interface StalledBet {
+  betId: string;
+  betOutcome: string;
+  ownerId: string;
+  reason: string;
+}
+
+interface CockpitProps {
+  blockedMoves: BlockedMove[];
+  nextCadenceEvent: string | null;
+  driftingKpis: Array<{
+    id: string;
+    name: string;
+    health_status: "green" | "yellow" | "red";
+    current_value: number | null;
+    target: number | null;
+    unit: string | null;
+  }>;
+  openDecisions: Array<{
+    id: string;
+    title: string;
+    created_at: string;
+  }>;
+  atRiskBets: Array<{
+    id: string;
+    outcome: string;
+    health_status: "green" | "yellow" | "red";
+  }>;
+  openBlockers: Array<{
+    id: string;
+    description: string;
+    severity: string;
+    created_at: string;
+  }>;
+  upcomingMoves: Array<{
+    id: string;
+    title: string;
+    due_date: string;
+    bet_id: string;
+    bets: { outcome: string } | null;
+  }>;
+  pendingCommitments: Array<{
+    id: string;
+    description: string;
+    due_date: string | null;
+    status: string;
+  }>;
+  todayPulses: Array<{
+    user_id: string;
+    user_profiles: { full_name: string } | null;
+  }>;
+  staleArtifacts: Array<{
+    artifact_type: string;
+    name: string;
+    days_since_update: number | null;
+    staleness_threshold_days: number;
+  }>;
+  stalledBets: StalledBet[];
+  cadenceReport?: CadenceReport | null;
+  aiRecommendation?: {
+    action: string;
+    reasoning: string;
+    entityType?: string;
+    entityId?: string;
+    urgency: "critical" | "important" | "suggested";
+    confidence: "high" | "medium" | "low";
+  } | null;
+}
+
+function CockpitSection({
+  title,
+  count,
+  children,
+}: {
+  title: string;
+  count: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-charcoal">{title}</h2>
+          <span className="text-xs font-mono text-warm-gray">{count}</span>
+        </div>
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
+  );
+}
+
+export function CockpitView({
+  blockedMoves,
+  nextCadenceEvent,
+  driftingKpis,
+  openDecisions,
+  atRiskBets,
+  openBlockers,
+  upcomingMoves,
+  pendingCommitments,
+  todayPulses,
+  staleArtifacts,
+  stalledBets,
+  cadenceReport,
+  aiRecommendation: initialRecommendation,
+}: CockpitProps) {
+  const [recommendation, setRecommendation] = useState(initialRecommendation ?? null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refreshAdvice = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const res = await fetch("/api/ai/cockpit-advisor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setRecommendation(data);
+      }
+    } catch {
+      // Silently fail — keep existing recommendation
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
+  const driftCount = driftingKpis.length + staleArtifacts.length;
+
+  const urgencyColor = {
+    critical: "text-semantic-brick",
+    important: "text-semantic-ochre",
+    suggested: "text-semantic-green",
+  };
+
+  const ENTITY_LINK: Record<string, (id: string) => string> = {
+    bet: (id) => `/bets/${id}`,
+    kpi: (id) => `/scoreboard/${id}`,
+    move: () => `/bets`,
+    blocker: () => `/ops`,
+    commitment: () => `/ops`,
+  };
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-6">Operator Cockpit</h1>
+
+      {/* AI Recommends — full-width above the grid */}
+      <Card className="mb-4 border-l-4 border-l-sage">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-semibold text-charcoal">AI Recommends</h2>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-sage bg-sage/10 px-1.5 py-0.5 rounded">
+                AI
+              </span>
+            </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={refreshAdvice}
+              disabled={refreshing}
+            >
+              {refreshing ? "Refreshing..." : "Refresh"}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {recommendation ? (
+            <div className="space-y-2">
+              <div className="flex items-start gap-2">
+                <span
+                  className={`text-xs font-semibold uppercase mt-0.5 ${urgencyColor[recommendation.urgency] ?? "text-warm-gray"}`}
+                >
+                  {recommendation.urgency}
+                </span>
+                <p className="text-sm font-medium text-charcoal">
+                  {recommendation.entityType && recommendation.entityId ? (
+                    <Link
+                      href={ENTITY_LINK[recommendation.entityType]?.(recommendation.entityId) ?? "#"}
+                      className="hover:underline"
+                    >
+                      {recommendation.action}
+                    </Link>
+                  ) : (
+                    recommendation.action
+                  )}
+                </p>
+              </div>
+              <p className="text-xs text-warm-gray">{recommendation.reasoning}</p>
+            </div>
+          ) : (
+            <p className="text-sm text-warm-gray">
+              No AI recommendation available.{" "}
+              <button
+                onClick={refreshAdvice}
+                className="text-sage hover:underline"
+              >
+                Generate one now
+              </button>
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Drifting KPIs + Stale Artifacts */}
+        <CockpitSection title="What is drifting" count={driftCount}>
+          {driftCount === 0 ? (
+            <p className="text-sm text-warm-gray">All systems healthy</p>
+          ) : (
+            <div className="space-y-2">
+              {driftingKpis.map((kpi) => (
+                <div key={kpi.id} className="flex items-center justify-between">
+                  <span className="text-sm">{kpi.name}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono text-warm-gray">
+                      {kpi.current_value ?? "—"} / {kpi.target ?? "—"}
+                    </span>
+                    <Badge status={kpi.health_status} />
+                  </div>
+                </div>
+              ))}
+              {driftingKpis.length > 0 && staleArtifacts.length > 0 && (
+                <hr className="border-warm-border" />
+              )}
+              {staleArtifacts.map((artifact) => {
+                const href = ARTIFACT_LINK_MAP[artifact.artifact_type] ?? "#";
+                const overdueDays =
+                  artifact.days_since_update !== null
+                    ? artifact.days_since_update - artifact.staleness_threshold_days
+                    : null;
+                return (
+                  <Link
+                    key={artifact.artifact_type}
+                    href={href}
+                    className="flex items-center justify-between group"
+                  >
+                    <span className="text-sm group-hover:underline">
+                      <span className="text-xs font-mono text-warm-gray mr-1">Artifact:</span>
+                      {artifact.name}
+                    </span>
+                    <span className="text-xs font-mono text-semantic-brick">
+                      {overdueDays !== null && overdueDays > 0
+                        ? `${overdueDays}d overdue`
+                        : "needs update"}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </CockpitSection>
+
+        {/* Decisions Required */}
+        <CockpitSection
+          title="Decisions required"
+          count={openDecisions.length}
+        >
+          {openDecisions.length === 0 ? (
+            <p className="text-sm text-warm-gray">No pending decisions</p>
+          ) : (
+            <div className="space-y-2">
+              {openDecisions.map((d) => (
+                <div key={d.id} className="text-sm">
+                  <p className="font-medium">{d.title}</p>
+                  <p className="text-xs text-warm-gray">
+                    Opened {new Date(d.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </CockpitSection>
+
+        {/* At-Risk Bets */}
+        <CockpitSection title="Bets at risk" count={atRiskBets.length + stalledBets.length}>
+          {atRiskBets.length === 0 && stalledBets.length === 0 ? (
+            <p className="text-sm text-warm-gray">All bets on track</p>
+          ) : (
+            <div className="space-y-2">
+              {atRiskBets.map((bet) => (
+                <div key={bet.id} className="flex items-center justify-between">
+                  <span className="text-sm">{bet.outcome}</span>
+                  <Badge status={bet.health_status} />
+                </div>
+              ))}
+              {stalledBets.length > 0 && atRiskBets.length > 0 && (
+                <hr className="border-warm-border" />
+              )}
+              {stalledBets.map((bet) => (
+                <div key={bet.betId}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">{bet.betOutcome}</span>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-semantic-brick bg-semantic-brick/10 px-1.5 py-0.5 rounded">
+                      Stalled
+                    </span>
+                  </div>
+                  <p className="text-xs text-semantic-brick mt-0.5">
+                    {bet.reason}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </CockpitSection>
+
+        {/* Open Blockers */}
+        <CockpitSection title="Who is blocked" count={openBlockers.length}>
+          {openBlockers.length === 0 ? (
+            <p className="text-sm text-warm-gray">No open blockers</p>
+          ) : (
+            <div className="space-y-2">
+              {openBlockers.map((b) => (
+                <div key={b.id}>
+                  <p className="text-sm">{b.description}</p>
+                  <p className="text-xs text-warm-gray">
+                    Severity: {b.severity} — opened{" "}
+                    {new Date(b.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </CockpitSection>
+
+        {/* Upcoming Milestones */}
+        <CockpitSection
+          title="Upcoming milestones (7 days)"
+          count={upcomingMoves.length}
+        >
+          {upcomingMoves.length === 0 ? (
+            <p className="text-sm text-warm-gray">No upcoming milestones</p>
+          ) : (
+            <div className="space-y-2">
+              {upcomingMoves.map((m) => (
+                <div key={m.id}>
+                  <p className="text-sm font-medium">{m.title}</p>
+                  <p className="text-xs text-warm-gray">
+                    Due {new Date(m.due_date).toLocaleDateString()}
+                    {m.bets && ` — ${m.bets.outcome}`}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </CockpitSection>
+
+        {/* Commitments Due */}
+        <CockpitSection
+          title="Commitments due"
+          count={pendingCommitments.length}
+        >
+          {pendingCommitments.length === 0 ? (
+            <p className="text-sm text-warm-gray">No pending commitments</p>
+          ) : (
+            <div className="space-y-2">
+              {pendingCommitments.map((c) => (
+                <div key={c.id}>
+                  <p className="text-sm">{c.description}</p>
+                  {c.due_date && (
+                    <p className="text-xs text-warm-gray">
+                      Due {new Date(c.due_date).toLocaleDateString()}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CockpitSection>
+
+        {/* Pulse Status */}
+        <CockpitSection
+          title="Pulse status"
+          count={todayPulses.length}
+        >
+          {todayPulses.length === 0 ? (
+            <p className="text-sm text-warm-gray">No pulses submitted today</p>
+          ) : (
+            <div className="space-y-1">
+              {todayPulses.map((p) => (
+                <p key={p.user_id} className="text-sm flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-semantic-green" />
+                  {p.user_profiles?.full_name ?? "Unknown"}
+                </p>
+              ))}
+            </div>
+          )}
+        </CockpitSection>
+
+        {/* Blocked Moves */}
+        <CockpitSection title="Blocked moves" count={blockedMoves.length}>
+          {blockedMoves.length === 0 ? (
+            <p className="text-sm text-warm-gray">No blocked moves</p>
+          ) : (
+            <div className="space-y-2">
+              {blockedMoves.map((m) => (
+                <div key={m.id}>
+                  <p className="text-sm font-medium">{m.title}</p>
+                  <p className="text-xs text-warm-gray">{m.bet_outcome}</p>
+                  <p className="text-xs text-semantic-brick">
+                    Blocker ({m.blocker_severity}): {m.blocker_description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </CockpitSection>
+
+        {/* Cadence Compliance */}
+        <CockpitSection
+          title="Cadence compliance"
+          count={cadenceReport?.metrics.filter((m) => m.is_overdue).length ?? 0}
+        >
+          {cadenceReport ? (
+            <div className="space-y-3">
+              {/* Overall score */}
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-2xl font-bold ${
+                    cadenceReport.overall_status === "green"
+                      ? "text-semantic-green"
+                      : cadenceReport.overall_status === "yellow"
+                        ? "text-semantic-ochre"
+                        : "text-semantic-brick"
+                  }`}
+                >
+                  {cadenceReport.overall_score}%
+                </span>
+                <span className="text-xs text-warm-gray">overall compliance</span>
+              </div>
+
+              {/* Individual cadence types */}
+              <div className="space-y-1.5">
+                {cadenceReport.metrics.map((metric) => (
+                  <div
+                    key={metric.cadence_type}
+                    className={`flex items-center justify-between ${
+                      metric.is_overdue ? "text-semantic-brick" : ""
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`w-2 h-2 rounded-full ${
+                          metric.status === "green"
+                            ? "bg-semantic-green"
+                            : metric.status === "yellow"
+                              ? "bg-semantic-ochre"
+                              : "bg-semantic-brick"
+                        }`}
+                      />
+                      <span className="text-sm">{metric.label}</span>
+                    </div>
+                    <span className="text-xs font-mono">
+                      {metric.compliance_rate}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Next cadence event */}
+              {nextCadenceEvent && (
+                <div className="pt-2 border-t border-warm-border">
+                  <p className="text-xs text-warm-gray">Next up</p>
+                  <p className="text-sm">{nextCadenceEvent}</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div>
+              {nextCadenceEvent ? (
+                <p className="text-sm">{nextCadenceEvent}</p>
+              ) : (
+                <p className="text-sm text-warm-gray">No cadence data available</p>
+              )}
+            </div>
+          )}
+        </CockpitSection>
+      </div>
+    </div>
+  );
+}
