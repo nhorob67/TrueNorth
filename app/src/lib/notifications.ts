@@ -1,6 +1,8 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { getQuietHoursConfig, shouldDeliver } from "./quiet-hours";
 import { sendDiscordNotification, getOrgDiscordWebhook } from "./discord-notify";
+import { validateUuid } from "./validation";
+import type { EntityType } from "@/types/database";
 
 export type NotificationType =
   | "blocker_created"
@@ -17,9 +19,45 @@ export type NotificationType =
   | "staleness_alert"
   | "agenda_prepared"
   | "cockpit_advice"
-  | "kill_switch_assessment";
+  | "kill_switch_assessment"
+  | "narrative_generated"
+  | "health_threshold";
 
 export type NotificationTier = "immediate" | "urgent" | "daily_digest" | "weekly_digest";
+
+const VALID_ENTITY_TYPES = new Set<EntityType>([
+  "bet",
+  "kpi",
+  "move",
+  "move_instance",
+  "idea",
+  "funnel",
+  "decision",
+  "blocker",
+  "commitment",
+  "issue",
+  "process",
+  "content_piece",
+  "todo",
+]);
+
+function normalizeEntityLink(
+  entityId?: string,
+  entityType?: string
+): { entityId: string | null; entityType: EntityType | null } {
+  if (!entityId || !entityType) {
+    return { entityId: null, entityType: null };
+  }
+
+  if (!validateUuid(entityId) || !VALID_ENTITY_TYPES.has(entityType as EntityType)) {
+    return { entityId: null, entityType: null };
+  }
+
+  return {
+    entityId,
+    entityType: entityType as EntityType,
+  };
+}
 
 /**
  * Send a notification, respecting quiet hours.
@@ -45,6 +83,10 @@ export async function sendNotification(
   }
 ) {
   const tier = notification.tier ?? "daily_digest";
+  const entityLink = normalizeEntityLink(
+    notification.entityId,
+    notification.entityType
+  );
 
   // Check quiet hours for the user
   let heldUntil: string | null = null;
@@ -82,8 +124,8 @@ export async function sendNotification(
     tier,
     title: notification.title,
     body: notification.body ?? null,
-    entity_id: notification.entityId ?? null,
-    entity_type: notification.entityType ?? null,
+    entity_id: entityLink.entityId,
+    entity_type: entityLink.entityType,
     held_until: heldUntil,
   });
 

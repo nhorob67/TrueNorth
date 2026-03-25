@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,12 @@ export default function LoginPage() {
   const [error, setError] = useState("");
 
   const supabase = createClient();
+  const searchParams = useSearchParams();
+  const nextPath = searchParams.get("next");
+  const redirectPath =
+    nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//")
+      ? nextPath
+      : "/";
 
   async function handlePasswordLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -30,7 +37,7 @@ export default function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      window.location.href = "/";
+      window.location.href = redirectPath;
     }
   }
 
@@ -41,7 +48,11 @@ export default function LoginPage() {
 
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+          redirectPath
+        )}`,
+      },
     });
 
     if (error) {

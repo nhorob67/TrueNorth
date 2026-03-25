@@ -1,9 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { creditRecurringMoveForContent } from "@/lib/content-auto-credit";
+import { getUserContext } from "@/lib/user-context";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   const supabase = await createClient();
+  const ctx = await getUserContext(supabase);
 
   // Auth check
   const {
@@ -11,6 +13,9 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+  if (!ctx) {
+    return NextResponse.json({ error: "Not authorized" }, { status: 403 });
   }
 
   const body = await request.json();
@@ -28,26 +33,13 @@ export async function POST(request: Request) {
     .from("content_pieces")
     .select("organization_id")
     .eq("id", contentPieceId)
+    .eq("organization_id", ctx.orgId)
     .single();
 
   if (!piece) {
     return NextResponse.json(
       { error: "Content piece not found" },
       { status: 404 }
-    );
-  }
-
-  const { data: membership } = await supabase
-    .from("organization_members")
-    .select("user_id")
-    .eq("user_id", user.id)
-    .eq("organization_id", piece.organization_id)
-    .single();
-
-  if (!membership) {
-    return NextResponse.json(
-      { error: "Not authorized for this organization" },
-      { status: 403 }
     );
   }
 

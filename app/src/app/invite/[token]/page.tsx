@@ -14,7 +14,7 @@ export default function InvitePage() {
   const [invite, setInvite] = useState<{
     email: string;
     role: string;
-    organization_id: string;
+    organizationName: string;
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -22,17 +22,61 @@ export default function InvitePage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [accepting, setAccepting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [accepted, setAccepted] = useState(false);
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadInvite() {
-      // Invites table has RLS requiring admin. Use a public-accessible check.
-      // For now, we try to sign up with the invite email and the trigger handles joining.
-      // We'll just show the signup form.
-      setLoading(false);
+      try {
+        const [inviteRes, userRes] = await Promise.all([
+          fetch(`/api/invites/${token}`, { method: "GET" }),
+          supabase.auth.getUser(),
+        ]);
+
+        const inviteBody = await inviteRes.json();
+        if (!inviteRes.ok) {
+          setError(inviteBody.error ?? "Failed to load invite");
+          setLoading(false);
+          return;
+        }
+
+        setInvite(inviteBody);
+        setEmail(inviteBody.email);
+        setCurrentUserEmail(userRes.data.user?.email ?? null);
+      } catch {
+        setError("Failed to load invite");
+      } finally {
+        setLoading(false);
+      }
     }
     loadInvite();
-  }, [token]);
+  }, [supabase.auth, token]);
+
+  async function handleAccept() {
+    setAccepting(true);
+    setError("");
+
+    try {
+      const res = await fetch(`/api/invites/${token}/accept`, {
+        method: "POST",
+      });
+      const body = await res.json();
+
+      if (!res.ok) {
+        setError(body.error ?? "Failed to accept invite");
+        setAccepting(false);
+        return;
+      }
+
+      setAccepted(true);
+    } catch {
+      setError("Failed to accept invite");
+    } finally {
+      setAccepting(false);
+    }
+  }
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
@@ -80,16 +124,52 @@ export default function InvitePage() {
     );
   }
 
+  if (accepted) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-parchment">
+        <Card className="w-full max-w-sm">
+          <CardContent className="pt-6 text-center">
+            <h1 className="text-xl font-bold text-moss mb-2">Invite accepted</h1>
+            <p className="text-sm text-warm-gray">
+              You&apos;ve joined {invite?.organizationName ?? "the team"}.
+            </p>
+            <div className="mt-4">
+              <a href="/" className="text-sm text-clay-text hover:text-clay-text/80">
+                Continue to TrueNorth
+              </a>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-parchment">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-moss">TrueNorth</h1>
-          <p className="text-warm-gray mt-1">You&apos;ve been invited to join a team</p>
+          <p className="text-warm-gray mt-1">
+            You&apos;ve been invited to join {invite?.organizationName ?? "a team"}
+          </p>
         </div>
 
         <Card>
           <CardContent className="pt-6">
+            {invite && currentUserEmail?.toLowerCase() === invite.email.toLowerCase() ? (
+              <div className="space-y-4">
+                <p className="text-sm text-warm-gray">
+                  Signed in as <strong>{currentUserEmail}</strong>. Accept this invite to join as a{" "}
+                  <strong>{invite.role}</strong>.
+                </p>
+                {error && (
+                  <p className="text-sm text-semantic-brick">{error}</p>
+                )}
+                <Button type="button" className="w-full" onClick={handleAccept} disabled={accepting}>
+                  {accepting ? "Joining team..." : "Accept Invite"}
+                </Button>
+              </div>
+            ) : (
             <form onSubmit={handleSignup} className="space-y-4">
               <Input
                 id="fullName"
@@ -104,6 +184,7 @@ export default function InvitePage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={Boolean(invite?.email)}
                 required
               />
               <Input
@@ -122,8 +203,12 @@ export default function InvitePage() {
                 {submitting ? "Creating account..." : "Join Team"}
               </Button>
             </form>
+            )}
             <div className="mt-4 text-center">
-              <a href="/login" className="text-sm text-warm-gray hover:text-charcoal">
+              <a
+                href={`/login?next=${encodeURIComponent(`/invite/${token}`)}`}
+                className="text-sm text-warm-gray hover:text-charcoal"
+              >
                 Already have an account? Sign in
               </a>
             </div>

@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import {
   generateNarrative,
   saveNarrative,
 } from "@/lib/ai/narrative-generator";
+import { sendNotification } from "@/lib/notifications";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = createServiceClient();
 
     // Fetch all organizations
     const { data: orgs, error } = await supabase
@@ -72,7 +73,7 @@ export async function GET(request: Request) {
 
         // Find org admin as the generating user
         const { data: orgAdmin } = await supabase
-          .from("organization_members")
+          .from("organization_memberships")
           .select("user_id")
           .eq("organization_id", org.id)
           .eq("role", "admin")
@@ -102,14 +103,13 @@ export async function GET(request: Request) {
         const narrativeId = await saveNarrative(supabase, input, result);
 
         // Notify org admin
-        await supabase.from("notifications").insert({
-          user_id: orgAdmin.user_id,
+        await sendNotification(supabase, {
+          userId: orgAdmin.user_id,
+          orgId: org.id,
           type: "narrative_generated",
           tier: "daily_digest",
           title: "Monthly board memo generated",
-          body: "Your monthly board memo has been generated — review and share with your board.",
-          entity_type: "narrative",
-          created_at: new Date().toISOString(),
+          body: "Your monthly board memo has been generated. Review and share it with your board.",
         });
 
         results.push({

@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import {
   computeOperatingHealth,
   saveHealthSnapshot,
 } from "@/lib/operating-health";
 import { interpretHealthReport } from "@/lib/ai/health-interpreter";
+import { sendNotification } from "@/lib/notifications";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = createServiceClient();
 
     // Fetch all organizations
     const { data: orgs, error } = await supabase
@@ -140,7 +141,7 @@ export async function GET(request: Request) {
 
             // Find org admin to notify
             const { data: orgAdmin } = await supabase
-              .from("organization_members")
+              .from("organization_memberships")
               .select("user_id")
               .eq("organization_id", org.id)
               .eq("role", "admin")
@@ -148,14 +149,13 @@ export async function GET(request: Request) {
               .single();
 
             if (orgAdmin) {
-              await supabase.from("notifications").insert({
-                user_id: orgAdmin.user_id,
+              await sendNotification(supabase, {
+                userId: orgAdmin.user_id,
+                orgId: org.id,
                 type: "health_threshold",
                 tier: "immediate",
                 title,
                 body,
-                entity_type: "health",
-                created_at: new Date().toISOString(),
               });
             }
           }

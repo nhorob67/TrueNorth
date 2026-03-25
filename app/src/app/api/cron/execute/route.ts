@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { executeCronJob, executeTemplateAdHoc } from "@/lib/cron/engine";
 import { validateUuid, sanitizeText } from "@/lib/validation";
 
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const supabase = await createClient();
+    const supabase = createServiceClient();
 
     // Option 1: Execute by job ID
     if (body.jobId) {

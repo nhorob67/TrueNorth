@@ -120,7 +120,7 @@ export async function checkStaleness(
 async function computeStalenessFromLiveData(
   supabase: SupabaseClient,
   ventureId: string,
-  _organizationId: string
+  organizationId: string
 ): Promise<StalenessResult[]> {
   const results: StalenessResult[] = [];
   const now = new Date();
@@ -153,20 +153,33 @@ async function computeStalenessFromLiveData(
 
   // Scoreboard — check most recent KPI entry
   const { data: latestEntry } = await supabase
-    .from("kpi_entries")
-    .select("recorded_at")
-    .order("recorded_at", { ascending: false })
-    .limit(1)
-    .single();
+    .from("kpis")
+    .select("id")
+    .eq("venture_id", ventureId);
+
+  const kpiIds = (latestEntry ?? []).map((k) => k.id);
+  let latestRecordedAt: string | null = null;
+  if (kpiIds.length > 0) {
+    const { data: latestKpiEntry } = await supabase
+      .from("kpi_entries")
+      .select("recorded_at")
+      .in("kpi_id", kpiIds)
+      .order("recorded_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    latestRecordedAt = latestKpiEntry?.recorded_at ?? null;
+  }
 
   results.push(
-    buildResult("scoreboard", "Scoreboard", 10, latestEntry?.recorded_at, now)
+    buildResult("scoreboard", "Scoreboard", 10, latestRecordedAt, now)
   );
 
   // Role Cards — check most recent role card update
   const { data: latestRoleCard } = await supabase
     .from("role_cards")
     .select("updated_at")
+    .eq("organization_id", organizationId)
     .order("updated_at", { ascending: false })
     .limit(1)
     .single();
@@ -175,19 +188,64 @@ async function computeStalenessFromLiveData(
     buildResult("role_cards", "Role Cards", 100, latestRoleCard?.updated_at, now)
   );
 
-  // Meeting Cadence — placeholder (no meetings table yet)
+  // Meeting Cadence — use recent meeting activity as the fallback signal
+  const { data: latestMeetingLog } = await supabase
+    .from("meeting_logs")
+    .select("started_at")
+    .eq("organization_id", organizationId)
+    .eq("venture_id", ventureId)
+    .order("started_at", { ascending: false })
+    .limit(1)
+    .single();
+
   results.push(
-    buildResult("meeting_cadence", "Meeting Cadence Doc", 100, null, now)
+    buildResult(
+      "meeting_cadence",
+      "Meeting Cadence Doc",
+      100,
+      latestMeetingLog?.started_at,
+      now
+    )
   );
 
-  // Process Library — placeholder
+  // Process Library — use the most recently updated process in this venture
+  const { data: latestProcess } = await supabase
+    .from("processes")
+    .select("updated_at")
+    .eq("organization_id", organizationId)
+    .eq("venture_id", ventureId)
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .single();
+
   results.push(
-    buildResult("process_library", "Process Library", 60, null, now)
+    buildResult(
+      "process_library",
+      "Process Library",
+      60,
+      latestProcess?.updated_at,
+      now
+    )
   );
 
-  // Media Calendar — placeholder
+  // Media Calendar — use the most recently updated content piece in this venture
+  const { data: latestContent } = await supabase
+    .from("content_pieces")
+    .select("updated_at")
+    .eq("organization_id", organizationId)
+    .eq("venture_id", ventureId)
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .single();
+
   results.push(
-    buildResult("media_calendar", "Media Calendar", 35, null, now)
+    buildResult(
+      "media_calendar",
+      "Media Calendar",
+      35,
+      latestContent?.updated_at,
+      now
+    )
   );
 
   return results;

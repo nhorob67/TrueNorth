@@ -164,7 +164,8 @@ export async function POST(request: Request) {
     .update({
       status: "completed",
       completed_at: new Date().toISOString(),
-      linked_entity_type: "external",
+      linked_entity_id: null,
+      linked_entity_type: null,
       notes: JSON.stringify(webhookData),
     })
     .eq("id", instance.id);

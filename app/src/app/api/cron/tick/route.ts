@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { executeCronJob } from "@/lib/cron/engine";
 import { shouldRunNow } from "@/lib/cron/schedule";
 
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = createServiceClient();
 
     const { data: jobs, error } = await supabase
       .from("cron_jobs")
