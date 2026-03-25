@@ -1,8 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCachedUserContext } from "@/lib/user-context";
 import { VisionBoardView } from "./vision-view";
 
 export default async function VisionPage() {
-  const supabase = await createClient();
+  const [supabase, ctx] = await Promise.all([
+    createClient(),
+    getCachedUserContext(),
+  ]);
+
+  if (!ctx) return <p className="text-warm-gray p-8">Please sign in to view the Vision Board.</p>;
 
   const { data: vision } = await supabase
     .from("visions")

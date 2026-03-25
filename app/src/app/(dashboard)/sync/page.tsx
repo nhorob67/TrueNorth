@@ -1,8 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCachedUserContext } from "@/lib/user-context";
 import { WeeklySyncView } from "./sync-view";
 
 export default async function SyncPage() {
-  const supabase = await createClient();
+  const [supabase, ctx] = await Promise.all([
+    createClient(),
+    getCachedUserContext(),
+  ]);
+
+  if (!ctx) return <p className="text-warm-gray p-8">Please sign in to access Weekly Sync.</p>;
 
   // Red/Yellow KPIs with action playbooks
   const { data: kpis } = await supabase

@@ -1,13 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCachedUserContext } from "@/lib/user-context";
 import { ProfileView } from "./profile-view";
 
 export default async function ProfilePage() {
-  const supabase = await createClient();
+  const [supabase, ctx] = await Promise.all([
+    createClient(),
+    getCachedUserContext(),
+  ]);
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return <p className="text-warm-gray">Not authenticated.</p>;
+  if (!user || !ctx) return <p className="text-warm-gray p-8">Not authenticated.</p>;
 
   const [
     { data: profile, error: e1 },
