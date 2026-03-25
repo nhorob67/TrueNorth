@@ -16,6 +16,8 @@ export default async function PulsePage() {
     { data: teamPulses, error: e2 },
     { data: bets, error: e3 },
     { data: profile, error: e4 },
+    { data: todos },
+    { data: recurringMoves },
   ] = await Promise.all([
     supabase
       .from("pulses")
@@ -37,10 +39,53 @@ export default async function PulsePage() {
       .select("pulse_streak")
       .eq("id", userId)
       .single(),
+    // Fetch user's pending to-dos for sidebar
+    supabase
+      .from("todos")
+      .select("id, title, completed, due_date, priority, linked_entity_type")
+      .eq("user_id", userId)
+      .eq("completed", false)
+      .order("due_date", { ascending: true, nullsFirst: false })
+      .limit(20),
+    // Fetch user's active recurring moves for rhythm sidebar
+    supabase
+      .from("moves")
+      .select("id, title, cadence, target_per_cycle, health_status, bet_id, bets(outcome)")
+      .eq("owner_id", userId)
+      .eq("type", "recurring")
+      .eq("lifecycle_status", "in_progress")
+      .limit(10),
   ]);
 
   const firstError = e2 || e3;
   if (firstError) throw firstError;
+
+  // Build rhythm data with instance counts for current cycle
+  const rhythms = [];
+  if (recurringMoves && recurringMoves.length > 0) {
+    for (const move of recurringMoves) {
+      const { data: instances } = await supabase
+        .from("move_instances")
+        .select("status")
+        .eq("move_id", move.id)
+        .gte("cycle_start", new Date(Date.now() - 30 * 86400000).toISOString());
+
+      const completed = instances?.filter((i) => i.status === "completed").length ?? 0;
+      const total = instances?.length ?? 0;
+
+      const betData = Array.isArray(move.bets) ? move.bets[0] : move.bets;
+      rhythms.push({
+        id: move.id,
+        title: move.title,
+        cadence: move.cadence ?? "weekly",
+        target_per_cycle: move.target_per_cycle,
+        bet_outcome: betData?.outcome ?? "Unknown bet",
+        health_status: (move.health_status ?? "green") as "green" | "yellow" | "red",
+        instances_completed: completed,
+        instances_total: total || (move.target_per_cycle ?? 1),
+      });
+    }
+  }
 
   return (
     <PulseView
@@ -49,6 +94,8 @@ export default async function PulsePage() {
       bets={bets ?? []}
       userId={userId}
       pulseStreak={profile?.pulse_streak ?? 0}
+      todos={todos ?? []}
+      rhythms={rhythms}
     />
   );
 }

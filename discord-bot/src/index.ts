@@ -84,6 +84,22 @@ const commands = [
   new SlashCommandBuilder()
     .setName("summarize-thread")
     .setDescription("Summarize recent messages and offer to create TrueNorth objects"),
+  new SlashCommandBuilder()
+    .setName("memo")
+    .setDescription("Generate a narrative memo from your operational data")
+    .addStringOption((opt) =>
+      opt
+        .setName("type")
+        .setDescription("Memo type")
+        .setRequired(false)
+        .addChoices(
+          { name: "Weekly Update", value: "weekly" },
+          { name: "Board Memo", value: "board" },
+          { name: "Investor Update", value: "investor" },
+          { name: "All-Hands Talking Points", value: "all-hands" },
+          { name: "Retrospective", value: "retrospective" }
+        )
+    ),
 ];
 
 // ---------------------------------------------------------------------------
@@ -462,12 +478,11 @@ async function handleMoveDone(interaction: ChatInputCommandInteraction) {
   const name = interaction.options.getString("name", true);
   const orgId = await getOrgId();
 
-  // Search for matching milestone moves
+  // Search for matching moves (both milestone and recurring)
   const { data: matches, error: searchError } = await supabase
     .from("moves")
     .select("id, title, lifecycle_status, type")
     .eq("organization_id", orgId)
-    .eq("type", "milestone")
     .in("lifecycle_status", ["not_started", "in_progress"])
     .ilike("title", `%${name}%`);
 
@@ -477,7 +492,7 @@ async function handleMoveDone(interaction: ChatInputCommandInteraction) {
     await interaction.editReply({
       embeds: [
         errorEmbed(
-          `No active milestone move found matching "${name}". Make sure the move exists, is a milestone, and is not already shipped.`
+          `No active move found matching "${name}". Make sure the move exists and is not already shipped.`
         ),
       ],
     });
@@ -487,7 +502,7 @@ async function handleMoveDone(interaction: ChatInputCommandInteraction) {
   if (matches.length > 1) {
     const list = matches
       .slice(0, 5)
-      .map((m) => `\u2022 ${m.title}`)
+      .map((m) => `\u2022 ${m.title} (${m.type})`)
       .join("\n");
     await interaction.editReply({
       embeds: [
@@ -501,21 +516,68 @@ async function handleMoveDone(interaction: ChatInputCommandInteraction) {
 
   const move = matches[0];
 
-  const { error: updateError } = await supabase
-    .from("moves")
-    .update({ lifecycle_status: "shipped" })
-    .eq("id", move.id);
+  if (move.type === "recurring") {
+    // For recurring moves, credit the oldest pending instance in the current cycle
+    const { data: instances, error: instanceError } = await supabase
+      .from("move_instances")
+      .select("id, cycle_start, cycle_end, status")
+      .eq("move_id", move.id)
+      .eq("status", "pending")
+      .order("cycle_start", { ascending: true })
+      .limit(1);
 
-  if (updateError) throw new Error(`Failed to update move: ${updateError.message}`);
+    if (instanceError) throw new Error(`Failed to fetch instances: ${instanceError.message}`);
 
-  await interaction.editReply({
-    embeds: [
-      new EmbedBuilder()
-        .setColor(MOSS)
-        .setTitle("\u2705 Move Shipped")
-        .setDescription(`**${move.title}**\n\n[Open Bets](${APP_URL}/bets)`),
-    ],
-  });
+    if (!instances || instances.length === 0) {
+      await interaction.editReply({
+        embeds: [
+          errorEmbed(
+            `No pending instances found for recurring move "${move.title}". All instances may already be completed.`
+          ),
+        ],
+      });
+      return;
+    }
+
+    const instance = instances[0];
+    const { error: creditError } = await supabase
+      .from("move_instances")
+      .update({
+        status: "completed",
+        completed_at: new Date().toISOString(),
+      })
+      .eq("id", instance.id);
+
+    if (creditError) throw new Error(`Failed to credit instance: ${creditError.message}`);
+
+    await interaction.editReply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(MOSS)
+          .setTitle("\u2705 Recurring Move Instance Credited")
+          .setDescription(
+            `**${move.title}**\nCredited instance for cycle ${new Date(instance.cycle_start).toLocaleDateString()} – ${new Date(instance.cycle_end).toLocaleDateString()}\n\n[Open Bets](${APP_URL}/bets)`
+          ),
+      ],
+    });
+  } else {
+    // For milestone moves, mark as shipped
+    const { error: updateError } = await supabase
+      .from("moves")
+      .update({ lifecycle_status: "shipped" })
+      .eq("id", move.id);
+
+    if (updateError) throw new Error(`Failed to update move: ${updateError.message}`);
+
+    await interaction.editReply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(MOSS)
+          .setTitle("\u2705 Move Shipped")
+          .setDescription(`**${move.title}**\n\n[Open Bets](${APP_URL}/bets)`),
+      ],
+    });
+  }
 }
 
 async function handleMoveAdd(interaction: ChatInputCommandInteraction) {
@@ -1100,6 +1162,123 @@ async function handleSummarizeThread(interaction: ChatInputCommandInteraction) {
 }
 
 // ---------------------------------------------------------------------------
+// /memo handler
+// ---------------------------------------------------------------------------
+
+const MEMO_TYPE_MAP: Record<string, string> = {
+  weekly: "weekly_team_update",
+  board: "monthly_board_memo",
+  investor: "investor_update",
+  "all-hands": "all_hands_talking_points",
+  retrospective: "quarterly_retrospective",
+};
+
+const TRUENORTH_API_URL = process.env.TRUENORTH_API_URL ?? APP_URL;
+
+function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+async function handleMemo(interaction: ChatInputCommandInteraction) {
+  await interaction.deferReply();
+
+  const choice = interaction.options.getString("type") ?? "weekly";
+  const narrativeType = MEMO_TYPE_MAP[choice] ?? "weekly_team_update";
+
+  // Compute sensible date range based on memo type
+  const now = new Date();
+  const endDate = now.toISOString().slice(0, 10);
+  let startDate: string;
+
+  switch (choice) {
+    case "board":
+      // Last 30 days
+      startDate = new Date(now.getTime() - 30 * 86_400_000).toISOString().slice(0, 10);
+      break;
+    case "investor":
+      // Last 30 days
+      startDate = new Date(now.getTime() - 30 * 86_400_000).toISOString().slice(0, 10);
+      break;
+    case "retrospective":
+      // Last 90 days
+      startDate = new Date(now.getTime() - 90 * 86_400_000).toISOString().slice(0, 10);
+      break;
+    case "all-hands":
+      // Last 14 days
+      startDate = new Date(now.getTime() - 14 * 86_400_000).toISOString().slice(0, 10);
+      break;
+    default:
+      // Weekly: last 7 days
+      startDate = new Date(now.getTime() - 7 * 86_400_000).toISOString().slice(0, 10);
+      break;
+  }
+
+  try {
+    const response = await fetch(`${TRUENORTH_API_URL}/api/narratives/generate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.TRUENORTH_API_KEY ?? ""}`,
+      },
+      body: JSON.stringify({
+        narrativeType,
+        startDate,
+        endDate,
+        save: true,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      throw new Error(`API returned ${response.status}: ${errorBody}`);
+    }
+
+    const data = (await response.json()) as {
+      id: string | null;
+      title: string;
+      html: string;
+      confidence: string;
+    };
+
+    const plainText = stripHtml(data.html);
+    const description =
+      plainText.length > 500 ? plainText.slice(0, 497) + "..." : plainText;
+
+    const embed = new EmbedBuilder()
+      .setColor(MOSS)
+      .setTitle(data.title)
+      .setDescription(description)
+      .setFooter({
+        text: `Confidence: ${data.confidence} | View full version in TrueNorth`,
+      })
+      .setTimestamp();
+
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setLabel("Open in TrueNorth")
+        .setStyle(ButtonStyle.Link)
+        .setURL(`${APP_URL}/narratives`)
+    );
+
+    await interaction.editReply({ embeds: [embed], components: [row] });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Unknown error";
+    await interaction.editReply({
+      embeds: [errorEmbed(`Failed to generate memo: ${msg}`)],
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Client setup — includes MessageContent and GuildMessages intents
 // ---------------------------------------------------------------------------
 
@@ -1164,6 +1343,9 @@ client.on("interactionCreate", async (interaction) => {
         break;
       case "summarize-thread":
         await handleSummarizeThread(interaction);
+        break;
+      case "memo":
+        await handleMemo(interaction);
         break;
     }
   } catch (err) {

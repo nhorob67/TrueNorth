@@ -7,6 +7,7 @@ import { useUserContext } from "@/hooks/use-user-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { detectOneAskConflicts, type OneAskConflict } from "@/lib/one-ask-rule";
 
 // ============================================================
 // Types
@@ -444,12 +445,23 @@ function MobileWeekList({
 // Main Calendar View
 // ============================================================
 
+interface ContentMove {
+  id: string;
+  title: string;
+  cadence: string;
+  target_per_cycle: number;
+  content_machine_id: string;
+  bet_outcome: string;
+}
+
 export function CalendarView({
   pieces,
   funnels,
+  contentMoves = [],
 }: {
   pieces: ContentPiece[];
   funnels: Funnel[];
+  contentMoves?: ContentMove[];
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -532,6 +544,65 @@ export function CalendarView({
 
     return gaps;
   }, [gridDays, viewMonth, piecesByDate]);
+
+  // One-Ask Rule conflict detection
+  const oneAskConflicts = useMemo(() => {
+    return detectOneAskConflicts(
+      pieces.map((p) => ({
+        id: p.id,
+        title: p.title,
+        scheduled_at: p.scheduled_at ?? "",
+        linked_funnel_id: p.linked_funnel_id,
+      }))
+    );
+  }, [pieces]);
+
+  // Recurring Move gap detection: compare scheduled content vs move targets
+  const moveGaps = useMemo(() => {
+    if (contentMoves.length === 0) return [];
+
+    const gaps: Array<{
+      moveTitle: string;
+      betOutcome: string;
+      machineId: string;
+      target: number;
+      scheduled: number;
+      cadence: string;
+    }> = [];
+
+    // Count scheduled/published content per machine_type in the viewed month
+    const monthStart = new Date(viewYear, viewMonth, 1);
+    const monthEnd = new Date(viewYear, viewMonth + 1, 0);
+
+    for (const move of contentMoves) {
+      // Count content pieces matching this machine in the viewed month
+      const count = pieces.filter((p) => {
+        if (p.machine_type !== move.content_machine_id) return false;
+        if (!p.scheduled_at) return false;
+        const d = new Date(p.scheduled_at);
+        return d >= monthStart && d <= monthEnd;
+      }).length;
+
+      // Compute expected per month based on cadence
+      let expectedPerMonth = move.target_per_cycle;
+      if (move.cadence === "weekly") expectedPerMonth = move.target_per_cycle * 4;
+      else if (move.cadence === "biweekly") expectedPerMonth = move.target_per_cycle * 2;
+      else if (move.cadence === "daily") expectedPerMonth = move.target_per_cycle * 22; // ~weekdays
+
+      if (count < expectedPerMonth) {
+        gaps.push({
+          moveTitle: move.title,
+          betOutcome: move.bet_outcome,
+          machineId: move.content_machine_id,
+          target: expectedPerMonth,
+          scheduled: count,
+          cadence: move.cadence,
+        });
+      }
+    }
+
+    return gaps;
+  }, [contentMoves, pieces, viewYear, viewMonth]);
 
   // Navigation
   function goToday() {
@@ -692,6 +763,56 @@ export function CalendarView({
           </select>
         </div>
       </div>
+
+      {/* One-Ask Rule Warnings */}
+      {oneAskConflicts.length > 0 && (
+        <div className="mb-4 border-l-2 border-semantic-ochre bg-semantic-ochre/5 rounded-r-lg p-3 space-y-1.5">
+          <p className="text-xs font-semibold text-semantic-ochre uppercase">
+            One-Ask Rule — Audience Collision Detected
+          </p>
+          {oneAskConflicts.slice(0, 5).map((c) => (
+            <p key={`${c.pieceId}-${c.conflictingPieceId}`} className="text-xs text-charcoal">
+              <span className="font-medium">{c.pieceTitle}</span>
+              {" and "}
+              <span className="font-medium">{c.conflictingPieceTitle}</span>
+              {" target the same funnel "}
+              <span className="text-warm-gray">
+                ({funnelMap.get(c.funnelId) ?? "Unknown"})
+              </span>
+              {" — only "}
+              <span className="font-medium text-semantic-ochre">{c.daysBetween}d apart</span>
+              {" (30-day window)."}
+            </p>
+          ))}
+          {oneAskConflicts.length > 5 && (
+            <p className="text-xs text-warm-gray">
+              ...and {oneAskConflicts.length - 5} more conflicts
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Recurring Move Gap Warnings */}
+      {moveGaps.length > 0 && (
+        <div className="mb-4 border-l-2 border-semantic-brick bg-semantic-brick/5 rounded-r-lg p-3 space-y-1.5">
+          <p className="text-xs font-semibold text-semantic-brick uppercase">
+            Content Gap — Recurring Moves at Risk
+          </p>
+          {moveGaps.map((g) => (
+            <p key={g.moveTitle} className="text-xs text-charcoal">
+              <span className="font-medium">{g.moveTitle}</span>
+              {" expects "}
+              <span className="font-medium text-semantic-brick">
+                {g.target} pieces/month
+              </span>
+              {" but only "}
+              <span className="font-medium">{g.scheduled} scheduled</span>
+              {" this month"}
+              <span className="text-warm-gray"> — {g.betOutcome}</span>
+            </p>
+          ))}
+        </div>
+      )}
 
       {/* Desktop: Calendar Grid */}
       <div className="hidden md:block">

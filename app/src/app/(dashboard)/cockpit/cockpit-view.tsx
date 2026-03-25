@@ -92,6 +92,9 @@ interface CockpitProps {
     urgency: "critical" | "important" | "suggested";
     confidence: "high" | "medium" | "low";
   } | null;
+  healthScore?: number | null;
+  healthStatus?: "green" | "yellow" | "red" | null;
+  healthTrend?: "improving" | "declining" | "stable" | null;
 }
 
 function CockpitSection({
@@ -130,6 +133,9 @@ export function CockpitView({
   stalledBets,
   cadenceReport,
   aiRecommendation: initialRecommendation,
+  healthScore,
+  healthStatus,
+  healthTrend,
 }: CockpitProps) {
   const [recommendation, setRecommendation] = useState(initialRecommendation ?? null);
   const [refreshing, setRefreshing] = useState(false);
@@ -172,6 +178,40 @@ export function CockpitView({
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Operator Cockpit</h1>
+
+      {/* Operating Health compact widget */}
+      {healthScore !== null && healthScore !== undefined && (
+        <div className="mb-4 px-4 py-2.5 bg-ivory border border-warm-border rounded-xl inline-flex items-center gap-4 w-full">
+          <div className="inline-flex items-center gap-2">
+            <span className="text-2xl font-mono font-bold text-charcoal">{healthScore}</span>
+            <span
+              className={`w-2.5 h-2.5 rounded-full ${
+                healthStatus === "green"
+                  ? "bg-semantic-green"
+                  : healthStatus === "yellow"
+                    ? "bg-semantic-ochre"
+                    : "bg-semantic-brick"
+              }`}
+            />
+            <span className="text-base text-warm-gray">
+              {healthTrend === "improving" ? "↑" : healthTrend === "declining" ? "↓" : "→"}
+            </span>
+          </div>
+          <span className="text-sm text-warm-gray">Operating Health</span>
+          <Link
+            href="/health"
+            className="text-xs text-moss hover:underline ml-auto"
+          >
+            View details
+          </Link>
+          <Link
+            href="/narratives?type=weekly_team_update"
+            className="text-xs text-clay hover:underline font-medium"
+          >
+            Generate this week&apos;s memo
+          </Link>
+        </div>
+      )}
 
       {/* AI Recommends — full-width above the grid */}
       <Card className="mb-4 border-l-4 border-l-sage">

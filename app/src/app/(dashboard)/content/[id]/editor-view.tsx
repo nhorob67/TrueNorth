@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useUserContext } from "@/hooks/use-user-context";
+import { useCollaboration } from "@/hooks/use-collaboration";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -117,6 +118,51 @@ function StatusStepper({
           </button>
         );
       })}
+    </div>
+  );
+}
+
+// ============================================================
+// Collaborator Avatars
+// ============================================================
+
+function CollaboratorAvatars({
+  collaborators,
+  isSynced,
+}: {
+  collaborators: Array<{ id: string; name: string; color: string }>;
+  isSynced: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-1.5">
+      {/* Sync indicator */}
+      <span
+        className={`w-2 h-2 rounded-full ${isSynced ? "bg-semantic-green" : "bg-semantic-ochre animate-pulse"}`}
+        title={isSynced ? "Connected" : "Connecting..."}
+      />
+
+      {/* Other collaborators */}
+      {collaborators.map((c) => (
+        <span
+          key={c.id}
+          className="inline-flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold text-white"
+          style={{ backgroundColor: c.color }}
+          title={c.name}
+        >
+          {c.name
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .slice(0, 2)
+            .toUpperCase()}
+        </span>
+      ))}
+
+      {collaborators.length > 0 && (
+        <span className="text-xs text-warm-gray">
+          {collaborators.length} editing
+        </span>
+      )}
     </div>
   );
 }
@@ -277,13 +323,21 @@ function SeoPanel({
 export function ContentEditorView({
   piece,
   versions,
+  linkedFunnel,
 }: {
   piece: ContentPiece;
   versions: Version[];
+  linkedFunnel?: { id: string; name: string } | null;
 }) {
   const router = useRouter();
   const supabase = createClient();
   const userCtx = useUserContext();
+
+  // Real-time collaboration
+  const { ydoc, awareness, isSynced, collaborators } = useCollaboration(
+    piece.id,
+    { id: userCtx.userId, name: userCtx.fullName || "Anonymous" }
+  );
 
   const [title, setTitle] = useState(piece.title);
   const [scheduledAt, setScheduledAt] = useState(piece.scheduled_at ?? "");
@@ -302,7 +356,7 @@ export function ContentEditorView({
   const [seoSuggestions, setSeoSuggestions] = useState<SeoSuggestions | null>(null);
   const [seoLoading, setSeoLoading] = useState(false);
 
-  // Convert stored JSON to HTML for initial editor content
+  // Convert stored JSON to HTML for initial editor content (fallback for non-collab)
   const initialContent =
     piece.body_json && Object.keys(piece.body_json).length > 0
       ? piece.body_json
@@ -346,15 +400,16 @@ export function ContentEditorView({
   async function handleSave() {
     setSaving(true);
 
-    // Save version snapshot before updating
+    // Save version snapshot (captures current body_json for diffing)
     await supabase.from("content_versions").insert({
       content_piece_id: piece.id,
-      body_json: piece.body_json,
+      body_json: bodyJson,
       body_html: bodyHtml,
       created_by: userCtx.userId,
     });
 
-    // Update the content piece
+    // Update the content piece metadata + body_json
+    // (ydoc_state is persisted automatically by the provider every 10s)
     await supabase
       .from("content_pieces")
       .update({
@@ -423,7 +478,11 @@ export function ContentEditorView({
         >
           Back to Content
         </Button>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <CollaboratorAvatars
+            collaborators={collaborators}
+            isSynced={isSynced}
+          />
           {lastSaved && (
             <span className="text-xs text-warm-gray">
               Saved at {lastSaved}
@@ -476,7 +535,7 @@ export function ContentEditorView({
             </CardContent>
           </Card>
 
-          {/* Editor */}
+          {/* Editor — pass ydoc + awareness for real-time collaboration */}
           <TrueNorthEditor
             content={
               typeof initialContent === "string"
@@ -486,6 +545,8 @@ export function ContentEditorView({
             onChange={handleEditorChange}
             onCommentCreate={handleCommentCreate}
             placeholder="Start writing your content... Use the toolbar for formatting, or type / for quick actions."
+            ydoc={ydoc}
+            awareness={awareness}
           />
 
           {/* Version Diff (shown below editor when a version is selected) */}
@@ -535,6 +596,19 @@ export function ContentEditorView({
                   onChange={(e) => setScheduledAt(e.target.value)}
                 />
               </div>
+              {linkedFunnel && (
+                <div>
+                  <label className="text-xs font-medium text-warm-gray">
+                    Linked Funnel
+                  </label>
+                  <a
+                    href="/funnels"
+                    className="block text-sm text-clay-text hover:text-clay mt-0.5 transition-colors"
+                  >
+                    {linkedFunnel.name} →
+                  </a>
+                </div>
+              )}
               <div>
                 <label className="text-xs font-medium text-warm-gray">
                   Created

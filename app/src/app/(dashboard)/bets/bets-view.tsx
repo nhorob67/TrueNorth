@@ -94,6 +94,32 @@ function RhythmIndicators({ moves }: { moves: Move[] }) {
   );
 }
 
+function ExecutionHealth({ moves }: { moves: Move[] }) {
+  const active = moves.filter(
+    (m) => m.lifecycle_status !== "cut" && m.lifecycle_status !== "shipped"
+  );
+  if (active.length === 0) return null;
+
+  const greenCount = active.filter((m) => m.health_status === "green").length;
+  const pct = Math.round((greenCount / active.length) * 100);
+
+  const color =
+    pct >= 80
+      ? "text-semantic-green-text"
+      : pct >= 50
+        ? "text-semantic-ochre"
+        : "text-semantic-brick";
+
+  return (
+    <span
+      className={`text-xs font-semibold ${color}`}
+      title={`${greenCount}/${active.length} active moves are healthy`}
+    >
+      {pct}% exec
+    </span>
+  );
+}
+
 function BetCard({ bet }: { bet: Bet }) {
   return (
     <Card className="flex flex-col">
@@ -102,7 +128,8 @@ function BetCard({ bet }: { bet: Bet }) {
           <h3 className="text-sm font-semibold text-charcoal leading-tight">
             {bet.outcome}
           </h3>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
+            <ExecutionHealth moves={bet.moves} />
             <AddToTodoButton
               entityId={bet.id}
               entityType="bet"

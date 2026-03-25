@@ -11,6 +11,7 @@ import { EntityPicker } from "@/components/entity-picker";
 import { MentionInput } from "@/components/mention-input";
 import { useOptionalUserContext } from "@/hooks/use-user-context";
 import { useOfflinePulse, type OfflinePulseData } from "@/hooks/use-offline-pulse";
+import { PulseSidebar } from "@/components/pulse-sidebar";
 
 interface PulseItem {
   type: "shipped" | "focus" | "blockers" | "signal";
@@ -411,18 +412,42 @@ function PulseCard({ pulse }: { pulse: Pulse }) {
   );
 }
 
+interface SidebarTodo {
+  id: string;
+  title: string;
+  completed: boolean;
+  due_date: string | null;
+  priority: "high" | "medium" | "low" | null;
+  linked_entity_type: string | null;
+}
+
+interface SidebarRhythm {
+  id: string;
+  title: string;
+  cadence: string;
+  target_per_cycle: number | null;
+  bet_outcome: string;
+  health_status: "green" | "yellow" | "red";
+  instances_completed: number;
+  instances_total: number;
+}
+
 export function PulseView({
   myPulse,
   teamPulses,
   bets,
   userId,
   pulseStreak,
+  todos = [],
+  rhythms = [],
 }: {
   myPulse: Pulse | null;
   teamPulses: Pulse[];
   bets: Bet[];
   userId: string;
   pulseStreak?: number;
+  todos?: SidebarTodo[];
+  rhythms?: SidebarRhythm[];
 }) {
   const supabase = createClient();
 
@@ -463,7 +488,7 @@ export function PulseView({
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_240px] gap-6">
         <div>
           <PulseForm
             existingPulse={myPulse}
@@ -486,6 +511,11 @@ export function PulseView({
               ))}
             </div>
           )}
+        </div>
+
+        {/* Sidebar: To-dos + Active Rhythms */}
+        <div className="hidden lg:block">
+          <PulseSidebar todos={todos} rhythms={rhythms} />
         </div>
       </div>
     </div>

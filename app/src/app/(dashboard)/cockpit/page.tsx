@@ -3,6 +3,7 @@ import { getCachedUserContext } from "@/lib/user-context";
 import { checkStaleness } from "@/lib/staleness";
 import { detectStalledBets } from "@/lib/stall-detection";
 import { computeCadenceReport } from "@/lib/cadence-intelligence";
+import { computeOperatingHealth } from "@/lib/operating-health";
 import { CockpitView } from "./cockpit-view";
 
 export default async function CockpitPage() {
@@ -77,7 +78,7 @@ export default async function CockpitPage() {
   // Stage 2: dependent queries in parallel
   const blockedMoveIds = (blockerLinks ?? []).map((b) => b.linked_entity_id).filter(Boolean) as string[];
 
-  const [blockedMovesResult, ventureResult, stalenessResults, stalledBetsResult, cadenceReport] = await Promise.all([
+  const [blockedMovesResult, ventureResult, stalenessResults, stalledBetsResult, cadenceReport, healthReport] = await Promise.all([
     blockedMoveIds.length > 0
       ? supabase
           .from("moves")
@@ -99,6 +100,9 @@ export default async function CockpitPage() {
       : Promise.resolve([]),
     ctx
       ? computeCadenceReport(supabase, ctx.orgId, ctx.ventureId)
+      : Promise.resolve(null),
+    ctx
+      ? computeOperatingHealth(supabase, ctx.orgId, ctx.ventureId, ctx.isSingleVenture)
       : Promise.resolve(null),
   ]);
 
@@ -197,6 +201,20 @@ export default async function CockpitPage() {
       stalledBets={stalledBetsResult}
       cadenceReport={cadenceReport}
       aiRecommendation={aiRecommendation}
+      healthScore={healthReport?.composite_score ?? null}
+      healthStatus={healthReport?.composite_status ?? null}
+      healthTrend={
+        healthReport
+          ? (() => {
+              const scores = Object.values(healthReport.metrics).map((m) => m.trend);
+              const improving = scores.filter((t) => t === "improving").length;
+              const declining = scores.filter((t) => t === "declining").length;
+              if (improving > declining) return "improving" as const;
+              if (declining > improving) return "declining" as const;
+              return "stable" as const;
+            })()
+          : null
+      }
     />
   );
 }

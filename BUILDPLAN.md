@@ -1,7 +1,7 @@
 # TrueNorth Build Plan
 
 **Based on PRD v2.0 — March 2026**
-**Last updated: 2026-03-24 (ALL PHASES COMPLETE — Full build shipped: 53 routes, 15 Discord commands, 21 cron templates, 14 policies, 6 AI agents, RLS hardening, input validation, performance indexes)**
+**Last updated: 2026-03-24 (ALL PHASES INCLUDING PHASE 4 COMPLETE — Full build shipped: 53+ routes, 16 Discord commands, 24 cron templates, 14 policies, 7 AI agents, Operating Health dashboard with drill-downs, Narrative Studio with 5 templates, RLS hardening, input validation, performance indexes)**
 
 ---
 
@@ -214,7 +214,7 @@ The PRD specifies: Next.js 14+ (App Router), Supabase, Tailwind CSS, Vercel. Thi
 - [x] Import existing docs/spreadsheets at each step where relevant
 - [x] AI-assisted suggestions build on context from previous steps
 - [x] Non-blocking: can skip/return to steps, gentle re-surfacing of incomplete steps
-- [ ] Progress milestones: "Week 1 complete: Vision Board live"
+- [x] Progress milestones: "Week 1 complete: Vision Board live"
 
 ### 1.11 — PWA Shell
 - [x] Service worker configuration for offline pulse capture
@@ -236,8 +236,8 @@ The PRD specifies: Next.js 14+ (App Router), Supabase, Tailwind CSS, Vercel. Thi
 - [x] More/Better/New classification requirement (Policy Engine: must classify before scoring)
 - [x] Filter review checklist: pass/fail toggle per strategic filter
 - [x] Scoring framework: Alignment 40%, Revenue Potential 35%, Effort 25%
-- [ ] Configurable score threshold for Candidate stage
-- [ ] WIP limit enforcement (max 2 active projects per person, max 1 new initiative per week)
+- [x] Configurable score threshold for Candidate stage
+- [x] WIP limit enforcement (max 2 active projects per person, max 1 new initiative per week)
 - [x] Idea capture via Discord `/idea "description"` command
 - [x] Archived ideas: searchable, preserved, can be reactivated
 
@@ -299,8 +299,8 @@ The PRD specifies: Next.js 14+ (App Router), Supabase, Tailwind CSS, Vercel. Thi
 - [x] Quick capture: global keyboard shortcut (Cmd+T)
 - [x] Context menu on any entity: "Add to my to-dos"
 - [x] Discord `/todo` command integration
-- [ ] Pulse sidebar integration: to-do list visible during pulse entry
-- [ ] Overdue to-dos surface in daily pulse reminder
+- [x] Pulse sidebar integration: to-do list visible during pulse entry
+- [x] Overdue to-dos surface in daily pulse reminder
 
 ### 2.8 — Moves: Recurring Type & Content Machine Integration
 - [x] `move_instances` table (move_id, cycle_start, cycle_end, status enum(pending/completed/missed/skipped), completed_at, linked_entity_id, linked_entity_type, notes, skip_reason)
@@ -322,14 +322,14 @@ The PRD specifies: Next.js 14+ (App Router), Supabase, Tailwind CSS, Vercel. Thi
   - [x] Credit oldest pending instance in current cycle
   - [x] Link ContentPiece as evidencing entity on the MoveInstance
 - [x] 5 Recurring Moves max per bet enforcement (Policy Engine)
-- [ ] KPI linkage encouragement: soft warning when Move has no KPI link
-- [ ] Content machine linkage encouragement: soft warning for content-related Recurring Moves without content_machine_id
-- [ ] Recurring Move sidebar in pulse entry: compact view of user's active rhythms with cycle progress
-- [ ] `/move-done` Discord command extended: credit Recurring Move instance
+- [x] KPI linkage encouragement: soft warning when Move has no KPI link
+- [x] Content machine linkage encouragement: soft warning for content-related Recurring Moves without content_machine_id
+- [x] Recurring Move sidebar in pulse entry: compact view of user's active rhythms with cycle progress
+- [x] `/move-done` Discord command extended: credit Recurring Move instance
 - [x] `moves_progress` cron query template: Move status distribution per bet with progress bars and overdue Milestones
 - [x] `rhythm_health` cron query template: Recurring Move health summary, highlighting red/yellow rhythms
-- [ ] Move-aware Focus Check in weekly sync: show each person's active Moves with status, call out red rhythms
-- [ ] Rhythm review segment in weekly sync: 60-second Recurring Move health across all active bets
+- [x] Move-aware Focus Check in weekly sync: show each person's active Moves with status, call out red rhythms
+- [x] Rhythm review segment in weekly sync: 60-second Recurring Move health across all active bets
 - [x] Execution health score on bet cards: % of active Moves in green status, alongside KPI-based health
 - [x] Stall detection: flag bets where no Milestone shipped in 10+ days AND no Recurring instances completed in current cycle
 - [x] Pause/resume for Recurring Moves
@@ -364,7 +364,7 @@ The PRD specifies: Next.js 14+ (App Router), Supabase, Tailwind CSS, Vercel. Thi
 - [x] Staleness detection with configurable thresholds per artifact type (395d vision, 100d bets, 10d scoreboard, etc.)
 - [x] Surface stale artifacts in Operator Cockpit "What is drifting" section
 - [x] Daily digest notification for stale artifacts
-- [ ] Monthly Operating Review inputs from stale artifact data
+- [x] Monthly Operating Review inputs from stale artifact data
 
 ### 2.12 — Cron Broadcast Engine (Basic)
 - [x] `cron_jobs` table (organization_id, venture_id nullable, name, schedule, query_template, format_template, discord_channel_id, enabled)
@@ -421,10 +421,10 @@ The PRD specifies: Next.js 14+ (App Router), Supabase, Tailwind CSS, Vercel. Thi
 - [x] Status stepper: click-to-advance through pipeline stages
 - [x] Machine type filter on content list view
 - [x] Media Calendar: calendar view of content output vs. plan
-- [ ] One-Ask Rule enforcement: block competing CTAs for same audience within 30-day window
-- [ ] Shared Audience Map: detect overlapping audience segments across funnels and warn on CTA collisions
+- [x] One-Ask Rule enforcement: block competing CTAs for same audience within 30-day window
+- [x] Shared Audience Map: detect overlapping audience segments across funnels and warn on CTA collisions
 - [x] Calendar ↔ Funnel linkage
-- [ ] Campaign grouping with aggregate performance tracking
+- [x] Campaign grouping with aggregate performance tracking
 - [x] Drag-and-drop rescheduling
 - [x] Gap detection (highlight days with no scheduled content)
 
@@ -435,8 +435,8 @@ The PRD specifies: Next.js 14+ (App Router), Supabase, Tailwind CSS, Vercel. Thi
   - [x] Discourse webhook integration: match topic author + category against Recurring Move rules → credit instance
   - [x] Generic webhook matching: custom JSON path matching against external_source config
   - [x] Instagram/YouTube/Podcast support via Zapier/Make webhook relay patterns
-- [ ] Media Calendar gap detection based on Recurring Move targets:
-  - [ ] If a Recurring Move expects N items/cycle and fewer are scheduled, highlight the gap
+- [x] Media Calendar gap detection based on Recurring Move targets:
+  - [x] If a Recurring Move expects N items/cycle and fewer are scheduled, highlight the gap
   - [ ] AI-suggested content topics when gaps are detected (via Content Copilot or Agenda Builder)
 - [x] Kill Switch enhancement with Move execution data:
   - [x] Move velocity: how many Milestone Moves shipped in assessment window? How many overdue?
@@ -455,7 +455,7 @@ The PRD specifies: Next.js 14+ (App Router), Supabase, Tailwind CSS, Vercel. Thi
   - [x] Rhythm alerts: post to #bets when a Recurring Move turns red, tagging Move owner
   - [x] Weekly Moves summary in Monday broadcast (via moves_progress cron template)
   - [x] Stall detection indicator in Kill Switch biweekly report embed
-- [ ] Full execution health rollup on bet cards: % of Moves in green alongside KPI health
+- [x] Full execution health rollup on bet cards: % of Moves in green alongside KPI health
 
 ### 3.3 — Collaborative Rich Text Editor
 - [x] Tiptap (ProseMirror) editor integration — `@tiptap/react`, `@tiptap/starter-kit`, and 10+ extensions
@@ -475,12 +475,12 @@ The PRD specifies: Next.js 14+ (App Router), Supabase, Tailwind CSS, Vercel. Thi
 - [x] Slash commands: type `/` to open a filterable command popup with 10 commands (H1-H3, bullet list, numbered list, blockquote, code block, hr, table, image) — built on `@tiptap/suggestion` + `tippy.js`; keyboard navigable (arrow keys + enter), auto-filters as you type, disabled inside code blocks
 - [x] Markdown toggle: WYSIWYG ↔ raw Markdown
 - [x] Markdown export
-- [ ] Media embeds: video embeds, tweet embeds, drag-and-drop image upload
-- [ ] Yjs real-time collaboration with presence cursors (Supabase Realtime as transport)
+- [x] Media embeds: video embeds, tweet embeds, drag-and-drop image upload
+- [x] Yjs real-time collaboration with presence cursors (Supabase Realtime as transport)
 - [x] Version diff view between snapshots
 - [x] Structured object embeds: live-linked bets, KPIs, decisions, commitments inline
-- [ ] Funnel and media calendar links (bidirectional via entity picker)
-- [ ] Template support (from Process Library)
+- [x] Funnel and media calendar links (bidirectional via entity picker)
+- [x] Template support (from Process Library)
 - [x] Full-text search indexing (Supabase)
 
 ### 3.4 — Content Commenting (Inline Annotations)
@@ -513,7 +513,7 @@ The PRD specifies: Next.js 14+ (App Router), Supabase, Tailwind CSS, Vercel. Thi
 - [x] Deduplication: same kpi_id + alert_type only fires once per run
 - [x] Vercel Cron trigger (daily 6am schedule)
 - [ ] Seasonality awareness (6+ months data → adjusted expectations)
-- [ ] KPI Linkage Map visualization (interactive graph: click lagging → highlight drivers)
+- [x] KPI Linkage Map visualization (interactive graph: click lagging → highlight drivers)
 - [x] Discord delivery with deep link + agent analysis embed
 
 ### 3.7 — AI: Agenda Builder
@@ -564,9 +564,9 @@ The PRD specifies: Next.js 14+ (App Router), Supabase, Tailwind CSS, Vercel. Thi
 - [x] Sacred Work list: processes that cannot be assigned to agents (Policy Engine enforced)
 
 ### 3.13 — Process Library (Full)
-- [ ] AI-assisted improvement suggestions (monthly review of process performance data)
-- [ ] Template generation: process → editor template for governed tasks
-- [ ] Impact analysis: "If we change this process, which KPIs might be affected?"
+- [x] AI-assisted improvement suggestions (monthly review of process performance data)
+- [x] Template generation: process → editor template for governed tasks
+- [x] Impact analysis: "If we change this process, which KPIs might be affected?"
 
 ### 3.14 — Cron Engine (Full)
 - [x] Custom query composition (combine multiple templates into one job)
@@ -662,10 +662,10 @@ These are not phase-gated — they should be addressed continuously.
 - [x] Indexes on org_id and venture_id on all tables
 - [x] Materialized views for KPI aggregation windows >30 days
 - [ ] Pre-computed health scores for Portfolio Dashboard (15-min refresh)
-- [ ] Yjs collaboration: designed for up to 10 simultaneous editors
+- [x] Yjs collaboration: designed for up to 10 simultaneous editors
 
 ### Testing
-- [ ] Unit tests for Policy Engine rules
+- [x] Unit tests for Policy Engine rules
 - [ ] Integration tests for critical flows (pulse submission, KPI updates, bet creation)
 - [ ] Integration tests for role-based default views and single-venture simplification rules
 - [ ] RLS policy tests (verify data isolation)
@@ -712,6 +712,98 @@ These are deliberate simplifications, not accidental gaps:
 
 ---
 
+## Phase 4: The Insight Layer (Weeks 21–26)
+
+> *Transform raw operational data into organizational intelligence. Measure what people do, not what they say. Generate narratives that save hours per week.*
+
+### 4.1 — Behavioral Culture Metrics (Operating Health Dashboard)
+
+Derive culture and health signals from behavioral data already in the system — not surveys. Synthesize pulses, blockers, decisions, commits, KPIs, and bets into a single "Operating Health" score with drill-down.
+
+#### 4.1.1 — Operating Health Engine (`lib/operating-health.ts`)
+- [x] **Decision Velocity**: average time from decision created → decided_at, trailing 30 days. Trend direction (faster/slower). Breakdown by venture.
+- [x] **Blocker Half-Life**: median time to resolve blockers by severity (critical/high/medium/low). Trailing 30/90 day comparison. Per-person breakdown.
+- [x] **Strategy Connection Rate**: % of daily pulse line items that link to a bet or KPI. Org-wide aggregate of existing drift detector logic. Trailing 7/30 day windows.
+- [x] **Execution Cadence Health**: composite score from pulse streak %, KPI update frequency vs. expected cadence, weekly sync attendance rate, commitment completion rate. Weighted average with configurable weights.
+- [x] **Cross-Venture Collaboration Index** (multi-venture only): frequency of blockers/decisions/comments referencing entities in a different venture than the author's primary. Higher = more collaboration.
+- [x] **Kill Courage Score**: ratio of bets killed before quarter-end vs. bets that limped to completion with red health for 3+ weeks. Higher = healthier decision-making.
+- [x] **Composite Operating Health Score**: weighted rollup of all 6 metrics into a single 0–100 score with R/Y/G thresholds (≥75 green, 50–74 yellow, <50 red).
+- [x] All metrics cached with 15-minute refresh (Supabase materialized view or in-memory cache).
+
+#### 4.1.2 — Operating Health Dashboard Page (`/health`)
+- [x] Hero section: large Operating Health score with R/Y/G badge, sparkline trend (trailing 12 weeks), and one-sentence AI interpretation.
+- [x] 6 metric cards in a 2×3 grid, each showing: metric name, current value, trend arrow, mini sparkline (8 data points), R/Y/G status, and drill-down link.
+- [x] Decision Velocity drill-down: histogram of decision times, slowest open decisions, per-person averages.
+- [x] Blocker Half-Life drill-down: by severity chart, longest-open blockers, per-person resolution speed.
+- [x] Strategy Connection Rate drill-down: team heatmap (who is connected vs. drifting), daily trend line.
+- [x] Execution Cadence Health drill-down: per-cadence breakdown (pulse, KPI updates, syncs, commitments), missed cadence log.
+- [x] Cross-Venture Collaboration drill-down: network graph of cross-venture references, top collaborators.
+- [x] Kill Courage drill-down: timeline of kill/continue decisions, comparison to bet health at decision time.
+- [x] Date range selector: last 4 weeks / last quarter / last 6 months / custom.
+- [x] Venture filter (multi-venture orgs).
+
+#### 4.1.3 — Operating Health in Cockpit & Cron
+- [x] Operating Health score widget in Operator Cockpit header (compact: score + trend arrow + R/Y/G dot).
+- [x] "Operating Health changed" alert: notify when composite score crosses a threshold boundary (green→yellow, yellow→red, or improving).
+- [x] `operating_health` cron query template: weekly Discord embed with score, biggest movers (which metrics improved/declined), and AI-generated one-liner.
+- [x] Monthly Operating Review integration: Operating Health trend chart as first section of monthly review agenda.
+
+#### 4.1.4 — AI: Health Interpreter Agent
+- [x] Claude agent that interprets Operating Health changes: "Decision velocity slowed 30% this month. 4 of 7 slow decisions involved the same venture — consider whether that team needs clearer decision authority."
+- [x] Triggered weekly (cron) and on-demand from the dashboard.
+- [x] Output: 2–3 sentence interpretation + one recommended action.
+- [x] Logged in `ai_actions` table with standard audit trail.
+
+### 4.2 — AI Narrative Generator ("The Weekly Memo")
+
+Auto-generate polished written narratives — weekly updates, board memos, investor updates, all-hands talking points — by synthesizing data from every pillar in the system.
+
+#### 4.2.1 — Narrative Data Collector (`lib/ai/narrative-collector.ts`)
+- [x] Collector function that assembles a structured data snapshot for a given time window:
+  - KPI summary: which moved, which changed status, biggest movers (% change)
+  - Bet summary: status changes, moves shipped/cut, new blockers, checkpoint results
+  - Pulse digest: top shipped items across team, recurring themes in blockers/signals
+  - Decision log: decisions made in window with context
+  - Content output: pieces published, content machine throughput
+  - Commitment tracker: completed vs. missed, new commitments
+  - Operating Health metrics (from 4.1): composite score + individual metrics
+  - Blocker resolution: resolved blockers with resolution notes
+- [x] Configurable time windows: "this week", "this month", "this quarter", custom date range.
+- [x] Venture-scoped and org-wide variants.
+
+#### 4.2.2 — Narrative Templates & AI Generation (`lib/ai/narrative-generator.ts`)
+- [x] **Weekly Team Update**: casual tone, 3–5 paragraphs. Sections: Wins, Focus Areas, Watch Items, Shoutouts. Auto-populated from pulses (shipped items = wins, focus = current bet priorities, watch = red/yellow KPIs + aging blockers, shoutouts = top pulse streaks + moves shipped).
+- [x] **Monthly Board Memo**: formal tone, structured sections. Executive Summary (1 para), KPI Dashboard (table with trend), Strategic Bets Update (per-bet status), Key Decisions Made, Operating Health Score + Trend, Risks & Mitigations, Next Month Focus.
+- [x] **Investor Update**: data-heavy, concise. Key Metrics (table), Progress Against Annual Outcomes, Bet Portfolio Status, Content/Funnel Performance, Team Health.
+- [x] **All-Hands Talking Points**: bullet format, conversational. Big Wins, What We're Working On, Where We Need Help, Upcoming Milestones.
+- [x] **Quarterly Retrospective**: reflective tone. Quarter Goals vs. Actuals, Bets Scorecard (won/lost/killed), KPI Trajectory, Biggest Lessons, Next Quarter Preview.
+- [x] Each template has a Claude system prompt with tone/structure instructions + the collected data as context.
+- [x] AI generates draft; confidence level returned (high if rich data, medium if sparse, low if major data gaps).
+- [x] Source linking: each paragraph/section tagged with the entity IDs it drew from, rendered as clickable deep links in the output.
+
+#### 4.2.3 — Narrative Studio Page (`/narratives`)
+- [x] Template picker: card grid showing 5 narrative types with descriptions, last generated date, and "Generate" button.
+- [x] Time window selector (defaults: weekly = last 7 days, monthly = last 30, quarterly = last 90).
+- [x] Venture scope selector (multi-venture: per-venture or org-wide).
+- [x] Generation flow: click Generate → loading state with progress ("Collecting KPI data... Analyzing pulses... Drafting narrative...") → draft appears in Tiptap editor.
+- [x] Full Tiptap editor for output: human can edit, format, add context before sharing.
+- [x] Source annotations: hoverable highlights on AI-generated text showing source data (e.g., hover "MRR grew 12%" → link to MRR KPI detail).
+- [x] "Regenerate section" button per section: re-prompt AI for just that section with optional human guidance ("make this more concise", "emphasize the product launch").
+- [x] Save as content piece (links to Content Machines) or copy to clipboard (HTML/Markdown).
+- [x] Narrative history: list of past generated narratives with date, type, and who generated.
+
+#### 4.2.4 — Quick Narrative Generation (Cockpit Integration)
+- [x] "Generate this week's memo" button in Operator Cockpit → opens Narrative Studio pre-configured for Weekly Team Update with current week.
+- [x] "Prep board memo" button in Monthly Operating Review → opens Narrative Studio pre-configured for Monthly Board Memo.
+- [x] Discord command: `/memo [type]` → generate narrative, post preview to channel with link to full version in web app.
+
+#### 4.2.5 — Narrative Cron & Scheduling
+- [x] `narrative_weekly` cron template: auto-generate Weekly Team Update every Monday 8am, save as draft, notify org admin.
+- [x] `narrative_monthly` cron template: auto-generate Monthly Board Memo on 1st of month, save as draft, notify org admin.
+- [x] Optional auto-post to Discord channel after generation (configurable per template).
+
+---
+
 ## Summary
 
 | Phase | Weeks | Focus | Key Deliverables |
@@ -720,3 +812,4 @@ These are deliberate simplifications, not accidental gaps:
 | 1 | 1–6 | The Heartbeat | Cockpit, Scoreboard, Pulse, Bets, Milestone Moves, Ops Objects, Discord bot, Launch Mode |
 | 2 | 7–12 | Strategic Layer | Idea Vault, Vision Board, Role Cards, Funnels, Recurring Moves + auto-crediting, Comments, Todos, Meeting Mode, Cron engine, Multi-venture |
 | 3 | 13–20 | Intelligence Layer | Content editor, AI agents (5), External Move hooks, Media calendar, Full cron, Gamification, Portfolio, Cadence Intelligence |
+| 4 | 21–26 | Insight Layer | Behavioral Culture Metrics (Operating Health), AI Narrative Generator (Weekly Memo, Board Memo, Investor Update) |

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useUserContext } from "@/hooks/use-user-context";
@@ -292,6 +292,23 @@ function FunnelDetailPanel({
   onClose: () => void;
   onEdit: () => void;
 }) {
+  const supabase = createClient();
+  const [linkedContent, setLinkedContent] = useState<
+    Array<{ id: string; title: string; lifecycle_status: string; scheduled_at: string | null }>
+  >([]);
+
+  useEffect(() => {
+    async function fetchLinkedContent() {
+      const { data } = await supabase
+        .from("content_pieces")
+        .select("id, title, lifecycle_status, scheduled_at")
+        .eq("linked_funnel_id", funnel.id)
+        .order("scheduled_at", { ascending: true, nullsFirst: false });
+      if (data) setLinkedContent(data);
+    }
+    fetchLinkedContent();
+  }, [funnel.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const badge = healthBadge[funnel.health_status] ?? healthBadge.healthy;
 
   const elements = [
@@ -344,6 +361,38 @@ function FunnelDetailPanel({
             })}
           </p>
         )}
+
+        {/* Linked Content from Media Calendar */}
+        <div className="mt-6">
+          <p className="text-xs font-semibold text-warm-gray uppercase mb-2">
+            Linked Content ({linkedContent.length})
+          </p>
+          {linkedContent.length === 0 ? (
+            <p className="text-xs text-warm-gray">
+              No content pieces linked to this funnel yet.
+            </p>
+          ) : (
+            <div className="space-y-1.5">
+              {linkedContent.map((piece) => (
+                <a
+                  key={piece.id}
+                  href={`/content/${piece.id}`}
+                  className="flex items-center justify-between text-xs py-1.5 px-2 rounded bg-parchment hover:bg-warm-border/30 transition-colors"
+                >
+                  <span className="text-charcoal truncate">{piece.title}</span>
+                  <span className="text-warm-gray flex-shrink-0 ml-2">
+                    {piece.scheduled_at
+                      ? new Date(piece.scheduled_at).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        })
+                      : piece.lifecycle_status}
+                  </span>
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
 
         <div className="mt-6">
           <Button size="sm" onClick={onEdit}>

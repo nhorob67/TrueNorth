@@ -26,10 +26,22 @@ export default async function ContentEditorPage({
     .order("created_at", { ascending: false })
     .limit(20);
 
+  // Fetch linked funnel name if present
+  let linkedFunnel: { id: string; name: string } | null = null;
+  if (piece.linked_funnel_id) {
+    const { data: funnel } = await supabase
+      .from("funnels")
+      .select("id, name")
+      .eq("id", piece.linked_funnel_id)
+      .single();
+    if (funnel) linkedFunnel = funnel;
+  }
+
   return (
     <ContentEditorView
       piece={piece}
       versions={versions ?? []}
+      linkedFunnel={linkedFunnel}
     />
   );
 }

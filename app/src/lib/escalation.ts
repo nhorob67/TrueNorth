@@ -195,6 +195,57 @@ export async function checkCommitmentEscalations(
 }
 
 // ============================================================
+// Overdue To-Do Escalation
+// ============================================================
+
+export async function checkOverdueTodoEscalations(
+  supabase: SupabaseClient,
+  orgId: string
+): Promise<EscalationResult[]> {
+  const results: EscalationResult[] = [];
+  const today = new Date().toISOString().split("T")[0];
+
+  // Find users with overdue, incomplete to-dos
+  const { data: overdueTodos } = await supabase
+    .from("todos")
+    .select("user_id, id, title, due_date")
+    .eq("organization_id", orgId)
+    .eq("completed", false)
+    .lt("due_date", today);
+
+  if (!overdueTodos || overdueTodos.length === 0) return results;
+
+  // Group by user
+  const byUser = new Map<string, Array<{ id: string; title: string; due_date: string }>>();
+  for (const todo of overdueTodos) {
+    const list = byUser.get(todo.user_id) ?? [];
+    list.push({ id: todo.id, title: todo.title, due_date: todo.due_date });
+    byUser.set(todo.user_id, list);
+  }
+
+  for (const [userId, todos] of byUser) {
+    const oldest = todos.sort(
+      (a, b) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
+    )[0];
+    const daysPast = Math.floor(
+      (Date.now() - new Date(oldest.due_date).getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    results.push({
+      type: "overdue_todos",
+      entityId: oldest.id,
+      entityType: "todo",
+      userId,
+      title: `${todos.length} overdue to-do${todos.length > 1 ? "s" : ""}`,
+      body: `You have ${todos.length} overdue to-do${todos.length > 1 ? "s" : ""} (oldest ${daysPast}d overdue: "${oldest.title}"). Review them during your daily pulse.`,
+      tier: daysPast >= 7 ? "immediate" : "urgent",
+    });
+  }
+
+  return results;
+}
+
+// ============================================================
 // Run all escalation checks
 // ============================================================
 
@@ -202,14 +253,15 @@ export async function runEscalationChecks(
   supabase: SupabaseClient,
   orgId: string
 ): Promise<EscalationResult[]> {
-  const [kpis, blockers, pulses, commitments] = await Promise.all([
+  const [kpis, blockers, pulses, commitments, todos] = await Promise.all([
     checkKpiEscalations(supabase, orgId),
     checkBlockerEscalations(supabase, orgId),
     checkPulseDriftEscalations(supabase, orgId),
     checkCommitmentEscalations(supabase, orgId),
+    checkOverdueTodoEscalations(supabase, orgId),
   ]);
 
-  return [...kpis, ...blockers, ...pulses, ...commitments];
+  return [...kpis, ...blockers, ...pulses, ...commitments, ...todos];
 }
 
 // ============================================================

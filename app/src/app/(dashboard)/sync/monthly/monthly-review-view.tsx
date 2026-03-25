@@ -113,9 +113,15 @@ interface TeamMember {
   full_name: string;
 }
 
-type MonthlySegment = "wins_losses" | "root_causes" | "system_fixes" | "pipeline" | "action_items";
+type MonthlySegment = "operating_health" | "wins_losses" | "root_causes" | "system_fixes" | "pipeline" | "action_items";
 
 const SEGMENT_CONFIG: SegmentConfig<MonthlySegment>[] = [
+  {
+    key: "operating_health",
+    label: "Operating Health",
+    duration: 5,
+    description: "Review behavioral culture metrics and trends.",
+  },
   {
     key: "wins_losses",
     label: "Wins & Losses",
@@ -148,11 +154,163 @@ const SEGMENT_CONFIG: SegmentConfig<MonthlySegment>[] = [
   },
 ];
 
-const TOTAL_MINUTES = 60;
+const TOTAL_MINUTES = 65;
 
 // ============================================================
 // Segment Components
 // ============================================================
+
+interface HealthMetricRow {
+  key: string;
+  label: string;
+  value: number;
+  unit: string;
+  status: "green" | "yellow" | "red";
+  trend: "improving" | "declining" | "stable";
+}
+
+interface HealthData {
+  composite_score: number;
+  composite_status: "green" | "yellow" | "red";
+  metrics: Record<string, HealthMetricRow>;
+  ai_interpretation?: string | null;
+}
+
+function OperatingHealthSegment({ isActive }: { isActive: boolean }) {
+  const [healthData, setHealthData] = useState<HealthData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fetchedRef = useRef(false);
+
+  useEffect(() => {
+    if (!isActive || fetchedRef.current) return;
+    fetchedRef.current = true;
+    setLoading(true);
+    fetch("/api/health/compute")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch health data");
+        return res.json();
+      })
+      .then((data) => {
+        setHealthData(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [isActive]);
+
+  if (loading) {
+    return (
+      <div className="py-8 text-center">
+        <p className="text-sm text-warm-gray">Computing operating health metrics...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-8 text-center">
+        <p className="text-sm text-semantic-brick">{error}</p>
+      </div>
+    );
+  }
+
+  if (!healthData) {
+    return (
+      <div className="py-8 text-center">
+        <p className="text-sm text-warm-gray">No health data available.</p>
+      </div>
+    );
+  }
+
+  const trendArrow = (trend: string) =>
+    trend === "improving" ? "↑" : trend === "declining" ? "↓" : "→";
+
+  const statusDotColor = (status: string) =>
+    status === "green"
+      ? "bg-semantic-green"
+      : status === "yellow"
+        ? "bg-semantic-ochre"
+        : "bg-semantic-brick";
+
+  const statusTextColor = (status: string) =>
+    status === "green"
+      ? "text-semantic-green"
+      : status === "yellow"
+        ? "text-semantic-ochre"
+        : "text-semantic-brick";
+
+  return (
+    <div className="space-y-6">
+      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[0].description}</p>
+
+      {/* Composite score */}
+      <div className="flex items-center gap-3">
+        <span className="text-4xl font-mono font-bold text-charcoal">
+          {healthData.composite_score}
+        </span>
+        <span
+          className={`w-3 h-3 rounded-full ${statusDotColor(healthData.composite_status)}`}
+        />
+        <div>
+          <p className="text-sm font-medium text-charcoal">Composite Score</p>
+          <p className="text-xs text-warm-gray">Operating health across all behavioral metrics</p>
+        </div>
+      </div>
+
+      {/* Individual metrics */}
+      <div className="space-y-1.5">
+        {Object.values(healthData.metrics).map((metric) => (
+          <div
+            key={metric.key}
+            className="flex items-center justify-between py-2 px-3 border border-warm-border rounded-lg bg-ivory"
+          >
+            <div className="flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full ${statusDotColor(metric.status)}`} />
+              <span className="text-sm text-charcoal">{metric.label}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-mono font-medium text-charcoal">{metric.value}</span>
+              <span className="text-xs text-warm-gray">{metric.unit}</span>
+              <span className={`text-sm ${statusTextColor(metric.status)}`}>
+                {trendArrow(metric.trend)}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* AI Interpretation */}
+      {healthData.ai_interpretation && (
+        <Card className="border-l-4 border-l-sage">
+          <CardContent className="py-3">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-sage bg-sage/10 px-1.5 py-0.5 rounded">
+                AI
+              </span>
+              <span className="text-xs font-medium text-charcoal">Interpretation</span>
+            </div>
+            <p className="text-sm text-warm-gray whitespace-pre-line">
+              {healthData.ai_interpretation}
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Prep Board Memo button */}
+      <div className="pt-2">
+        <a
+          href="/narratives?type=monthly_board_memo"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-clay text-white text-sm font-medium rounded-lg hover:bg-clay/90 transition-colors"
+        >
+          Prep Board Memo
+        </a>
+      </div>
+    </div>
+  );
+}
 
 function WinsLossesSegment({
   shippedMoves,
@@ -192,7 +350,7 @@ function WinsLossesSegment({
 
   return (
     <div className="space-y-6">
-      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[0].description}</p>
+      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[1].description}</p>
 
       {/* Shipped milestones */}
       <div>
@@ -330,7 +488,7 @@ function RootCausesSegment({
 
   return (
     <div className="space-y-6">
-      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[1].description}</p>
+      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[2].description}</p>
 
       {/* Red KPIs */}
       <div>
@@ -442,7 +600,7 @@ function SystemFixesSegment({
 
   return (
     <div className="space-y-6">
-      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[2].description}</p>
+      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[3].description}</p>
 
       {/* Stale artifacts */}
       <div>
@@ -452,18 +610,69 @@ function SystemFixesSegment({
         {staleArtifacts.length === 0 ? (
           <p className="text-sm text-warm-gray py-2">All artifacts are up to date.</p>
         ) : (
-          <div className="space-y-1">
+          <div className="space-y-2">
             {staleArtifacts.map((artifact) => {
               const daysSince = Math.floor(
                 (Date.now() - new Date(artifact.last_updated_at).getTime()) / (1000 * 60 * 60 * 24)
               );
+              const overduePct = Math.min(
+                100,
+                (daysSince / artifact.staleness_threshold_days) * 100
+              );
+              const severity =
+                daysSince > artifact.staleness_threshold_days * 2
+                  ? "red"
+                  : daysSince > artifact.staleness_threshold_days
+                    ? "yellow"
+                    : "green";
+              const barColor =
+                severity === "red"
+                  ? "bg-semantic-brick"
+                  : severity === "yellow"
+                    ? "bg-semantic-ochre"
+                    : "bg-semantic-green";
+
               return (
-                <div key={artifact.id} className="flex items-center justify-between text-sm py-1.5 px-2 bg-semantic-ochre/5 rounded">
-                  <div>
-                    <span className="text-charcoal">{artifact.name}</span>
-                    <span className="text-xs text-warm-gray ml-2">({artifact.artifact_type})</span>
+                <div
+                  key={artifact.id}
+                  className="border border-warm-border rounded-lg p-2.5 bg-ivory"
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div>
+                      <span className="text-sm font-medium text-charcoal">
+                        {artifact.name}
+                      </span>
+                      <span className="text-xs text-warm-gray ml-2">
+                        ({artifact.artifact_type})
+                      </span>
+                    </div>
+                    <span
+                      className={`text-xs font-medium ${
+                        severity === "red"
+                          ? "text-semantic-brick"
+                          : "text-semantic-ochre"
+                      }`}
+                    >
+                      {daysSince}d / {artifact.staleness_threshold_days}d
+                    </span>
                   </div>
-                  <span className="text-xs text-semantic-ochre-text">{daysSince}d since update</span>
+                  <div className="h-1.5 rounded-full bg-warm-border overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${barColor}`}
+                      style={{ width: `${Math.min(overduePct, 100)}%` }}
+                    />
+                  </div>
+                  <p className="text-[10px] text-warm-gray mt-1">
+                    Last updated{" "}
+                    {new Date(artifact.last_updated_at).toLocaleDateString(
+                      "en-US",
+                      { month: "short", day: "numeric" }
+                    )}
+                    {" — "}
+                    {daysSince > artifact.staleness_threshold_days
+                      ? `${daysSince - artifact.staleness_threshold_days}d overdue`
+                      : "approaching threshold"}
+                  </p>
                 </div>
               );
             })}
@@ -567,7 +776,7 @@ function PipelineReviewSegment({
 
   return (
     <div className="space-y-6">
-      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[3].description}</p>
+      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[4].description}</p>
 
       {/* Idea vault candidates */}
       <div>
@@ -673,7 +882,7 @@ function ActionItemsSegment({
 
   return (
     <div className="space-y-6">
-      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[4].description}</p>
+      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[5].description}</p>
 
       <div>
         <h3 className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">
@@ -758,10 +967,11 @@ export function MonthlyReviewView({
   const supabase = createClient();
   const userCtx = useUserContext();
 
-  const [activeSegment, setActiveSegment] = useState<MonthlySegment>("wins_losses");
+  const [activeSegment, setActiveSegment] = useState<MonthlySegment>("operating_health");
   const [timerRunning, setTimerRunning] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(TOTAL_MINUTES * 60);
   const [segmentTimeUsed, setSegmentTimeUsed] = useState<Record<MonthlySegment, number>>({
+    operating_health: 0,
     wins_losses: 0,
     root_causes: 0,
     system_fixes: 0,
@@ -930,6 +1140,9 @@ export function MonthlyReviewView({
           </div>
         </CardHeader>
         <CardContent>
+          {activeSegment === "operating_health" && (
+            <OperatingHealthSegment isActive={activeSegment === "operating_health"} />
+          )}
           {activeSegment === "wins_losses" && (
             <WinsLossesSegment
               shippedMoves={shippedMoves}

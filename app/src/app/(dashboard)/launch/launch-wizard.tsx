@@ -222,6 +222,64 @@ function GuidancePanel({
 }
 
 // ============================================================
+// Progress Milestones
+// ============================================================
+
+const MILESTONES = [
+  {
+    label: "Foundation Set",
+    description: "Vision defined",
+    steps: [1, 2, 3],
+    icon: "🏗️",
+  },
+  {
+    label: "Scoreboard Live",
+    description: "Measuring what matters",
+    steps: [4, 5],
+    icon: "📊",
+  },
+  {
+    label: "Team Ready",
+    description: "Bets placed, team onboarded",
+    steps: [6, 7],
+    icon: "👥",
+  },
+  {
+    label: "System Active",
+    description: "Cadence established",
+    steps: [8, 9, 10],
+    icon: "⚡",
+  },
+];
+
+function LaunchMilestones({
+  steps,
+}: {
+  steps: Record<string, { completed?: boolean }>;
+}) {
+  const achieved = MILESTONES.filter((m) =>
+    m.steps.every((s) => steps[String(s)]?.completed)
+  );
+
+  if (achieved.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-2 mb-4">
+      {achieved.map((m) => (
+        <div
+          key={m.label}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-moss/10 border border-moss/20"
+        >
+          <span className="text-sm">{m.icon}</span>
+          <span className="text-xs font-semibold text-moss">{m.label}</span>
+          <span className="text-[10px] text-warm-gray">{m.description}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ============================================================
 // Main Launch Wizard
 // ============================================================
 
@@ -399,6 +457,9 @@ export function LaunchWizard({
           );
         })}
       </div>
+
+      {/* Progress Milestones */}
+      <LaunchMilestones steps={progress.steps} />
 
       <Card>
         <CardContent className="pt-6">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -12,11 +12,17 @@ import { TableHeader } from "@tiptap/extension-table-header";
 import { Image } from "@tiptap/extension-image";
 import { Link } from "@tiptap/extension-link";
 import { HorizontalRule } from "@tiptap/extension-horizontal-rule";
+import Collaboration from "@tiptap/extension-collaboration";
+import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import { EditorToolbar } from "./toolbar";
 import { SlashCommandExtension } from "./slash-command";
 import { EntityEmbed } from "./extensions/entity-embed";
 import { InlineComment } from "./extensions/inline-comment";
+import { VideoEmbed } from "./extensions/video-embed";
+import { TweetEmbed } from "./extensions/tweet-embed";
 import { htmlToMarkdown, markdownToHtml } from "./markdown-utils";
+import type * as Y from "yjs";
+import type { Awareness } from "y-protocols/awareness";
 
 // ============================================================
 // TrueNorth Editor
@@ -31,6 +37,7 @@ import { htmlToMarkdown, markdownToHtml } from "./markdown-utils";
 // - Exports to HTML and Markdown
 // - Entity embeds for inline linking
 // - Inline comment marks for text-anchored comments
+// - Yjs real-time collaboration with presence cursors
 // ============================================================
 
 interface TrueNorthEditorProps {
@@ -40,6 +47,9 @@ interface TrueNorthEditorProps {
   placeholder?: string;
   editable?: boolean;
   className?: string;
+  // Collaboration props — when provided, enables real-time collab
+  ydoc?: Y.Doc;
+  awareness?: Awareness;
 }
 
 export function TrueNorthEditor({
@@ -49,19 +59,27 @@ export function TrueNorthEditor({
   placeholder = "Start writing... Type / for commands or use the toolbar above.",
   editable = true,
   className = "",
+  ydoc,
+  awareness,
 }: TrueNorthEditorProps) {
   const [markdownMode, setMarkdownMode] = useState(false);
   const [markdownText, setMarkdownText] = useState("");
 
-  const editor = useEditor({
-    extensions: [
+  const isCollaborative = Boolean(ydoc);
+
+  // Build extension list, swapping history for collaboration when ydoc is present
+  const extensions = useMemo(() => {
+    const base = [
       StarterKit.configure({
-        horizontalRule: false, // We use the separate extension
+        horizontalRule: false,
         codeBlock: {
           HTMLAttributes: {
             class: "truenorth-code-block",
           },
         },
+        // When collaborative, disable StarterKit's built-in history
+        // since Yjs manages undo/redo via its own UndoManager
+        ...(isCollaborative ? { history: false } : {}),
       }),
       Placeholder.configure({
         placeholder,
@@ -90,13 +108,98 @@ export function TrueNorthEditor({
       TableHeader,
       EntityEmbed,
       InlineComment,
+      VideoEmbed,
+      TweetEmbed,
       ...(editable ? [SlashCommandExtension] : []),
-    ],
-    content: content ?? "",
+    ];
+
+    // Add collaboration extensions when ydoc is provided
+    if (ydoc) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      base.push(
+        Collaboration.configure({
+          document: ydoc,
+        }) as any
+      );
+
+      if (awareness) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        base.push(
+          CollaborationCursor.configure({
+            provider: { awareness },
+            user: awareness.getLocalState()?.user ?? {
+              name: "Anonymous",
+              color: "#7A756E",
+            },
+          }) as any
+        );
+      }
+    }
+
+    return base;
+  }, [ydoc, awareness, editable, placeholder, isCollaborative]);
+
+  const editor = useEditor({
+    extensions,
+    // When collaborative, Y.Doc is the source of truth — don't set initial content
+    // (it comes from the Y.Doc). For non-collaborative mode, use the content prop.
+    content: isCollaborative ? undefined : (content ?? ""),
     editable,
     editorProps: {
       attributes: {
         class: "truenorth-editor-content",
+      },
+      handleDrop: (view, event, _slice, moved) => {
+        // Handle drag-and-drop image upload (converts to base64 data URL)
+        if (moved || !event.dataTransfer?.files?.length) return false;
+
+        const file = event.dataTransfer.files[0];
+        if (!file.type.startsWith("image/")) return false;
+
+        // Limit to 5MB
+        if (file.size > 5 * 1024 * 1024) {
+          alert("Image must be under 5MB.");
+          return true;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          const src = reader.result as string;
+          const pos = view.posAtCoords({
+            left: event.clientX,
+            top: event.clientY,
+          });
+          if (pos) {
+            const node = view.state.schema.nodes.image.create({ src });
+            const tr = view.state.tr.insert(pos.pos, node);
+            view.dispatch(tr);
+          }
+        };
+        reader.readAsDataURL(file);
+        return true;
+      },
+      handlePaste: (view, event) => {
+        // Handle pasted images from clipboard
+        const items = event.clipboardData?.items;
+        if (!items) return false;
+
+        for (const item of Array.from(items)) {
+          if (item.type.startsWith("image/")) {
+            const file = item.getAsFile();
+            if (!file || file.size > 5 * 1024 * 1024) continue;
+
+            const reader = new FileReader();
+            reader.onload = () => {
+              const src = reader.result as string;
+              const node = view.state.schema.nodes.image.create({ src });
+              const tr = view.state.tr.replaceSelectionWith(node);
+              view.dispatch(tr);
+            };
+            reader.readAsDataURL(file);
+            return true;
+          }
+        }
+        return false;
       },
     },
     onUpdate: ({ editor }) => {
@@ -108,17 +211,14 @@ export function TrueNorthEditor({
     if (!editor) return;
 
     if (!markdownMode) {
-      // Switch to Markdown: convert HTML to Markdown
       const html = editor.getHTML();
       const md = htmlToMarkdown(html);
       setMarkdownText(md);
       setMarkdownMode(true);
     } else {
-      // Switch back to WYSIWYG: convert Markdown to HTML
       const html = markdownToHtml(markdownText);
       editor.commands.setContent(html);
       setMarkdownMode(false);
-      // Trigger onChange with new content
       onChange?.(editor.getJSON() as Record<string, unknown>, editor.getHTML());
     }
   }, [editor, markdownMode, markdownText, onChange]);

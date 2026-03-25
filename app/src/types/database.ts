@@ -522,3 +522,114 @@ export interface MeetingLogOutput {
   kpiChanges?: Array<{ kpiId: string; action: string; newTarget?: number }>;
   notDoingListChanges?: { added: string[]; removed: string[] };
 }
+
+// ============================================================
+// Operating Health (Phase 4 — Behavioral Culture Metrics)
+// ============================================================
+
+export interface OperatingHealthMetric {
+  key: string;
+  label: string;
+  value: number;
+  unit: string;
+  trend: "improving" | "declining" | "stable";
+  trend_delta: number;
+  status: HealthStatus;
+  sparkline: number[];
+}
+
+export interface OperatingHealthReport {
+  venture_id: string;
+  organization_id: string;
+  computed_at: string;
+  composite_score: number;
+  composite_status: HealthStatus;
+  metrics: {
+    decision_velocity: OperatingHealthMetric;
+    blocker_half_life: OperatingHealthMetric;
+    strategy_connection_rate: OperatingHealthMetric;
+    execution_cadence_health: OperatingHealthMetric;
+    cross_venture_collaboration: OperatingHealthMetric;
+    kill_courage: OperatingHealthMetric;
+  };
+}
+
+export interface OperatingHealthSnapshot {
+  id: string;
+  organization_id: string;
+  venture_id: string;
+  composite_score: number;
+  composite_status: HealthStatus;
+  metrics: Record<string, OperatingHealthMetric>;
+  ai_interpretation: string | null;
+  created_at: string;
+}
+
+// ============================================================
+// AI Narrative Generator (Phase 4)
+// ============================================================
+
+export type NarrativeType =
+  | "weekly_team_update"
+  | "monthly_board_memo"
+  | "investor_update"
+  | "all_hands_talking_points"
+  | "quarterly_retrospective";
+
+export interface GeneratedNarrative {
+  id: string;
+  organization_id: string;
+  venture_id: string | null;
+  narrative_type: NarrativeType;
+  title: string;
+  body_json: Record<string, unknown>;
+  body_html: string;
+  time_window_start: string;
+  time_window_end: string;
+  source_entity_ids: string[];
+  confidence: "high" | "medium" | "low";
+  generated_by: string;
+  created_at: string;
+}
+
+export interface NarrativeDataSnapshot {
+  timeWindow: { start: string; end: string };
+  kpis: {
+    total: number;
+    green: number;
+    yellow: number;
+    red: number;
+    biggestMovers: Array<{ name: string; change_pct: number; direction: "up" | "down" }>;
+    statusChanges: Array<{ name: string; from: HealthStatus; to: HealthStatus }>;
+  };
+  bets: {
+    active: number;
+    statusChanges: Array<{ outcome: string; change: string }>;
+    movesShipped: number;
+    movesCut: number;
+    newBlockers: number;
+  };
+  pulses: {
+    totalSubmitted: number;
+    uniqueContributors: number;
+    topShippedItems: string[];
+    recurringBlockerThemes: string[];
+    signalHighlights: string[];
+  };
+  decisions: Array<{ title: string; context: string; final_decision: string; decided_at: string }>;
+  contentOutput: {
+    published: number;
+    byMachineType: Record<string, number>;
+  };
+  commitments: {
+    completed: number;
+    missed: number;
+    newCreated: number;
+  };
+  operatingHealth: {
+    compositeScore: number;
+    compositeStatus: HealthStatus;
+    metricSummaries: Array<{ label: string; value: number; status: HealthStatus; trend: string }>;
+  } | null;
+  blockersResolved: Array<{ description: string; resolution_notes: string | null; severity: string }>;
+}

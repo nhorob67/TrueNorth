@@ -480,6 +480,28 @@ function MoveRow({
             />
           )}
 
+          {/* Soft warnings */}
+          {(move.kpi_link_ids?.length ?? 0) === 0 &&
+            move.lifecycle_status !== "cut" &&
+            move.lifecycle_status !== "shipped" && (
+              <div className="flex items-start gap-2 text-xs p-2 bg-semantic-ochre/5 border-l-2 border-semantic-ochre rounded">
+                <span className="text-semantic-ochre font-medium flex-shrink-0">Tip:</span>
+                <span className="text-charcoal">
+                  This Move has no linked KPIs. Linking to a lead indicator helps track whether execution is driving outcomes.
+                </span>
+              </div>
+            )}
+          {isRecurring &&
+            !move.content_machine_id &&
+            move.lifecycle_status !== "cut" && (
+              <div className="flex items-start gap-2 text-xs p-2 bg-semantic-ochre/5 border-l-2 border-semantic-ochre rounded">
+                <span className="text-semantic-ochre font-medium flex-shrink-0">Tip:</span>
+                <span className="text-charcoal">
+                  This recurring Move has no content machine linked. If it tracks content output, link a content machine for auto-crediting.
+                </span>
+              </div>
+            )}
+
           {/* Todos */}
           <div>
             <p className="text-xs font-semibold text-warm-gray uppercase mb-1">

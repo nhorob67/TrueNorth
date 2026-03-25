@@ -428,6 +428,66 @@ export function ProcessDetailView({
 
   const auto = AUTOMATION_LEVELS[currentProcess.automation_level];
 
+  const [creatingTemplate, setCreatingTemplate] = useState(false);
+
+  async function handleUseAsTemplate() {
+    setCreatingTemplate(true);
+    setError("");
+
+    // Build editor-friendly body from process content
+    const processContent = currentProcess.content;
+    const bodyParts: string[] = [];
+
+    bodyParts.push(`<h1>${currentProcess.name}</h1>`);
+    if (currentProcess.description) {
+      bodyParts.push(`<p>${currentProcess.description}</p>`);
+    }
+    if (currentProcess.trigger_conditions) {
+      bodyParts.push(
+        `<blockquote><strong>Trigger:</strong> ${currentProcess.trigger_conditions}</blockquote>`
+      );
+    }
+
+    // If process content has steps or structured data, render them
+    const steps = (processContent as Record<string, unknown>).steps as
+      | Array<{ title?: string; body?: string }>
+      | undefined;
+    if (steps && Array.isArray(steps)) {
+      bodyParts.push("<h2>Steps</h2>");
+      steps.forEach((step, i) => {
+        bodyParts.push(
+          `<h3>${i + 1}. ${step.title ?? `Step ${i + 1}`}</h3>`
+        );
+        if (step.body) bodyParts.push(`<p>${step.body}</p>`);
+      });
+    }
+
+    const bodyHtml = bodyParts.join("\n");
+
+    const { data: piece, error: insertErr } = await supabase
+      .from("content_pieces")
+      .insert({
+        organization_id: currentProcess.organization_id,
+        venture_id: currentProcess.venture_id,
+        title: `${currentProcess.name} (from process template)`,
+        machine_type: "deep_content",
+        lifecycle_status: "ideation",
+        body_json: { type: "doc", content: [] },
+        body_html: bodyHtml,
+        owner_id: userCtx.userId,
+      })
+      .select("id")
+      .single();
+
+    if (insertErr || !piece) {
+      setError(insertErr?.message ?? "Failed to create content piece");
+      setCreatingTemplate(false);
+      return;
+    }
+
+    router.push(`/content/${piece.id}`);
+  }
+
   async function handleArchive() {
     const newStatus =
       currentProcess.lifecycle_status === "active" ? "archived" : "active";
@@ -499,6 +559,30 @@ export function ProcessDetailView({
     router.refresh();
   }
 
+  // AI improvement suggestions
+  const [aiSuggestions, setAiSuggestions] = useState<
+    Array<{ title: string; why: string; nextStep: string }> | null
+  >(null);
+  const [aiAutomationAdvice, setAiAutomationAdvice] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  async function handleGetAiSuggestions() {
+    setAiLoading(true);
+    try {
+      const res = await fetch("/api/ai/process-suggestions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ processId: currentProcess.id }),
+      });
+      const data = await res.json();
+      if (data.suggestions) setAiSuggestions(data.suggestions);
+      if (data.automationAdvice) setAiAutomationAdvice(data.automationAdvice);
+    } catch {
+      setError("AI analysis failed. Check your connection.");
+    }
+    setAiLoading(false);
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -539,6 +623,13 @@ export function ProcessDetailView({
         <div className="flex items-center gap-2">
           {!editing && (
             <>
+              <Button
+                variant="tertiary"
+                onClick={handleUseAsTemplate}
+                disabled={creatingTemplate}
+              >
+                {creatingTemplate ? "Creating..." : "Use as Template"}
+              </Button>
               <Button variant="secondary" onClick={() => setEditing(true)}>
                 Edit
               </Button>
@@ -674,8 +765,99 @@ export function ProcessDetailView({
             </Card>
           </div>
 
-          {/* Sidebar - version history */}
+          {/* Sidebar */}
           <div className="space-y-6">
+            {/* Impact Analysis */}
+            {(linkedKpis.length > 0 || linkedBets.length > 0) && (
+              <Card>
+                <CardHeader>
+                  <h3 className="text-sm font-semibold text-moss">
+                    Impact Analysis
+                  </h3>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {linkedKpis.filter((k) => k.health_status === "red" || k.health_status === "yellow").length > 0 && (
+                    <div className="text-xs p-2 bg-semantic-ochre/5 border-l-2 border-semantic-ochre rounded">
+                      <span className="font-medium text-semantic-ochre">Warning:</span>{" "}
+                      <span className="text-charcoal">
+                        Changing this process may affect{" "}
+                        {linkedKpis.filter((k) => k.health_status === "red").length > 0 && (
+                          <span className="text-semantic-brick font-medium">
+                            {linkedKpis.filter((k) => k.health_status === "red").length} red KPI{linkedKpis.filter((k) => k.health_status === "red").length > 1 ? "s" : ""}
+                          </span>
+                        )}
+                        {linkedKpis.filter((k) => k.health_status === "red").length > 0 && linkedKpis.filter((k) => k.health_status === "yellow").length > 0 && " and "}
+                        {linkedKpis.filter((k) => k.health_status === "yellow").length > 0 && (
+                          <span className="text-semantic-ochre font-medium">
+                            {linkedKpis.filter((k) => k.health_status === "yellow").length} yellow KPI{linkedKpis.filter((k) => k.health_status === "yellow").length > 1 ? "s" : ""}
+                          </span>
+                        )}
+                        . Proceed carefully.
+                      </span>
+                    </div>
+                  )}
+                  <div className="text-xs text-warm-gray">
+                    {linkedKpis.length} linked KPI{linkedKpis.length !== 1 ? "s" : ""} · {linkedBets.length} linked bet{linkedBets.length !== 1 ? "s" : ""}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* AI Improvement Suggestions */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-sage">
+                    AI Suggestions
+                  </h3>
+                  <Button
+                    variant="tertiary"
+                    size="sm"
+                    onClick={handleGetAiSuggestions}
+                    disabled={aiLoading}
+                  >
+                    {aiLoading ? "Analyzing..." : aiSuggestions ? "Refresh" : "Analyze"}
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {!aiSuggestions && !aiLoading && (
+                  <p className="text-xs text-warm-gray">
+                    Get AI-powered improvement suggestions based on this process, its linked KPIs, and automation level.
+                  </p>
+                )}
+                {aiSuggestions && (
+                  <div className="space-y-3">
+                    {aiSuggestions.map((s, i) => (
+                      <div
+                        key={i}
+                        className="border-l-2 border-sage pl-2.5 space-y-0.5"
+                      >
+                        <p className="text-xs font-medium text-charcoal">
+                          {s.title}
+                        </p>
+                        <p className="text-[10px] text-warm-gray">{s.why}</p>
+                        <p className="text-[10px] text-sage-text">
+                          Next: {s.nextStep}
+                        </p>
+                      </div>
+                    ))}
+                    {aiAutomationAdvice && (
+                      <div className="mt-3 pt-3 border-t border-warm-border">
+                        <p className="text-xs font-medium text-charcoal mb-0.5">
+                          Automation Advice
+                        </p>
+                        <p className="text-[10px] text-warm-gray">
+                          {aiAutomationAdvice}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Version History */}
             <Card>
               <CardHeader>
                 <h3 className="text-sm font-semibold text-moss">

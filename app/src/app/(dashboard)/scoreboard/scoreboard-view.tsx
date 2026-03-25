@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/loading";
 import { AddToTodoButton } from "@/components/add-to-todo-button";
+import { KpiLinkageMap } from "@/components/kpi-linkage-map";
 
 interface KpiEntry {
   value: number;
@@ -23,6 +24,7 @@ interface Kpi {
   frequency: string;
   owner_id: string;
   kpi_entries: KpiEntry[];
+  linked_driver_kpis: string[];
 }
 
 const healthColors: Record<string, string> = {
@@ -164,8 +166,19 @@ export function ScoreboardView({ kpis }: { kpis: Kpi[] }) {
         </div>
       </div>
 
+      {/* KPI Linkage Map */}
+      <KpiLinkageMap
+        kpis={kpis.map((k) => ({
+          id: k.id,
+          name: k.name,
+          tier: k.tier,
+          health_status: k.health_status,
+          linked_driver_kpis: k.linked_driver_kpis ?? [],
+        }))}
+      />
+
       {filterKpis(tier1).length > 0 && (
-        <section className="mb-8">
+        <section className="mb-8 mt-6">
           <h2 className="text-sm font-semibold text-warm-gray uppercase tracking-wider mb-3">
             Tier 1 — Lagging Indicators
           </h2>

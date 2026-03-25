@@ -27,6 +27,7 @@ interface ContentPiece {
   owner_id: string;
   scheduled_at: string | null;
   created_at: string;
+  campaign_name: string | null;
 }
 
 // ============================================================
@@ -398,16 +399,30 @@ export function ContentMachinesView({
     "published",
   ];
 
-  const filtered =
-    machineFilter === "all"
-      ? pieces
-      : pieces.filter((p) => p.machine_type === machineFilter);
+  const [campaignFilter, setCampaignFilter] = useState<string | "all">("all");
+
+  const filtered = pieces.filter((p) => {
+    if (machineFilter !== "all" && p.machine_type !== machineFilter) return false;
+    if (campaignFilter !== "all" && (p.campaign_name ?? "") !== campaignFilter) return false;
+    return true;
+  });
 
   // Counts per machine
   const counts: Record<string, number> = { all: pieces.length };
   for (const p of pieces) {
     counts[p.machine_type] = (counts[p.machine_type] ?? 0) + 1;
   }
+
+  // Campaign aggregates
+  const campaigns = new Map<string, { total: number; byStage: Record<string, number> }>();
+  for (const p of pieces) {
+    if (!p.campaign_name) continue;
+    const c = campaigns.get(p.campaign_name) ?? { total: 0, byStage: {} };
+    c.total++;
+    c.byStage[p.lifecycle_status] = (c.byStage[p.lifecycle_status] ?? 0) + 1;
+    campaigns.set(p.campaign_name, c);
+  }
+  const campaignNames = Array.from(campaigns.keys()).sort();
 
   if (pieces.length === 0 && !showAdd) {
     return (
@@ -493,6 +508,51 @@ export function ContentMachinesView({
           counts={counts}
         />
       </div>
+
+      {/* Campaign summary */}
+      {campaignNames.length > 0 && (
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <h3 className="text-xs font-semibold text-warm-gray uppercase">
+              Campaigns
+            </h3>
+            {campaignFilter !== "all" && (
+              <button
+                onClick={() => setCampaignFilter("all")}
+                className="text-xs text-clay-text hover:text-clay"
+              >
+                Clear filter
+              </button>
+            )}
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {campaignNames.map((name) => {
+              const c = campaigns.get(name)!;
+              const isActive = campaignFilter === name;
+              const published = c.byStage["published"] ?? 0;
+              const scheduled = c.byStage["scheduled"] ?? 0;
+              return (
+                <button
+                  key={name}
+                  onClick={() => setCampaignFilter(isActive ? "all" : name)}
+                  className={`flex-shrink-0 rounded-lg border px-3 py-2 text-left transition-colors ${
+                    isActive
+                      ? "border-moss bg-moss/10"
+                      : "border-warm-border bg-ivory hover:bg-parchment"
+                  }`}
+                >
+                  <p className={`text-xs font-semibold ${isActive ? "text-moss" : "text-charcoal"}`}>
+                    {name}
+                  </p>
+                  <p className="text-[10px] text-warm-gray mt-0.5">
+                    {c.total} pieces · {published} published · {scheduled} scheduled
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Kanban */}
       <div className="flex gap-4 overflow-x-auto pb-4">

@@ -361,6 +361,48 @@ function FocusSegment({
   bets: Bet[];
   teamMembers: TeamMember[];
 }) {
+  // Build per-person move breakdown across all bets
+  const movesByPerson = new Map<
+    string,
+    { name: string; moves: Array<MoveInBet & { betOutcome: string }> }
+  >();
+
+  for (const bet of bets) {
+    for (const move of bet.moves) {
+      if (move.lifecycle_status === "cut" || move.lifecycle_status === "shipped")
+        continue;
+      const person = movesByPerson.get(move.owner_id) ?? {
+        name:
+          teamMembers.find((m) => m.user_id === move.owner_id)?.full_name ??
+          "Unassigned",
+        moves: [],
+      };
+      person.moves.push({ ...move, betOutcome: bet.outcome });
+      movesByPerson.set(move.owner_id, person);
+    }
+  }
+
+  // Collect all recurring moves across bets for rhythm review
+  const allRecurring: Array<MoveInBet & { betOutcome: string; ownerName: string }> = [];
+  for (const bet of bets) {
+    for (const move of bet.moves) {
+      if (move.type === "recurring" && move.lifecycle_status !== "cut") {
+        allRecurring.push({
+          ...move,
+          betOutcome: bet.outcome,
+          ownerName:
+            teamMembers.find((m) => m.user_id === move.owner_id)?.full_name ?? "",
+        });
+      }
+    }
+  }
+
+  const healthDot: Record<string, string> = {
+    green: "bg-semantic-green",
+    yellow: "bg-semantic-ochre",
+    red: "bg-semantic-brick",
+  };
+
   return (
     <div className="space-y-4">
       <p className="text-xs text-warm-gray">
@@ -373,12 +415,21 @@ function FocusSegment({
         </div>
       )}
 
+      {/* Per-bet overview */}
       {bets.map((bet) => {
         const activeMoves = bet.moves.filter(
           (m) => m.lifecycle_status !== "cut" && m.lifecycle_status !== "shipped"
         );
         const redMoves = activeMoves.filter((m) => m.health_status === "red");
         const recurringMoves = activeMoves.filter((m) => m.type === "recurring");
+        const greenPct =
+          activeMoves.length > 0
+            ? Math.round(
+                (activeMoves.filter((m) => m.health_status === "green").length /
+                  activeMoves.length) *
+                  100
+              )
+            : 0;
 
         return (
           <Card key={bet.id}>
@@ -394,9 +445,22 @@ function FocusSegment({
                       ?.full_name ?? "Unassigned"}
                   </p>
                 </div>
-                <Badge status={bet.health_status}>
-                  {bet.health_status.toUpperCase()}
-                </Badge>
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className={`text-xs font-semibold ${
+                      greenPct >= 80
+                        ? "text-semantic-green-text"
+                        : greenPct >= 50
+                          ? "text-semantic-ochre"
+                          : "text-semantic-brick"
+                    }`}
+                  >
+                    {greenPct}% healthy
+                  </span>
+                  <Badge status={bet.health_status}>
+                    {bet.health_status.toUpperCase()}
+                  </Badge>
+                </div>
               </div>
 
               {/* Move summary */}
@@ -438,6 +502,153 @@ function FocusSegment({
           </Card>
         );
       })}
+
+      {/* Per-person Move breakdown */}
+      {movesByPerson.size > 0 && (
+        <div>
+          <h3 className="text-xs font-semibold text-warm-gray uppercase mb-2">
+            Moves by Person
+          </h3>
+          <div className="space-y-2">
+            {Array.from(movesByPerson.entries()).map(([userId, person]) => {
+              const red = person.moves.filter((m) => m.health_status === "red");
+              const yellow = person.moves.filter(
+                (m) => m.health_status === "yellow"
+              );
+              return (
+                <Card key={userId}>
+                  <CardContent className="py-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-charcoal">
+                        {person.name}
+                      </span>
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="text-warm-gray">
+                          {person.moves.length} active
+                        </span>
+                        {red.length > 0 && (
+                          <span className="text-semantic-brick font-medium">
+                            {red.length} red
+                          </span>
+                        )}
+                        {yellow.length > 0 && (
+                          <span className="text-semantic-ochre font-medium">
+                            {yellow.length} yellow
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {(red.length > 0 || yellow.length > 0) && (
+                      <div className="mt-1.5 space-y-0.5">
+                        {[...red, ...yellow].map((m) => (
+                          <div
+                            key={m.id}
+                            className="flex items-center gap-2 text-xs"
+                          >
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full ${healthDot[m.health_status] ?? "bg-warm-gray"}`}
+                            />
+                            <span className="text-charcoal truncate">
+                              {m.title}
+                            </span>
+                            <span className="text-warm-gray ml-auto text-[10px] flex-shrink-0">
+                              {m.betOutcome.slice(0, 25)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Rhythm Review (60-second overview) */}
+      {allRecurring.length > 0 && (
+        <div>
+          <h3 className="text-xs font-semibold text-warm-gray uppercase mb-2">
+            Rhythm Review
+          </h3>
+          <Card>
+            <CardContent className="py-3">
+              <div className="space-y-1.5">
+                {allRecurring
+                  .sort((a, b) => {
+                    const order: Record<string, number> = {
+                      red: 0,
+                      yellow: 1,
+                      green: 2,
+                    };
+                    return (
+                      (order[a.health_status] ?? 3) -
+                      (order[b.health_status] ?? 3)
+                    );
+                  })
+                  .map((m) => (
+                    <div
+                      key={m.id}
+                      className="flex items-center gap-2 text-xs"
+                    >
+                      <span
+                        className={`w-2 h-2 rounded-full flex-shrink-0 ${healthDot[m.health_status] ?? "bg-warm-gray"}`}
+                      />
+                      <span className="text-charcoal truncate flex-1">
+                        {m.title}
+                      </span>
+                      <span className="text-warm-gray text-[10px] flex-shrink-0">
+                        {m.cadence ?? ""}
+                        {m.target_per_cycle
+                          ? ` · ${m.target_per_cycle}/cycle`
+                          : ""}
+                      </span>
+                      <span className="text-warm-gray text-[10px] flex-shrink-0">
+                        {m.ownerName.split(" ")[0]}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+              <div className="flex items-center gap-3 mt-2 pt-2 border-t border-warm-border text-xs">
+                <span className="text-warm-gray">
+                  {allRecurring.length} rhythms total
+                </span>
+                {allRecurring.filter((m) => m.health_status === "red").length >
+                  0 && (
+                  <span className="text-semantic-brick font-medium">
+                    {
+                      allRecurring.filter((m) => m.health_status === "red")
+                        .length
+                    }{" "}
+                    red
+                  </span>
+                )}
+                {allRecurring.filter((m) => m.health_status === "yellow")
+                  .length > 0 && (
+                  <span className="text-semantic-ochre font-medium">
+                    {
+                      allRecurring.filter((m) => m.health_status === "yellow")
+                        .length
+                    }{" "}
+                    yellow
+                  </span>
+                )}
+                {allRecurring.filter((m) => m.health_status === "green")
+                  .length > 0 && (
+                  <span className="text-semantic-green-text font-medium">
+                    {
+                      allRecurring.filter((m) => m.health_status === "green")
+                        .length
+                    }{" "}
+                    green
+                  </span>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

@@ -257,10 +257,12 @@ function IdeaDetailPanel({
   idea,
   strategicFilters,
   onClose,
+  candidateThreshold = 70,
 }: {
   idea: Idea;
   strategicFilters: StrategicFilter[];
   onClose: () => void;
+  candidateThreshold?: number;
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -358,6 +360,7 @@ function IdeaDetailPanel({
     if (idea.lifecycle_status === "quarantine" && !coolingDone) return;
     if (idea.lifecycle_status === "filter_review" && !allFiltersPassed) return;
     if (idea.lifecycle_status === "scoring" && !classification) return;
+    if (idea.lifecycle_status === "scoring" && totalScore < candidateThreshold) return;
 
     await supabase
       .from("ideas")
@@ -755,16 +758,24 @@ function IdeaDetailPanel({
             scoreAlignment &&
             scoreRevenue &&
             scoreEffort && (
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={async () => {
-                  await handleSave();
-                  advanceStage();
-                }}
-              >
-                Promote to Candidate
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={totalScore < candidateThreshold}
+                  onClick={async () => {
+                    await handleSave();
+                    advanceStage();
+                  }}
+                >
+                  Promote to Candidate
+                </Button>
+                {totalScore < candidateThreshold && (
+                  <span className="text-xs text-semantic-ochre">
+                    Score {totalScore.toFixed(1)} below threshold ({candidateThreshold})
+                  </span>
+                )}
+              </div>
             )}
 
           {idea.lifecycle_status !== "archived" &&
@@ -841,9 +852,11 @@ function KanbanColumn({
 export function IdeaVaultView({
   ideas,
   strategicFilters,
+  candidateThreshold = 70,
 }: {
   ideas: Idea[];
   strategicFilters: StrategicFilter[];
+  candidateThreshold?: number;
 }) {
   const [showAdd, setShowAdd] = useState(false);
   const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null);
@@ -936,6 +949,7 @@ export function IdeaVaultView({
             idea={selectedIdea}
             strategicFilters={strategicFilters}
             onClose={() => setSelectedIdea(null)}
+            candidateThreshold={candidateThreshold}
           />
         </>
       )}
