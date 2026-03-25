@@ -76,15 +76,15 @@ export const KPI_TEMPLATES: KpiTemplate[] = [
     formula_description: "SUM(ad_spend WHERE date in week)",
   },
   {
-    template_slug: "sub_customer_conv_90d",
-    name: "Subscriber → Customer Conversion Rate (90-day)",
-    description: "Percentage of subscribers who purchase within 90 days",
-    tier: "tier1",
-    frequency: "monthly",
-    unit: "%",
-    directionality: "up_is_good",
+    template_slug: "median_ttfr",
+    name: "Median Time to First Reply (Community)",
+    description: "Median hours until a new topic receives its first reply",
+    tier: "tier2",
+    frequency: "weekly",
+    unit: "hours",
+    directionality: "down_is_good",
     formula_description:
-      "COUNT(subscribers who purchased within 90 days) / COUNT(total subscribers in cohort)",
+      "MEDIAN(first_reply_created_at - topic_created_at) for topics created in the last 7 days",
   },
   {
     template_slug: "wau_mau",

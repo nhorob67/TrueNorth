@@ -112,6 +112,13 @@ export function KpiDetailView({
                 <Button
                   variant="tertiary"
                   size="sm"
+                  onClick={() => router.push(`/scoreboard/${kpi.id}/edit`)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="tertiary"
+                  size="sm"
                   onClick={() => router.push(`/scoreboard/${kpi.id}/integrations`)}
                 >
                   Integrations

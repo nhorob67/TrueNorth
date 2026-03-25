@@ -59,6 +59,8 @@ const DISCOURSE_METRICS = [
   { value: "posts_7_days", label: "New Posts (7 days)" },
   { value: "likes_7_days", label: "Likes (7 days)" },
   { value: "dau", label: "Daily Active Users (admin)" },
+  { value: "posts_with_2_replies_24h", label: "% Posts with ≥2 Replies in 24h" },
+  { value: "median_ttfr_hours", label: "Median Time to First Reply (hours)" },
 ];
 
 function generateWebhookToken(): string {

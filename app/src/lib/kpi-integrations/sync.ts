@@ -56,7 +56,7 @@ export async function syncKpiIntegration(
           apiKey: config.apiKey as string,
           apiUsername: (config.apiUsername as string) || "system",
           baseUrl: config.baseUrl as string,
-          metric: config.metric as "user_count" | "wau_over_mau" | "active_users_7_days" | "active_users_30_days" | "topics_7_days" | "posts_7_days" | "likes_7_days" | "dau",
+          metric: config.metric as "user_count" | "wau_over_mau" | "active_users_7_days" | "active_users_30_days" | "topics_7_days" | "posts_7_days" | "likes_7_days" | "dau" | "posts_with_2_replies_24h" | "median_ttfr_hours",
         });
         return { value };
       }
