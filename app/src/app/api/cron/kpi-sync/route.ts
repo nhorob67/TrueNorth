@@ -30,7 +30,7 @@ export async function GET(request: Request) {
       .from("kpi_integrations")
       .select("*")
       .eq("enabled", true)
-      .in("integration_type", ["stripe", "convertkit", "beehiiv"]);
+      .in("integration_type", ["stripe", "convertkit", "beehiiv", "discourse"]);
 
     if (fetchError) {
       return NextResponse.json(

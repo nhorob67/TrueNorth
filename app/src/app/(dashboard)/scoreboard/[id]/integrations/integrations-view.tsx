@@ -26,6 +26,7 @@ const INTEGRATION_LABELS: Record<IntegrationType, string> = {
   stripe: "Stripe",
   convertkit: "ConvertKit",
   beehiiv: "Beehiiv",
+  discourse: "Discourse",
   webhook: "Webhook",
   csv: "CSV Import",
 };
@@ -47,6 +48,17 @@ const BEEHIIV_METRICS = [
   { value: "subscriber_count", label: "Subscriber Count" },
   { value: "open_rate", label: "Open Rate (%)" },
   { value: "click_rate", label: "Click Rate (%)" },
+];
+
+const DISCOURSE_METRICS = [
+  { value: "user_count", label: "Total Users" },
+  { value: "wau_over_mau", label: "WAU/MAU Ratio (%)" },
+  { value: "active_users_7_days", label: "Weekly Active Users" },
+  { value: "active_users_30_days", label: "Monthly Active Users" },
+  { value: "topics_7_days", label: "New Topics (7 days)" },
+  { value: "posts_7_days", label: "New Posts (7 days)" },
+  { value: "likes_7_days", label: "Likes (7 days)" },
+  { value: "dau", label: "Daily Active Users (admin)" },
 ];
 
 function generateWebhookToken(): string {
@@ -219,12 +231,16 @@ function AddIntegrationForm({
   const [apiKey, setApiKey] = useState("");
   const [metric, setMetric] = useState("");
   const [publicationId, setPublicationId] = useState("");
+  const [baseUrl, setBaseUrl] = useState("");
+  const [apiUsername, setApiUsername] = useState("system");
   const [saving, setSaving] = useState(false);
 
   function resetForm() {
     setApiKey("");
     setMetric("");
     setPublicationId("");
+    setBaseUrl("");
+    setApiUsername("system");
   }
 
   async function handleSave() {
@@ -241,6 +257,14 @@ function AddIntegrationForm({
         break;
       case "beehiiv":
         config = { apiKey, publicationId, metric: metric || "subscriber_count" };
+        break;
+      case "discourse":
+        config = {
+          apiKey,
+          apiUsername: apiUsername || "system",
+          baseUrl,
+          metric: metric || "user_count",
+        };
         break;
       case "webhook":
         config = { webhook_token: generateWebhookToken() };
@@ -270,7 +294,9 @@ function AddIntegrationForm({
         ? CONVERTKIT_METRICS
         : type === "beehiiv"
           ? BEEHIIV_METRICS
-          : [];
+          : type === "discourse"
+            ? DISCOURSE_METRICS
+            : [];
 
   return (
     <Card>
@@ -289,11 +315,12 @@ function AddIntegrationForm({
           <option value="stripe">Stripe</option>
           <option value="convertkit">ConvertKit</option>
           <option value="beehiiv">Beehiiv</option>
+          <option value="discourse">Discourse</option>
           <option value="webhook">Webhook (incoming)</option>
         </Select>
 
         {/* Type-specific config fields */}
-        {(type === "stripe" || type === "convertkit" || type === "beehiiv") && (
+        {(type === "stripe" || type === "convertkit" || type === "beehiiv" || type === "discourse") && (
           <>
             <Input
               label="API Key"
@@ -333,6 +360,23 @@ function AddIntegrationForm({
           />
         )}
 
+        {type === "discourse" && (
+          <>
+            <Input
+              label="Forum URL"
+              value={baseUrl}
+              onChange={(e) => setBaseUrl(e.target.value)}
+              placeholder="https://forum.example.com"
+            />
+            <Input
+              label="API Username"
+              value={apiUsername}
+              onChange={(e) => setApiUsername(e.target.value)}
+              placeholder="system"
+            />
+          </>
+        )}
+
         {type === "webhook" && (
           <p className="text-xs text-subtle">
             A unique webhook token will be auto-generated. After saving, you will
@@ -345,8 +389,9 @@ function AddIntegrationForm({
           loading={saving}
           disabled={
             saving ||
-            ((type === "stripe" || type === "convertkit" || type === "beehiiv") && !apiKey) ||
-            (type === "beehiiv" && !publicationId)
+            ((type === "stripe" || type === "convertkit" || type === "beehiiv" || type === "discourse") && !apiKey) ||
+            (type === "beehiiv" && !publicationId) ||
+            (type === "discourse" && !baseUrl)
           }
         >
           Save Integration
@@ -508,8 +553,8 @@ export function IntegrationsView({
             No integrations configured yet.
           </p>
           <p className="text-xs text-subtle mt-1">
-            Add a Stripe, ConvertKit, Beehiiv, or Webhook integration to automatically
-            sync your KPI data.
+            Add a Stripe, ConvertKit, Beehiiv, Discourse, or Webhook integration to
+            automatically sync your KPI data.
           </p>
         </div>
       )}

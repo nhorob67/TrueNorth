@@ -28,6 +28,7 @@ interface Kpi {
   health_status: "green" | "yellow" | "red";
   threshold_logic: Record<string, number>;
   action_playbook: Record<string, string>;
+  formula_description: string | null;
 }
 
 function DataEntryForm({ kpiId, onAdded }: { kpiId: string; onAdded: () => void }) {
@@ -119,6 +120,11 @@ export function KpiDetailView({
               {kpi.description && (
                 <p className="text-sm text-subtle mt-1">
                   {kpi.description}
+                </p>
+              )}
+              {kpi.formula_description && (
+                <p className="text-xs text-faded font-mono mt-1">
+                  Formula: {kpi.formula_description}
                 </p>
               )}
             </div>

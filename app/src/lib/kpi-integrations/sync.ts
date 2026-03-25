@@ -7,6 +7,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { KpiIntegration } from "@/types/database";
 import { fetchStripeMetric } from "./stripe";
 import { fetchConvertKitMetric, fetchBeehiivMetric } from "./email";
+import { fetchDiscourseMetric } from "./discourse";
 
 export interface SyncResult {
   value: number | null;
@@ -46,6 +47,16 @@ export async function syncKpiIntegration(
           apiKey: config.apiKey as string,
           publicationId: config.publicationId as string,
           metric: config.metric as "subscriber_count" | "open_rate" | "click_rate",
+        });
+        return { value };
+      }
+
+      case "discourse": {
+        const value = await fetchDiscourseMetric({
+          apiKey: config.apiKey as string,
+          apiUsername: (config.apiUsername as string) || "system",
+          baseUrl: config.baseUrl as string,
+          metric: config.metric as "user_count" | "wau_over_mau" | "active_users_7_days" | "active_users_30_days" | "topics_7_days" | "posts_7_days" | "likes_7_days" | "dau",
         });
         return { value };
       }

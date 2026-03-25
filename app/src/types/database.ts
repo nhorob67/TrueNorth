@@ -465,10 +465,52 @@ export interface QuietHoursConfig {
 }
 
 // ============================================================
+// KPIs (Pillar 3 — Scoreboard)
+// ============================================================
+
+export type KpiTier = "tier1" | "tier2";
+export type KpiFrequency = "daily" | "weekly" | "monthly" | "quarterly";
+export type KpiDirectionality = "up_is_good" | "down_is_good" | "target_is_good";
+
+export interface Kpi {
+  id: string;
+  organization_id: string;
+  venture_id: string;
+  name: string;
+  description: string | null;
+  unit: string | null;
+  frequency: KpiFrequency;
+  tier: KpiTier;
+  directionality: KpiDirectionality;
+  aggregation_window: string | null;
+  owner_id: string;
+  target: number | null;
+  current_value: number | null;
+  health_status: HealthStatus;
+  lifecycle_status: LifecycleStatus;
+  threshold_logic: Record<string, number>;
+  linked_driver_kpis: string[];
+  action_playbook: Record<string, string>;
+  formula_description: string | null;
+  template_slug: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface KpiEntry {
+  id: string;
+  kpi_id: string;
+  value: number;
+  recorded_at: string;
+  source: string;
+  created_at: string;
+}
+
+// ============================================================
 // KPI Integrations (Pillar 3.11)
 // ============================================================
 
-export type IntegrationType = "stripe" | "convertkit" | "beehiiv" | "webhook" | "csv";
+export type IntegrationType = "stripe" | "convertkit" | "beehiiv" | "discourse" | "webhook" | "csv";
 
 export interface KpiIntegration {
   id: string;

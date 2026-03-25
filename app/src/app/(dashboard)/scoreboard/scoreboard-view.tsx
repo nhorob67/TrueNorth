@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -113,6 +114,28 @@ function KpiTile({ kpi }: { kpi: Kpi }) {
 
 export function ScoreboardView({ kpis }: { kpis: Kpi[] }) {
   const [filter, setFilter] = useState<"all" | "red" | "yellow">("all");
+  const [seeding, setSeeding] = useState(false);
+  const router = useRouter();
+
+  async function handleSeedDefaults() {
+    setSeeding(true);
+    try {
+      const res = await fetch("/api/kpi/provision-defaults", { method: "POST" });
+      const data = await res.json();
+      if (data.error) {
+        alert(`Error: ${data.error}`);
+      } else if (data.created === 0) {
+        alert("All default KPIs already exist.");
+      } else {
+        alert(`Created ${data.created} default KPIs.`);
+        router.refresh();
+      }
+    } catch {
+      alert("Failed to seed default KPIs.");
+    } finally {
+      setSeeding(false);
+    }
+  }
 
   const tier1 = kpis.filter((k) => k.tier === "tier1");
   const tier2 = kpis.filter((k) => k.tier === "tier2");
@@ -128,9 +151,18 @@ export function ScoreboardView({ kpis }: { kpis: Kpi[] }) {
           title="No KPIs yet"
           description="Create your first KPI to start tracking what matters."
           action={
-            <Button onClick={() => (window.location.href = "/scoreboard/new")}>
-              Add KPI
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="secondary"
+                onClick={handleSeedDefaults}
+                disabled={seeding}
+              >
+                {seeding ? "Seeding..." : "Seed Default KPIs"}
+              </Button>
+              <Button onClick={() => (window.location.href = "/scoreboard/new")}>
+                Add KPI
+              </Button>
+            </div>
           }
         />
       </div>
@@ -157,6 +189,14 @@ export function ScoreboardView({ kpis }: { kpis: Kpi[] }) {
               </button>
             ))}
           </div>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handleSeedDefaults}
+            disabled={seeding}
+          >
+            {seeding ? "Seeding..." : "Seed Default KPIs"}
+          </Button>
           <Button
             size="sm"
             onClick={() => (window.location.href = "/scoreboard/new")}
