@@ -192,7 +192,6 @@ export function ScoreboardView({ kpis }: { kpis: Kpi[] }) {
         lifecycle_status: "active",
         threshold_logic: {},
         action_playbook: {},
-        linked_driver_kpis: [],
       }));
 
       const { error: insertError } = await supabase.from("kpis").insert(rows);
@@ -201,7 +200,7 @@ export function ScoreboardView({ kpis }: { kpis: Kpi[] }) {
         return;
       }
 
-      // Wire linked_driver_kpis for derived KPIs
+      // Wire driver links via kpi_driver_links junction table
       const templatesWithLinks = toCreate.filter(
         (t) => t.linked_template_slugs && t.linked_template_slugs.length > 0
       );
@@ -221,16 +220,16 @@ export function ScoreboardView({ kpis }: { kpis: Kpi[] }) {
         );
 
         for (const t of templatesWithLinks) {
-          const driverIds = (t.linked_template_slugs ?? [])
-            .map((slug) => slugToId.get(slug))
-            .filter(Boolean);
-
           const kpiId = slugToId.get(t.template_slug);
-          if (kpiId && driverIds.length > 0) {
-            await supabase
-              .from("kpis")
-              .update({ linked_driver_kpis: driverIds })
-              .eq("id", kpiId);
+          if (!kpiId) continue;
+
+          const links = (t.linked_template_slugs ?? [])
+            .map((slug) => slugToId.get(slug))
+            .filter(Boolean)
+            .map((driverId) => ({ kpi_id: kpiId, driver_kpi_id: driverId }));
+
+          if (links.length > 0) {
+            await supabase.from("kpi_driver_links").insert(links);
           }
         }
       }

@@ -489,7 +489,6 @@ export interface Kpi {
   health_status: HealthStatus;
   lifecycle_status: LifecycleStatus;
   threshold_logic: Record<string, number>;
-  linked_driver_kpis: string[];
   action_playbook: Record<string, string>;
   formula_description: string | null;
   template_slug: string | null;
