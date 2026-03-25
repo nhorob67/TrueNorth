@@ -100,9 +100,17 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
+  // Skip cross-origin requests and Supabase auth endpoints
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith("/auth/")) return;
+
   if (event.request.mode === "navigate") {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match("/"))
+      fetch(event.request).catch(async () => {
+        const cached = await caches.match("/");
+        return cached || new Response("Offline", { status: 503, statusText: "Service Unavailable" });
+      })
     );
     return;
   }
@@ -116,7 +124,10 @@ self.addEventListener("fetch", (event) => {
         }
         return response;
       })
-      .catch(() => caches.match(event.request))
+      .catch(async () => {
+        const cached = await caches.match(event.request);
+        return cached || new Response("Offline", { status: 503, statusText: "Service Unavailable" });
+      })
   );
 });
 
