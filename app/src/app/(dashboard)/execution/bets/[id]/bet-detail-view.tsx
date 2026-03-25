@@ -45,7 +45,7 @@ interface Move {
   type: "milestone" | "recurring";
   position: number;
   cut_reason: string | null;
-  kpi_link_ids: string[];
+  move_kpi_links: { kpi_id: string }[];
   effort_estimate: { value?: number; unit?: string } | null;
   cadence: MoveCadence | null;
   target_per_cycle: number | null;
@@ -270,12 +270,11 @@ function MoveRow({
   const instances = move.move_instances ?? [];
 
   async function linkKpi(_entityType: string, entityId: string) {
-    const existing = move.kpi_link_ids ?? [];
-    if (existing.includes(entityId)) return;
+    const existing = move.move_kpi_links ?? [];
+    if (existing.some((l) => l.kpi_id === entityId)) return;
     await supabase
-      .from("moves")
-      .update({ kpi_link_ids: [...existing, entityId] })
-      .eq("id", move.id);
+      .from("move_kpi_links")
+      .insert({ move_id: move.id, kpi_id: entityId });
     setShowLinkKpi(false);
     onRefresh();
   }
@@ -377,10 +376,10 @@ function MoveRow({
                 {move.effort_estimate.value}h
               </span>
             )}
-            {(move.kpi_link_ids?.length ?? 0) > 0 && (
+            {(move.move_kpi_links?.length ?? 0) > 0 && (
               <span className="text-xs px-1.5 py-0.5 rounded bg-semantic-green/10 text-semantic-green-text">
-                {move.kpi_link_ids.length} KPI
-                {move.kpi_link_ids.length !== 1 ? "s" : ""}
+                {move.move_kpi_links.length} KPI
+                {move.move_kpi_links.length !== 1 ? "s" : ""}
               </span>
             )}
             {isRecurring && move.cadence && move.target_per_cycle && (
@@ -481,7 +480,7 @@ function MoveRow({
           )}
 
           {/* Soft warnings */}
-          {(move.kpi_link_ids?.length ?? 0) === 0 &&
+          {(move.move_kpi_links?.length ?? 0) === 0 &&
             move.lifecycle_status !== "cut" &&
             move.lifecycle_status !== "shipped" && (
               <div className="flex items-start gap-2 text-xs p-2 bg-semantic-ochre/5 border-l-2 border-semantic-ochre rounded">

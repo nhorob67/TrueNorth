@@ -505,6 +505,7 @@ export function VisionBoardView({
 
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Editable state
   const [bhag, setBhag] = useState(vision?.bhag ?? "");
@@ -520,6 +521,7 @@ export function VisionBoardView({
 
   async function handleSave() {
     setSaving(true);
+    setError(null);
     const payload = {
       bhag,
       strategic_filters: filters,
@@ -532,18 +534,33 @@ export function VisionBoardView({
 
     if (vision) {
       // Create snapshot before updating
-      await supabase.from("vision_snapshots").insert({
+      const { error: snapErr } = await supabase.from("vision_snapshots").insert({
         vision_id: vision.id,
         snapshot: vision,
         created_by: userCtx.userId,
       });
+      if (snapErr) {
+        setError(`Failed to save snapshot: ${snapErr.message}`);
+        setSaving(false);
+        return;
+      }
 
-      await supabase
+      const { error: updateErr } = await supabase
         .from("visions")
         .update({ ...payload, updated_at: new Date().toISOString() })
         .eq("id", vision.id);
+      if (updateErr) {
+        setError(`Failed to update vision: ${updateErr.message}`);
+        setSaving(false);
+        return;
+      }
     } else {
-      await supabase.from("visions").insert(payload);
+      const { error: insertErr } = await supabase.from("visions").insert(payload);
+      if (insertErr) {
+        setError(`Failed to create vision: ${insertErr.message}`);
+        setSaving(false);
+        return;
+      }
     }
 
     setSaving(false);
@@ -630,6 +647,12 @@ export function VisionBoardView({
           </div>
         )}
       </div>
+
+      {error && (
+        <div className="mb-4 rounded-lg border border-semantic-brick/30 bg-semantic-brick/10 px-4 py-3 text-sm text-semantic-brick">
+          {error}
+        </div>
+      )}
 
       <div className="space-y-6">
         <BhagSection bhag={bhag} editing={editing} onChange={setBhag} />

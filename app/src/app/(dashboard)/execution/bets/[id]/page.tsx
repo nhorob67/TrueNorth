@@ -17,7 +17,7 @@ export default async function BetDetailPage({
     supabase
       .from("bets")
       .select(
-        "*, moves(id, title, description, lifecycle_status, health_status, due_date, owner_id, type, position, cut_reason, kpi_link_ids, effort_estimate, cadence, target_per_cycle, move_instances(id, move_id, cycle_start, cycle_end, status, completed_at, notes))"
+        "*, moves(id, title, description, lifecycle_status, health_status, due_date, owner_id, type, position, cut_reason, effort_estimate, cadence, target_per_cycle, content_machine_id, external_source, move_kpi_links(kpi_id), move_instances(id, move_id, cycle_start, cycle_end, status, completed_at, notes))"
       )
       .eq("id", id)
       .single(),

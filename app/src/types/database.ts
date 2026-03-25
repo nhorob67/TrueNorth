@@ -166,7 +166,6 @@ export interface Move {
   health_status: HealthStatus;
   due_date: string | null;
   effort_estimate: { value?: number; unit?: string } | null;
-  kpi_link_ids: string[];
   position: number;
   cut_reason: string | null;
   // Recurring-specific fields
