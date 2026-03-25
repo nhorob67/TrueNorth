@@ -1,7 +1,6 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
 import type { KpiTier, KpiFrequency, KpiDirectionality } from "@/types/database";
 
-interface KpiTemplate {
+export interface KpiTemplate {
   template_slug: string;
   name: string;
   description: string;
@@ -111,91 +110,3 @@ export const KPI_TEMPLATES: KpiTemplate[] = [
   },
 ];
 
-export async function provisionDefaultKpis(
-  supabase: SupabaseClient,
-  ventureId: string,
-  organizationId: string,
-  ownerId: string
-): Promise<{ created: number; skipped: number }> {
-  // Check which template slugs already exist for this venture
-  const { data: existing } = await supabase
-    .from("kpis")
-    .select("template_slug")
-    .eq("venture_id", ventureId)
-    .not("template_slug", "is", null);
-
-  const existingSlugs = new Set(
-    (existing ?? []).map((k: { template_slug: string }) => k.template_slug)
-  );
-
-  const toCreate = KPI_TEMPLATES.filter(
-    (t) => !existingSlugs.has(t.template_slug)
-  );
-
-  if (toCreate.length === 0) {
-    return { created: 0, skipped: KPI_TEMPLATES.length };
-  }
-
-  // Insert all new KPIs
-  const rows = toCreate.map((t) => ({
-    organization_id: organizationId,
-    venture_id: ventureId,
-    owner_id: ownerId,
-    name: t.name,
-    description: t.description,
-    unit: t.unit,
-    frequency: t.frequency,
-    tier: t.tier,
-    directionality: t.directionality,
-    formula_description: t.formula_description,
-    template_slug: t.template_slug,
-    health_status: "green",
-    lifecycle_status: "active",
-    threshold_logic: {},
-    action_playbook: {},
-    linked_driver_kpis: [],
-  }));
-
-  const { error } = await supabase.from("kpis").insert(rows);
-  if (error) throw error;
-
-  // Wire linked_driver_kpis for derived KPIs (e.g., LTV:CAC ratio)
-  const templatesWithLinks = toCreate.filter(
-    (t) => t.linked_template_slugs && t.linked_template_slugs.length > 0
-  );
-
-  if (templatesWithLinks.length > 0) {
-    // Fetch all seeded KPIs to resolve slugs → IDs
-    const { data: seeded } = await supabase
-      .from("kpis")
-      .select("id, template_slug")
-      .eq("venture_id", ventureId)
-      .not("template_slug", "is", null);
-
-    const slugToId = new Map(
-      (seeded ?? []).map((k: { id: string; template_slug: string }) => [
-        k.template_slug,
-        k.id,
-      ])
-    );
-
-    for (const t of templatesWithLinks) {
-      const driverIds = (t.linked_template_slugs ?? [])
-        .map((slug) => slugToId.get(slug))
-        .filter(Boolean);
-
-      const kpiId = slugToId.get(t.template_slug);
-      if (kpiId && driverIds.length > 0) {
-        await supabase
-          .from("kpis")
-          .update({ linked_driver_kpis: driverIds })
-          .eq("id", kpiId);
-      }
-    }
-  }
-
-  return {
-    created: toCreate.length,
-    skipped: KPI_TEMPLATES.length - toCreate.length,
-  };
-}

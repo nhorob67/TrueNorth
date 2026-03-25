@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/loading";
 import { AddToTodoButton } from "@/components/add-to-todo-button";
 import { KpiLinkageMap } from "@/components/kpi-linkage-map";
+import { KPI_TEMPLATES } from "@/lib/kpi-templates";
 
 interface KpiEntry {
   value: number;
@@ -120,18 +122,123 @@ export function ScoreboardView({ kpis }: { kpis: Kpi[] }) {
   async function handleSeedDefaults() {
     setSeeding(true);
     try {
-      const res = await fetch("/api/kpi/provision-defaults", { method: "POST" });
-      const data = await res.json();
-      if (data.error) {
-        alert(`Error: ${data.error}`);
-      } else if (data.created === 0) {
-        alert("All default KPIs already exist.");
-      } else {
-        alert(`Created ${data.created} default KPIs.`);
-        router.refresh();
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        alert("Not authenticated.");
+        return;
       }
-    } catch {
-      alert("Failed to seed default KPIs.");
+
+      const { data: membership } = await supabase
+        .from("organization_memberships")
+        .select("organization_id")
+        .eq("user_id", user.id)
+        .limit(1)
+        .single();
+
+      if (!membership) {
+        alert("No organization found.");
+        return;
+      }
+
+      const { data: venture } = await supabase
+        .from("ventures")
+        .select("id")
+        .eq("organization_id", membership.organization_id)
+        .limit(1)
+        .single();
+
+      if (!venture) {
+        alert("No venture found.");
+        return;
+      }
+
+      // Check which template slugs already exist
+      const { data: existing } = await supabase
+        .from("kpis")
+        .select("template_slug")
+        .eq("venture_id", venture.id)
+        .not("template_slug", "is", null);
+
+      const existingSlugs = new Set(
+        (existing ?? []).map((k: { template_slug: string }) => k.template_slug)
+      );
+
+      const toCreate = KPI_TEMPLATES.filter(
+        (t) => !existingSlugs.has(t.template_slug)
+      );
+
+      if (toCreate.length === 0) {
+        alert("All default KPIs already exist.");
+        return;
+      }
+
+      // Insert new KPIs
+      const rows = toCreate.map((t) => ({
+        organization_id: membership.organization_id,
+        venture_id: venture.id,
+        owner_id: user.id,
+        name: t.name,
+        description: t.description,
+        unit: t.unit,
+        frequency: t.frequency,
+        tier: t.tier,
+        directionality: t.directionality,
+        formula_description: t.formula_description,
+        template_slug: t.template_slug,
+        health_status: "green",
+        lifecycle_status: "active",
+        threshold_logic: {},
+        action_playbook: {},
+        linked_driver_kpis: [],
+      }));
+
+      const { error: insertError } = await supabase.from("kpis").insert(rows);
+      if (insertError) {
+        alert(`Error: ${insertError.message}`);
+        return;
+      }
+
+      // Wire linked_driver_kpis for derived KPIs
+      const templatesWithLinks = toCreate.filter(
+        (t) => t.linked_template_slugs && t.linked_template_slugs.length > 0
+      );
+
+      if (templatesWithLinks.length > 0) {
+        const { data: seeded } = await supabase
+          .from("kpis")
+          .select("id, template_slug")
+          .eq("venture_id", venture.id)
+          .not("template_slug", "is", null);
+
+        const slugToId = new Map(
+          (seeded ?? []).map((k: { id: string; template_slug: string }) => [
+            k.template_slug,
+            k.id,
+          ])
+        );
+
+        for (const t of templatesWithLinks) {
+          const driverIds = (t.linked_template_slugs ?? [])
+            .map((slug) => slugToId.get(slug))
+            .filter(Boolean);
+
+          const kpiId = slugToId.get(t.template_slug);
+          if (kpiId && driverIds.length > 0) {
+            await supabase
+              .from("kpis")
+              .update({ linked_driver_kpis: driverIds })
+              .eq("id", kpiId);
+          }
+        }
+      }
+
+      alert(`Created ${toCreate.length} default KPIs.`);
+      router.refresh();
+    } catch (err) {
+      alert(`Failed: ${err instanceof Error ? err.message : "Unknown error"}`);
     } finally {
       setSeeding(false);
     }
