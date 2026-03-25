@@ -61,7 +61,7 @@ export default async function PortfolioPage() {
   const ctx = await getCachedUserContext();
 
   if (!ctx) {
-    redirect("/login");
+    redirect("/cockpit");
   }
 
   if (ctx.isSingleVenture) {

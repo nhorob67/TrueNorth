@@ -10,7 +10,7 @@ export default async function LaunchPage() {
     getCachedClient(),
     getCachedUserContext(),
   ]);
-  if (!ctx) redirect("/login");
+  if (!ctx) redirect("/cockpit");
 
   let progress = await getProgress(supabase, ctx.ventureId);
 

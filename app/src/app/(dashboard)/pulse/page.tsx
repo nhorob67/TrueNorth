@@ -58,7 +58,7 @@ export default async function PulsePage() {
   ]);
 
   const firstError = e2 || e3;
-  if (firstError) throw firstError;
+  if (firstError) console.error("Pulse query error:", firstError);
 
   // Build rhythm data with instance counts for current cycle
   const rhythms = [];

@@ -46,7 +46,7 @@ export default async function ProfilePage() {
   ]);
 
   const firstError = e1 || e2 || e3 || e4 || e5;
-  if (firstError) throw firstError;
+  if (firstError) console.error("Profile query error:", firstError);
 
   return (
     <ProfileView

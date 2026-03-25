@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function HealthPage() {
   const supabase = await getCachedClient();
   const ctx = await getCachedUserContext();
-  if (!ctx) throw new Error("Unauthorized");
+  if (!ctx) return <p className="text-warm-gray p-8">Unable to load user context.</p>;
 
   const report = await computeOperatingHealth(
     supabase,
