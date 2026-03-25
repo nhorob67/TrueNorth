@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { ONBOARDING_STEPS, completedCount } from "@/lib/onboarding";
@@ -149,6 +149,11 @@ function GuidancePanel({
 }) {
   const [guidance, setGuidance] = useState<StepGuidanceResult | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Reset guidance when the step changes
+  useEffect(() => {
+    setGuidance(null);
+  }, [step]);
 
   async function handleSuggest() {
     setLoading(true);
