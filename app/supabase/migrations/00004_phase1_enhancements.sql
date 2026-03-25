@@ -1,5 +1,8 @@
 -- Phase 1 Enhancements: Comments, Todos, Notifications, Invites, Onboarding
 
+-- Required for gen_random_bytes() used in invite token generation
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
+
 -- ============================================================
 -- Comments (Universal)
 -- ============================================================
@@ -111,7 +114,7 @@ CREATE TABLE invites (
   role org_role NOT NULL DEFAULT 'member',
   invited_by uuid NOT NULL REFERENCES user_profiles(id),
   accepted_at timestamptz,
-  token text NOT NULL UNIQUE DEFAULT encode(gen_random_bytes(32), 'hex'),
+  token text NOT NULL UNIQUE DEFAULT encode(extensions.gen_random_bytes(32), 'hex'),
   created_at timestamptz NOT NULL DEFAULT now()
 );
 

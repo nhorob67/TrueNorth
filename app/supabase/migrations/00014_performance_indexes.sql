@@ -27,23 +27,20 @@ CREATE INDEX IF NOT EXISTS idx_moves_bet_status
   ON moves(bet_id, lifecycle_status)
   WHERE lifecycle_status IN ('not_started', 'in_progress');
 
--- Recent KPI entries (sparklines, trend charts — last 90 days)
+-- Recent KPI entries (sparklines, trend charts)
 CREATE INDEX IF NOT EXISTS idx_kpi_entries_recent
-  ON kpi_entries(kpi_id, recorded_at DESC)
-  WHERE recorded_at > now() - interval '90 days';
+  ON kpi_entries(kpi_id, recorded_at DESC);
 
--- Recent pulses (dashboard feed — last 30 days)
+-- Recent pulses (dashboard feed)
 CREATE INDEX IF NOT EXISTS idx_pulses_recent
-  ON pulses(organization_id, date DESC)
-  WHERE date > now() - interval '30 days';
+  ON pulses(organization_id, date DESC);
 
 -- Unread notifications — already exists from 00005 but re-create safely
 -- (idx_notifications_unread already exists; skip)
 
--- Recent AI actions (AI trust dashboard — last 30 days)
+-- Recent AI actions (AI trust dashboard)
 CREATE INDEX IF NOT EXISTS idx_ai_actions_recent
-  ON ai_actions(organization_id, created_at DESC)
-  WHERE created_at > now() - interval '30 days';
+  ON ai_actions(organization_id, created_at DESC);
 
 -- Scheduled (unpublished) content pieces
 CREATE INDEX IF NOT EXISTS idx_content_scheduled

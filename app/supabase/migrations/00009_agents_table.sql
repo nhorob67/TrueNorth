@@ -63,4 +63,4 @@ CREATE POLICY "agents_org_delete" ON agents
 CREATE TRIGGER set_agents_updated_at
   BEFORE UPDATE ON agents
   FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
+  EXECUTE FUNCTION update_updated_at();
