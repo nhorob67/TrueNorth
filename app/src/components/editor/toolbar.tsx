@@ -28,8 +28,8 @@ function ToolbarButton({
       title={title}
       className={`p-1.5 rounded transition-colors ${
         isActive
-          ? "bg-moss/10 text-moss"
-          : "text-warm-gray hover:text-charcoal hover:bg-parchment"
+          ? "bg-accent/10 text-accent"
+          : "text-subtle hover:text-ink hover:bg-canvas"
       } ${disabled ? "opacity-30 pointer-events-none" : ""}`}
     >
       {children}
@@ -38,7 +38,7 @@ function ToolbarButton({
 }
 
 function Separator() {
-  return <div className="w-px h-5 bg-warm-border mx-1" />;
+  return <div className="w-px h-5 bg-line mx-1" />;
 }
 
 // ============================================================
@@ -61,7 +61,7 @@ export function EditorToolbar({
   if (!editor) return null;
 
   return (
-    <div className="flex items-center gap-0.5 px-3 py-2 border-b border-warm-border bg-ivory flex-wrap">
+    <div className="flex items-center gap-0.5 px-3 py-2 border-b border-line bg-surface flex-wrap">
       {/* Text formatting */}
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleBold().run()}

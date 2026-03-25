@@ -125,7 +125,7 @@ function IntegrationRow({
       : null;
 
   return (
-    <div className="border border-warm-border rounded-lg p-4 bg-ivory">
+    <div className="border border-line rounded-lg p-4 bg-surface">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span className="font-medium text-sm">
@@ -146,7 +146,7 @@ function IntegrationRow({
       </div>
 
       {integration.last_sync_at && (
-        <p className="text-xs text-warm-gray mb-1">
+        <p className="text-xs text-subtle mb-1">
           Last sync: {new Date(integration.last_sync_at).toLocaleString()}
         </p>
       )}
@@ -158,16 +158,16 @@ function IntegrationRow({
 
       {/* Webhook-specific info */}
       {webhookUrl && webhookToken && (
-        <div className="mt-2 p-2 rounded bg-parchment text-xs font-mono space-y-1">
+        <div className="mt-2 p-2 rounded bg-canvas text-xs font-mono space-y-1">
           <p>
-            <span className="text-warm-gray">URL:</span> {webhookUrl}
+            <span className="text-subtle">URL:</span> {webhookUrl}
           </p>
           <p>
-            <span className="text-warm-gray">Token:</span> {webhookToken}
+            <span className="text-subtle">Token:</span> {webhookToken}
           </p>
           <button
             type="button"
-            className="text-clay underline text-xs"
+            className="text-accent underline text-xs"
             onClick={() => navigator.clipboard.writeText(`Bearer ${webhookToken}`)}
           >
             Copy bearer token
@@ -178,7 +178,7 @@ function IntegrationRow({
       {/* Config summary */}
       {integration.integration_type !== "webhook" &&
         integration.integration_type !== "csv" && (
-          <p className="text-xs text-warm-gray mt-1">
+          <p className="text-xs text-subtle mt-1">
             Metric: {(integration.config as Record<string, unknown>).metric as string}
           </p>
         )}
@@ -275,7 +275,7 @@ function AddIntegrationForm({
   return (
     <Card>
       <CardHeader>
-        <h3 className="text-sm font-semibold text-moss">Add Integration</h3>
+        <h3 className="text-sm font-semibold text-accent">Add Integration</h3>
       </CardHeader>
       <CardContent className="space-y-3">
         <Select
@@ -334,7 +334,7 @@ function AddIntegrationForm({
         )}
 
         {type === "webhook" && (
-          <p className="text-xs text-warm-gray">
+          <p className="text-xs text-subtle">
             A unique webhook token will be auto-generated. After saving, you will
             see the URL and token to use with external services.
           </p>
@@ -399,10 +399,10 @@ function CsvImportSection({ kpiId }: { kpiId: string }) {
   return (
     <Card>
       <CardHeader>
-        <h3 className="text-sm font-semibold text-moss">CSV Import</h3>
+        <h3 className="text-sm font-semibold text-accent">CSV Import</h3>
       </CardHeader>
       <CardContent className="space-y-3">
-        <p className="text-xs text-warm-gray">
+        <p className="text-xs text-subtle">
           Upload a CSV with &quot;date&quot; and &quot;value&quot; columns to bulk import
           historical data points.
         </p>
@@ -410,7 +410,7 @@ function CsvImportSection({ kpiId }: { kpiId: string }) {
           ref={fileRef}
           type="file"
           accept=".csv,text/csv"
-          className="block w-full text-sm text-charcoal file:mr-3 file:rounded-lg file:border-0 file:bg-moss file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-moss/90"
+          className="block w-full text-sm text-ink file:mr-3 file:rounded-lg file:border-0 file:bg-accent file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-accent/90"
         />
         <Button
           onClick={handleImport}
@@ -468,8 +468,8 @@ export function IntegrationsView({
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-charcoal">Integrations</h1>
-          <p className="text-sm text-warm-gray">{kpi.name}</p>
+          <h1 className="font-display text-[22px] font-bold tracking-[-0.02em] text-ink">Integrations</h1>
+          <p className="text-sm text-subtle">{kpi.name}</p>
         </div>
         <Button
           size="sm"
@@ -504,10 +504,10 @@ export function IntegrationsView({
         </div>
       ) : (
         <div className="text-center py-8 mb-6">
-          <p className="text-sm text-warm-gray">
+          <p className="text-sm text-subtle">
             No integrations configured yet.
           </p>
-          <p className="text-xs text-warm-gray mt-1">
+          <p className="text-xs text-subtle mt-1">
             Add a Stripe, ConvertKit, Beehiiv, or Webhook integration to automatically
             sync your KPI data.
           </p>

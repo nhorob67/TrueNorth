@@ -9,7 +9,7 @@ export default async function TodosPage() {
   const userContext = await getUserContext(supabase);
 
   if (!userContext) {
-    return <div className="p-8 text-warm-gray">Please sign in to view your todos.</div>;
+    return <div className="p-8 text-subtle">Please sign in to view your todos.</div>;
   }
 
   const { data: todos } = await supabase

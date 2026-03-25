@@ -61,24 +61,24 @@ function ProcessCard({ process }: { process: ProcessWithOwner }) {
       <CardContent className="pt-4 pb-4 space-y-3">
         {/* Name + version */}
         <div className="flex items-start justify-between gap-2">
-          <h3 className="text-sm font-semibold text-charcoal leading-tight line-clamp-1">
+          <h3 className="text-sm font-semibold text-ink leading-tight line-clamp-1">
             {process.name}
           </h3>
-          <span className="text-xs text-warm-gray whitespace-nowrap">
+          <span className="text-xs text-subtle whitespace-nowrap">
             v{process.version}
           </span>
         </div>
 
         {/* Description preview */}
         {process.description && (
-          <p className="text-xs text-warm-gray line-clamp-1">
+          <p className="text-xs text-subtle line-clamp-1">
             {process.description}
           </p>
         )}
 
         {/* Owner */}
-        <p className="text-xs text-warm-gray">
-          Owner: <span className="text-charcoal">{process.owner_name}</span>
+        <p className="text-xs text-subtle">
+          Owner: <span className="text-ink">{process.owner_name}</span>
         </p>
 
         {/* Automation Ladder Progress Bar */}
@@ -89,14 +89,14 @@ function ProcessCard({ process }: { process: ProcessWithOwner }) {
                 key={level}
                 className={`h-2 flex-1 rounded-sm transition-colors ${
                   level <= process.automation_level
-                    ? "bg-moss"
-                    : "bg-warm-border"
+                    ? "bg-accent"
+                    : "bg-line"
                 }`}
                 title={`L${level} ${AUTOMATION_LABELS[level as AutomationLevel].label}`}
               />
             ))}
           </div>
-          <p className="text-[10px] text-warm-gray">
+          <p className="text-[10px] text-subtle">
             L{process.automation_level} {auto.label}
           </p>
         </div>
@@ -126,13 +126,13 @@ function ProcessCard({ process }: { process: ProcessWithOwner }) {
 
         {/* Trigger conditions preview */}
         {process.trigger_conditions && (
-          <p className="text-xs text-warm-gray italic line-clamp-1">
+          <p className="text-xs text-subtle italic line-clamp-1">
             Trigger: {process.trigger_conditions}
           </p>
         )}
 
         {/* Last updated */}
-        <p className="text-xs text-warm-gray">
+        <p className="text-xs text-subtle">
           Updated {new Date(process.updated_at).toLocaleDateString()}
         </p>
       </CardContent>
@@ -180,15 +180,15 @@ function FilterBar({
   return (
     <div className="flex flex-wrap items-center gap-3">
       {/* Lifecycle toggle */}
-      <div className="flex rounded-lg border border-warm-border overflow-hidden">
+      <div className="flex rounded-lg border border-line overflow-hidden">
         {lifecycleOptions.map((opt) => (
           <button
             key={opt.value}
             onClick={() => setLifecycle(opt.value)}
             className={`px-3 py-1.5 text-xs font-medium transition-colors ${
               lifecycle === opt.value
-                ? "bg-moss text-white"
-                : "bg-ivory text-charcoal hover:bg-parchment"
+                ? "bg-accent text-white"
+                : "bg-surface text-ink hover:bg-canvas"
             }`}
           >
             {opt.label}
@@ -197,15 +197,15 @@ function FilterBar({
       </div>
 
       {/* Automation level filter */}
-      <div className="flex rounded-lg border border-warm-border overflow-hidden">
+      <div className="flex rounded-lg border border-line overflow-hidden">
         {autoOptions.map((opt) => (
           <button
             key={String(opt.value)}
             onClick={() => setAutoFilter(opt.value)}
             className={`px-3 py-1.5 text-xs font-medium transition-colors ${
               autoFilter === opt.value
-                ? "bg-moss text-white"
-                : "bg-ivory text-charcoal hover:bg-parchment"
+                ? "bg-accent text-white"
+                : "bg-surface text-ink hover:bg-canvas"
             }`}
           >
             {opt.label}
@@ -259,7 +259,7 @@ export function ProcessesView({
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-charcoal">Process Library</h1>
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] text-ink">Process Library</h1>
         <Button onClick={() => router.push("/processes/new")}>
           New Process
         </Button>

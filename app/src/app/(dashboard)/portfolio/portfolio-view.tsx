@@ -104,7 +104,7 @@ const healthLabel: Record<"green" | "yellow" | "red", string> = {
 
 function HealthDistributionBar({ dist }: { dist: { green: number; yellow: number; red: number } }) {
   const total = dist.green + dist.yellow + dist.red;
-  if (total === 0) return <span className="text-xs text-warm-gray">No bets</span>;
+  if (total === 0) return <span className="text-xs text-subtle">No bets</span>;
 
   const greenPct = (dist.green / total) * 100;
   const yellowPct = (dist.yellow / total) * 100;
@@ -112,7 +112,7 @@ function HealthDistributionBar({ dist }: { dist: { green: number; yellow: number
 
   return (
     <div className="flex items-center gap-2 w-full">
-      <div className="flex-1 h-2 rounded-full bg-warm-border overflow-hidden flex">
+      <div className="flex-1 h-2 rounded-full bg-line overflow-hidden flex">
         {greenPct > 0 && (
           <div className="h-full bg-semantic-green" style={{ width: `${greenPct}%` }} />
         )}
@@ -123,7 +123,7 @@ function HealthDistributionBar({ dist }: { dist: { green: number; yellow: number
           <div className="h-full bg-semantic-brick" style={{ width: `${redPct}%` }} />
         )}
       </div>
-      <span className="text-xs font-mono text-warm-gray whitespace-nowrap">
+      <span className="text-xs font-mono text-subtle whitespace-nowrap">
         {dist.green}/{dist.yellow}/{dist.red}
       </span>
     </div>
@@ -132,7 +132,7 @@ function HealthDistributionBar({ dist }: { dist: { green: number; yellow: number
 
 function VentureBadge({ name }: { name: string }) {
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-moss/10 text-moss">
+    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-accent/10 text-accent">
       {name}
     </span>
   );
@@ -183,8 +183,8 @@ export function PortfolioView({
   return (
     <div>
       <div className="flex items-center gap-3 mb-6">
-        <h1 className="text-2xl font-bold">Portfolio Overview</h1>
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-moss/10 text-moss">
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em]">Portfolio Overview</h1>
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent/10 text-accent">
           {ventures.length} ventures
         </span>
       </div>
@@ -206,7 +206,7 @@ export function PortfolioView({
             >
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-moss">{v.name}</h2>
+                  <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-accent">{v.name}</h2>
                   <div className="flex items-center gap-2">
                     <span className={`w-3 h-3 rounded-full ${healthDotColor[health]}`} />
                     <span className={`text-sm font-medium ${healthTextColor[health]}`}>
@@ -215,7 +215,7 @@ export function PortfolioView({
                   </div>
                 </div>
                 {switching === v.id && (
-                  <p className="text-xs text-warm-gray mt-1">Switching...</p>
+                  <p className="text-xs text-subtle mt-1">Switching...</p>
                 )}
               </CardHeader>
               <CardContent>
@@ -223,17 +223,17 @@ export function PortfolioView({
                   {/* Active Bets */}
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-medium text-warm-gray uppercase tracking-wider">
+                      <span className="text-xs font-medium text-subtle uppercase tracking-wider">
                         Active Bets
                       </span>
-                      <span className="text-xs font-mono text-charcoal">{v.activeBetsCount}</span>
+                      <span className="text-xs font-mono text-ink">{v.activeBetsCount}</span>
                     </div>
                     <HealthDistributionBar dist={v.betsHealthDistribution} />
                   </div>
 
                   {/* KPI Alerts */}
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-warm-gray uppercase tracking-wider">
+                    <span className="text-xs font-medium text-subtle uppercase tracking-wider">
                       KPI Alerts
                     </span>
                     <span
@@ -247,7 +247,7 @@ export function PortfolioView({
 
                   {/* Open Blockers */}
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-warm-gray uppercase tracking-wider">
+                    <span className="text-xs font-medium text-subtle uppercase tracking-wider">
                       Open Blockers
                     </span>
                     <div className="flex items-center gap-2">
@@ -268,23 +268,23 @@ export function PortfolioView({
 
                   {/* Pulse Rate */}
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-warm-gray uppercase tracking-wider">
+                    <span className="text-xs font-medium text-subtle uppercase tracking-wider">
                       Pulse Rate
                     </span>
-                    <span className="text-sm font-mono text-charcoal">
+                    <span className="text-sm font-mono text-ink">
                       {v.todayPulseCount}/{v.totalMembers} pulsed today
-                      <span className="text-warm-gray ml-1">({pulseRate}%)</span>
+                      <span className="text-subtle ml-1">({pulseRate}%)</span>
                     </span>
                   </div>
 
                   {/* Top Alert */}
                   {v.topAlert && (
-                    <div className="pt-2 border-t border-warm-border">
+                    <div className="pt-2 border-t border-line">
                       <div className="flex items-center gap-2">
                         <Badge status={v.topAlert.severity === "red" ? "red" : "yellow"}>
                           {v.topAlert.type}
                         </Badge>
-                        <span className="text-xs text-charcoal truncate">
+                        <span className="text-xs text-ink truncate">
                           {v.topAlert.label}
                         </span>
                       </div>
@@ -299,18 +299,18 @@ export function PortfolioView({
 
       {/* Cross-Venture Aggregations */}
       <div>
-        <h2 className="text-lg font-bold mb-4">Cross-Venture View</h2>
+        <h2 className="font-display text-[22px] font-bold tracking-[-0.02em] mb-4">Cross-Venture View</h2>
 
         {/* Tab Bar */}
-        <div className="flex border-b border-warm-border mb-4">
+        <div className="flex border-b border-line mb-4">
           {tabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === tab.key
-                  ? "border-moss text-moss"
-                  : "border-transparent text-warm-gray hover:text-charcoal hover:border-warm-border"
+                  ? "border-accent text-accent"
+                  : "border-transparent text-subtle hover:text-ink hover:border-line"
               }`}
             >
               {tab.label}
@@ -325,19 +325,19 @@ export function PortfolioView({
             {activeTab === "blockers" && (
               <div className="space-y-3">
                 {crossBlockers.length === 0 ? (
-                  <p className="text-sm text-warm-gray">No open blockers across ventures</p>
+                  <p className="text-sm text-subtle">No open blockers across ventures</p>
                 ) : (
                   crossBlockers.map((b) => (
                     <div key={b.id} className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <VentureBadge name={b.venture_name} />
-                          <span className="text-[10px] font-semibold uppercase text-warm-gray">
+                          <span className="text-[10px] font-semibold uppercase text-subtle">
                             {b.severity}
                           </span>
                         </div>
-                        <p className="text-sm text-charcoal">{b.description}</p>
-                        <p className="text-xs text-warm-gray">
+                        <p className="text-sm text-ink">{b.description}</p>
+                        <p className="text-xs text-subtle">
                           Opened {new Date(b.created_at).toLocaleDateString()}
                         </p>
                       </div>
@@ -350,7 +350,7 @@ export function PortfolioView({
             {activeTab === "commitments" && (
               <div className="space-y-3">
                 {crossCommitments.length === 0 ? (
-                  <p className="text-sm text-warm-gray">No pending commitments across ventures</p>
+                  <p className="text-sm text-subtle">No pending commitments across ventures</p>
                 ) : (
                   crossCommitments.map((c) => (
                     <div key={c.id} className="flex items-start justify-between gap-3">
@@ -363,9 +363,9 @@ export function PortfolioView({
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-charcoal">{c.description}</p>
+                        <p className="text-sm text-ink">{c.description}</p>
                         {c.due_date && (
-                          <p className="text-xs text-warm-gray">
+                          <p className="text-xs text-subtle">
                             Due {new Date(c.due_date).toLocaleDateString()}
                           </p>
                         )}
@@ -379,7 +379,7 @@ export function PortfolioView({
             {activeTab === "decisions" && (
               <div className="space-y-3">
                 {crossDecisions.length === 0 ? (
-                  <p className="text-sm text-warm-gray">No undecided decisions across ventures</p>
+                  <p className="text-sm text-subtle">No undecided decisions across ventures</p>
                 ) : (
                   crossDecisions.map((d) => (
                     <div key={d.id} className="flex items-start justify-between gap-3">
@@ -387,8 +387,8 @@ export function PortfolioView({
                         <div className="flex items-center gap-2 mb-1">
                           <VentureBadge name={d.venture_name} />
                         </div>
-                        <p className="text-sm font-medium text-charcoal">{d.title}</p>
-                        <p className="text-xs text-warm-gray">
+                        <p className="text-sm font-medium text-ink">{d.title}</p>
+                        <p className="text-xs text-subtle">
                           Opened {new Date(d.created_at).toLocaleDateString()}
                         </p>
                       </div>
@@ -405,7 +405,7 @@ export function PortfolioView({
                   <select
                     value={pulseFilter}
                     onChange={(e) => setPulseFilter(e.target.value)}
-                    className="text-sm border border-warm-border rounded-lg px-3 py-1.5 bg-ivory text-charcoal"
+                    className="text-sm border border-line rounded-lg px-3 py-1.5 bg-surface text-ink"
                   >
                     <option value="all">All Ventures</option>
                     {ventureList.map((v) => (
@@ -417,12 +417,12 @@ export function PortfolioView({
                 </div>
                 <div className="space-y-2">
                   {filteredPulses.length === 0 ? (
-                    <p className="text-sm text-warm-gray">No pulses today</p>
+                    <p className="text-sm text-subtle">No pulses today</p>
                   ) : (
                     filteredPulses.map((p) => (
                       <div key={`${p.user_id}-${p.venture_id}`} className="flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-semantic-green" />
-                        <span className="text-sm text-charcoal">{p.user_name}</span>
+                        <span className="text-sm text-ink">{p.user_name}</span>
                         <VentureBadge name={p.venture_name} />
                       </div>
                     ))

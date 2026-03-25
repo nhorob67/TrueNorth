@@ -312,14 +312,14 @@ export function NarrativesView({
   // Renders sanitized HTML in a section card; content is sanitized via DOMPurify above
   const renderSectionContent = (sectionHtml: string) => (
     <div
-      className="px-8 py-6 prose prose-sm max-w-none text-charcoal
-        [&_h2]:text-moss [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-2 [&_h2]:mb-3
-        [&_h3]:text-charcoal [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2
-        [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-charcoal [&_p]:mb-3
-        [&_ul]:text-sm [&_li]:text-charcoal [&_li]:mb-1
-        [&_strong]:text-charcoal [&_strong]:font-semibold
-        [&_table]:text-xs [&_th]:bg-parchment [&_th]:p-2 [&_th]:text-left [&_th]:font-semibold [&_th]:text-charcoal [&_th]:border-b [&_th]:border-warm-border
-        [&_td]:p-2 [&_td]:border-b [&_td]:border-warm-border/50"
+      className="px-8 py-6 prose prose-sm max-w-none text-ink
+        [&_h2]:text-accent [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-2 [&_h2]:mb-3
+        [&_h3]:text-ink [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2
+        [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-ink [&_p]:mb-3
+        [&_ul]:text-sm [&_li]:text-ink [&_li]:mb-1
+        [&_strong]:text-ink [&_strong]:font-semibold
+        [&_table]:text-xs [&_th]:bg-canvas [&_th]:p-2 [&_th]:text-left [&_th]:font-semibold [&_th]:text-ink [&_th]:border-b [&_th]:border-line
+        [&_td]:p-2 [&_td]:border-b [&_td]:border-line/50"
       dangerouslySetInnerHTML={{ __html: sectionHtml }}
     />
   );
@@ -328,8 +328,8 @@ export function NarrativesView({
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-charcoal">Narrative Studio</h1>
-        <p className="text-sm text-warm-gray mt-1">
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] text-ink">Narrative Studio</h1>
+        <p className="text-sm text-subtle mt-1">
           Auto-generate polished updates from your operational data.
         </p>
       </div>
@@ -337,8 +337,8 @@ export function NarrativesView({
       {/* Date Range & Venture Scope */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Date Range Picker */}
-        <div className="bg-ivory border border-warm-border rounded-xl p-5">
-          <label className="block text-sm font-medium text-charcoal mb-3">
+        <div className="bg-surface border border-line rounded-xl p-5">
+          <label className="block text-sm font-medium text-ink mb-3">
             Date Range
           </label>
           <div className="flex flex-wrap gap-2 mb-3">
@@ -355,8 +355,8 @@ export function NarrativesView({
                 onClick={() => setDatePreset(preset.value)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   datePreset === preset.value
-                    ? "bg-clay text-white"
-                    : "bg-parchment border border-warm-border text-charcoal hover:bg-warm-border/30"
+                    ? "bg-cta text-white"
+                    : "bg-canvas border border-line text-ink hover:bg-line/30"
                 }`}
               >
                 {preset.label}
@@ -366,22 +366,22 @@ export function NarrativesView({
           {datePreset === "custom" && (
             <div className="flex items-center gap-3 mt-2">
               <div className="flex-1">
-                <label className="block text-xs text-warm-gray mb-1">Start</label>
+                <label className="block text-xs text-subtle mb-1">Start</label>
                 <input
                   type="date"
                   value={customStartDate}
                   onChange={(e) => setCustomStartDate(e.target.value)}
-                  className="w-full px-3 py-2 bg-parchment border border-warm-border rounded-lg text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-clay/30 focus:border-clay"
+                  className="w-full px-3 py-2 bg-canvas border border-line rounded-lg text-sm text-ink focus:outline-none focus:ring-2 focus:ring-accent-glow/30 focus:border-accent"
                 />
               </div>
-              <span className="text-warm-gray mt-5">to</span>
+              <span className="text-subtle mt-5">to</span>
               <div className="flex-1">
-                <label className="block text-xs text-warm-gray mb-1">End</label>
+                <label className="block text-xs text-subtle mb-1">End</label>
                 <input
                   type="date"
                   value={customEndDate}
                   onChange={(e) => setCustomEndDate(e.target.value)}
-                  className="w-full px-3 py-2 bg-parchment border border-warm-border rounded-lg text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-clay/30 focus:border-clay"
+                  className="w-full px-3 py-2 bg-canvas border border-line rounded-lg text-sm text-ink focus:outline-none focus:ring-2 focus:ring-accent-glow/30 focus:border-accent"
                 />
               </div>
             </div>
@@ -390,8 +390,8 @@ export function NarrativesView({
 
         {/* Venture Scope Selector */}
         {!isSingleVenture && ventures.length > 1 && (
-          <div className="bg-ivory border border-warm-border rounded-xl p-5">
-            <label className="block text-sm font-medium text-charcoal mb-3">
+          <div className="bg-surface border border-line rounded-xl p-5">
+            <label className="block text-sm font-medium text-ink mb-3">
               Venture Scope
             </label>
             <select
@@ -401,7 +401,7 @@ export function NarrativesView({
                   e.target.value === "__all__" ? null : e.target.value
                 )
               }
-              className="w-full px-3 py-2 bg-parchment border border-warm-border rounded-lg text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-clay/30 focus:border-clay"
+              className="w-full px-3 py-2 bg-canvas border border-line rounded-lg text-sm text-ink focus:outline-none focus:ring-2 focus:ring-accent-glow/30 focus:border-accent"
             >
               <option value="__all__">All ventures</option>
               {ventures.map((v) => (
@@ -410,7 +410,7 @@ export function NarrativesView({
                 </option>
               ))}
             </select>
-            <p className="text-xs text-warm-gray mt-2">
+            <p className="text-xs text-subtle mt-2">
               Choose which venture data to include in the narrative.
             </p>
           </div>
@@ -424,21 +424,21 @@ export function NarrativesView({
             key={template.type}
             onClick={() => handleGenerate(template.type)}
             disabled={generating}
-            className={`text-left bg-ivory border rounded-xl p-5 transition-all hover:shadow-md disabled:opacity-50 ${
+            className={`text-left bg-surface border rounded-xl p-5 transition-all hover:shadow-md disabled:opacity-50 ${
               selectedType === template.type && generating
-                ? "border-clay ring-2 ring-clay/20"
-                : "border-warm-border hover:border-clay/50"
+                ? "border-accent ring-2 ring-accent/20"
+                : "border-line hover:border-accent/50"
             }`}
           >
             <div className="flex items-start justify-between">
               <span className="text-2xl">{templateIcons[template.type] ?? "\u{1F4DD}"}</span>
               {selectedType === template.type && generating && (
-                <span className="w-5 h-5 border-2 border-clay/30 border-t-clay rounded-full animate-spin" />
+                <span className="w-5 h-5 border-2 border-accent/30 border-t-clay rounded-full animate-spin" />
               )}
             </div>
-            <h3 className="text-sm font-semibold text-charcoal mt-3">{template.label}</h3>
-            <p className="text-xs text-warm-gray mt-1 leading-relaxed">{template.description}</p>
-            <p className="text-xs text-warm-gray mt-2 font-mono">
+            <h3 className="text-sm font-semibold text-ink mt-3">{template.label}</h3>
+            <p className="text-xs text-subtle mt-1 leading-relaxed">{template.description}</p>
+            <p className="text-xs text-subtle mt-2 font-mono">
               Default: {template.defaultWindowDays} days
             </p>
           </button>
@@ -446,15 +446,15 @@ export function NarrativesView({
       </div>
 
       {/* Additional Context Input */}
-      <div className="bg-ivory border border-warm-border rounded-xl p-5">
-        <label className="block text-sm font-medium text-charcoal mb-2">
+      <div className="bg-surface border border-line rounded-xl p-5">
+        <label className="block text-sm font-medium text-ink mb-2">
           Additional Context (optional)
         </label>
         <textarea
           value={additionalContext}
           onChange={(e) => setAdditionalContext(e.target.value)}
           placeholder="Add context the AI should know — e.g., 'We launched a new product this week' or 'Focus on the content machine performance'"
-          className="w-full px-3 py-2 bg-parchment border border-warm-border rounded-lg text-sm text-charcoal placeholder:text-warm-gray/60 resize-none h-20 focus:outline-none focus:ring-2 focus:ring-clay/30 focus:border-clay"
+          className="w-full px-3 py-2 bg-canvas border border-line rounded-lg text-sm text-ink placeholder:text-subtle/60 resize-none h-20 focus:outline-none focus:ring-2 focus:ring-accent-glow/30 focus:border-accent"
         />
       </div>
 
@@ -469,10 +469,10 @@ export function NarrativesView({
       {sanitizedHtml && parsedSections.length > 0 && (
         <div className="space-y-4">
           {/* Header bar */}
-          <div className="bg-ivory border border-warm-border rounded-xl px-6 py-4">
+          <div className="bg-surface border border-line rounded-xl px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-charcoal">{generatedTitle}</h2>
+                <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-ink">{generatedTitle}</h2>
                 {generatedConfidence && (
                   <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium mt-1 ${confidenceColors[generatedConfidence] ?? ""}`}>
                     {generatedConfidence} confidence
@@ -482,20 +482,20 @@ export function NarrativesView({
               <div className="flex gap-2 flex-wrap justify-end">
                 <button
                   onClick={() => copyToClipboard("html")}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-parchment border border-warm-border text-charcoal hover:bg-warm-border/30 transition-colors"
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-canvas border border-line text-ink hover:bg-line/30 transition-colors"
                 >
                   {copiedFormat === "html" ? "Copied!" : "Copy HTML"}
                 </button>
                 <button
                   onClick={() => copyToClipboard("text")}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-parchment border border-warm-border text-charcoal hover:bg-warm-border/30 transition-colors"
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-canvas border border-line text-ink hover:bg-line/30 transition-colors"
                 >
                   {copiedFormat === "text" ? "Copied!" : "Copy Text"}
                 </button>
                 <button
                   onClick={handleSaveAsContent}
                   disabled={savingAsContent || !!savedContentId}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-clay text-white hover:bg-clay/90 transition-colors disabled:opacity-50"
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-cta text-white hover:bg-cta-hover transition-colors disabled:opacity-50"
                 >
                   {savedContentId
                     ? "Saved!"
@@ -522,16 +522,16 @@ export function NarrativesView({
           {parsedSections.map((section) => (
             <div
               key={section.title}
-              className="bg-ivory border border-warm-border rounded-xl overflow-hidden"
+              className="bg-surface border border-line rounded-xl overflow-hidden"
             >
               {section.title !== "__preamble__" && (
-                <div className="flex items-center justify-between px-6 py-3 border-b border-warm-border bg-parchment/50">
-                  <h3 className="text-sm font-semibold text-moss">{section.title}</h3>
+                <div className="flex items-center justify-between px-6 py-3 border-b border-line bg-canvas/50">
+                  <h3 className="text-sm font-semibold text-accent">{section.title}</h3>
                   <div className="flex items-center gap-2">
                     {expandedGuidance === section.title && (
                       <button
                         onClick={() => setExpandedGuidance(null)}
-                        className="px-2 py-1 rounded text-xs text-warm-gray hover:text-charcoal transition-colors"
+                        className="px-2 py-1 rounded text-xs text-subtle hover:text-ink transition-colors"
                       >
                         Cancel
                       </button>
@@ -545,11 +545,11 @@ export function NarrativesView({
                         }
                       }}
                       disabled={regeneratingSection === section.title}
-                      className="px-3 py-1 rounded-lg text-xs font-medium bg-parchment border border-warm-border text-charcoal hover:bg-warm-border/30 transition-colors disabled:opacity-50"
+                      className="px-3 py-1 rounded-lg text-xs font-medium bg-canvas border border-line text-ink hover:bg-line/30 transition-colors disabled:opacity-50"
                     >
                       {regeneratingSection === section.title ? (
                         <span className="flex items-center gap-1.5">
-                          <span className="w-3 h-3 border-2 border-clay/30 border-t-clay rounded-full animate-spin" />
+                          <span className="w-3 h-3 border-2 border-accent/30 border-t-clay rounded-full animate-spin" />
                           Regenerating...
                         </span>
                       ) : expandedGuidance === section.title ? (
@@ -562,7 +562,7 @@ export function NarrativesView({
                 </div>
               )}
               {expandedGuidance === section.title && (
-                <div className="px-6 py-3 border-b border-warm-border bg-parchment/30">
+                <div className="px-6 py-3 border-b border-line bg-canvas/30">
                   <input
                     type="text"
                     value={sectionGuidance[section.title] || ""}
@@ -573,14 +573,14 @@ export function NarrativesView({
                       }))
                     }
                     placeholder="Optional guidance — e.g., 'Make it more concise' or 'Add more metrics'"
-                    className="w-full px-3 py-2 bg-parchment border border-warm-border rounded-lg text-sm text-charcoal placeholder:text-warm-gray/60 focus:outline-none focus:ring-2 focus:ring-clay/30 focus:border-clay"
+                    className="w-full px-3 py-2 bg-canvas border border-line rounded-lg text-sm text-ink placeholder:text-subtle/60 focus:outline-none focus:ring-2 focus:ring-accent-glow/30 focus:border-accent"
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         handleRegenerateSection(section.title);
                       }
                     }}
                   />
-                  <p className="text-xs text-warm-gray mt-1">
+                  <p className="text-xs text-subtle mt-1">
                     Press Enter or click Regenerate to update this section.
                   </p>
                 </div>
@@ -594,22 +594,22 @@ export function NarrativesView({
       {/* History */}
       {narrativeHistory.length > 0 && (
         <div>
-          <h2 className="text-lg font-semibold text-charcoal mb-4">Past Narratives</h2>
+          <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-ink mb-4">Past Narratives</h2>
           <div className="space-y-2">
             {narrativeHistory.map((item) => {
               const template = templates.find((t) => t.type === item.narrative_type);
               return (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between bg-ivory border border-warm-border rounded-lg px-4 py-3"
+                  className="flex items-center justify-between bg-surface border border-line rounded-lg px-4 py-3"
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-lg">
                       {templateIcons[item.narrative_type] ?? "\u{1F4DD}"}
                     </span>
                     <div>
-                      <p className="text-sm font-medium text-charcoal">{item.title}</p>
-                      <p className="text-xs text-warm-gray">
+                      <p className="text-sm font-medium text-ink">{item.title}</p>
+                      <p className="text-xs text-subtle">
                         {template?.label ?? item.narrative_type} &middot;{" "}
                         {new Date(item.created_at).toLocaleDateString("en-US", {
                           month: "short",

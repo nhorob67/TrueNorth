@@ -60,7 +60,7 @@ export function TeamCockpitView({
 }: TeamCockpitProps) {
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Team Cockpit</h1>
+      <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6">Team Cockpit</h1>
 
       <div className="space-y-6">
         {teamMembers.map((member) => {
@@ -74,14 +74,14 @@ export function TeamCockpitView({
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-moss/20 flex items-center justify-center text-sm font-medium text-moss">
+                    <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-sm font-medium text-accent">
                       {member.user_profiles?.full_name?.charAt(0) ?? "?"}
                     </div>
                     <div>
                       <p className="font-medium text-sm">
                         {member.user_profiles?.full_name ?? "Unknown"}
                       </p>
-                      <p className="text-xs text-warm-gray">{member.role}</p>
+                      <p className="text-xs text-subtle">{member.role}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -97,11 +97,11 @@ export function TeamCockpitView({
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Moves */}
                   <div>
-                    <p className="text-xs font-semibold text-warm-gray uppercase mb-1">
+                    <p className="text-xs font-semibold text-subtle uppercase mb-1">
                       Moves ({memberMoves.length})
                     </p>
                     {memberMoves.length === 0 ? (
-                      <p className="text-xs text-warm-gray">No active moves</p>
+                      <p className="text-xs text-subtle">No active moves</p>
                     ) : (
                       <div className="space-y-1">
                         {memberMoves.slice(0, 5).map((m) => (
@@ -116,11 +116,11 @@ export function TeamCockpitView({
 
                   {/* KPIs */}
                   <div>
-                    <p className="text-xs font-semibold text-warm-gray uppercase mb-1">
+                    <p className="text-xs font-semibold text-subtle uppercase mb-1">
                       KPIs ({memberKpis.length})
                     </p>
                     {memberKpis.length === 0 ? (
-                      <p className="text-xs text-warm-gray">No KPIs owned</p>
+                      <p className="text-xs text-subtle">No KPIs owned</p>
                     ) : (
                       <div className="space-y-1">
                         {memberKpis.map((k) => (
@@ -135,11 +135,11 @@ export function TeamCockpitView({
 
                   {/* Blockers */}
                   <div>
-                    <p className="text-xs font-semibold text-warm-gray uppercase mb-1">
+                    <p className="text-xs font-semibold text-subtle uppercase mb-1">
                       Blockers ({memberBlockers.length})
                     </p>
                     {memberBlockers.length === 0 ? (
-                      <p className="text-xs text-warm-gray">Not blocked</p>
+                      <p className="text-xs text-subtle">Not blocked</p>
                     ) : (
                       <div className="space-y-1">
                         {memberBlockers.map((b) => (
@@ -160,8 +160,8 @@ export function TeamCockpitView({
       {/* AI Agents Section */}
       {agents.length > 0 && (
         <>
-          <div className="border-t border-warm-border my-8" />
-          <h2 className="text-lg font-bold text-charcoal mb-4">AI Agents</h2>
+          <div className="border-t border-line my-8" />
+          <h2 className="font-display text-[22px] font-bold tracking-[-0.02em] text-ink mb-4">AI Agents</h2>
           <div className="space-y-4">
             {agents.map((agent) => (
               <Card key={agent.id} className="overflow-hidden">
@@ -192,7 +192,7 @@ export function TeamCockpitView({
                             AI Agent
                           </span>
                         </div>
-                        <p className="text-xs text-warm-gray">
+                        <p className="text-xs text-subtle">
                           {CATEGORY_LABELS[agent.category] ?? agent.category}
                         </p>
                       </div>
@@ -212,7 +212,7 @@ export function TeamCockpitView({
                 </CardHeader>
                 {agent.description && (
                   <CardContent>
-                    <p className="text-xs text-warm-gray">
+                    <p className="text-xs text-subtle">
                       {agent.description}
                     </p>
                   </CardContent>

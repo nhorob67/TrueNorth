@@ -75,7 +75,7 @@ export function NotificationBell() {
     <div ref={containerRef} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="relative p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+        className="relative p-2 rounded-lg text-sidebar-text hover:text-sidebar-text-hover hover:bg-sidebar-hover transition-colors"
       >
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
@@ -88,31 +88,31 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute bottom-full left-0 mb-2 w-80 rounded-lg border border-warm-border bg-ivory shadow-lg max-h-96 overflow-auto z-50">
-          <div className="flex items-center justify-between px-3 py-2 border-b border-warm-border">
-            <span className="text-sm font-semibold text-charcoal">Notifications</span>
+        <div className="absolute bottom-full left-0 mb-2 w-80 rounded-lg border border-line bg-surface shadow-lg max-h-96 overflow-auto z-50">
+          <div className="flex items-center justify-between px-3 py-2 border-b border-line">
+            <span className="text-sm font-semibold text-ink">Notifications</span>
             {unreadCount > 0 && (
               <button
                 onClick={markAllRead}
-                className="text-xs text-clay-text hover:text-clay-text/80"
+                className="text-xs text-accent hover:text-accent/80"
               >
                 Mark all read
               </button>
             )}
           </div>
           {notifications.length === 0 ? (
-            <p className="text-sm text-warm-gray p-3">No notifications</p>
+            <p className="text-sm text-subtle p-3">No notifications</p>
           ) : (
             notifications.map((n) => (
               <div
                 key={n.id}
-                className={`px-3 py-2 border-b border-warm-border last:border-0 ${!n.read ? "bg-moss/5" : ""}`}
+                className={`px-3 py-2 border-b border-line last:border-0 ${!n.read ? "bg-accent/5" : ""}`}
               >
-                <p className="text-sm font-medium text-charcoal">{n.title}</p>
+                <p className="text-sm font-medium text-ink">{n.title}</p>
                 {n.body && (
-                  <p className="text-xs text-warm-gray mt-0.5">{n.body}</p>
+                  <p className="text-xs text-subtle mt-0.5">{n.body}</p>
                 )}
-                <p className="text-xs text-warm-gray/60 mt-0.5">
+                <p className="text-xs text-subtle/60 mt-0.5">
                   {new Date(n.created_at).toLocaleString()}
                 </p>
               </div>

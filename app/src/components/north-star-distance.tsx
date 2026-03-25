@@ -4,13 +4,6 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useOptionalUserContext } from "@/hooks/use-user-context";
 
-// ============================================================
-// North Star Distance Visual (Gamification 3.15)
-//
-// Compact visual showing BHAG progress as a percentage arc.
-// Progress = % of annual outcomes achieved (green KPIs / total).
-// ============================================================
-
 interface NorthStarData {
   bhag: string | null;
   progress: number; // 0-100
@@ -28,7 +21,6 @@ export function NorthStarDistance() {
     async function load() {
       const supabase = createClient();
 
-      // Fetch vision BHAG
       const { data: vision } = await supabase
         .from("visions")
         .select("bhag")
@@ -36,7 +28,6 @@ export function NorthStarDistance() {
         .limit(1)
         .maybeSingle();
 
-      // Fetch active KPIs linked to outcomes
       const { data: kpis } = await supabase
         .from("kpis")
         .select("id, health_status")
@@ -83,7 +74,7 @@ export function NorthStarDistance() {
               cy={size / 2}
               r={radius}
               fill="none"
-              stroke="rgba(255,255,255,0.15)"
+              className="stroke-sidebar-divider"
               strokeWidth={strokeWidth}
             />
             {/* Progress arc */}
@@ -92,18 +83,18 @@ export function NorthStarDistance() {
               cy={size / 2}
               r={radius}
               fill="none"
-              stroke="rgba(255,255,255,0.8)"
+              className="stroke-sidebar-text-active"
               strokeWidth={strokeWidth}
               strokeLinecap="round"
               strokeDasharray={circumference}
               strokeDashoffset={offset}
-              className="transition-all duration-700"
+              style={{ transition: "stroke-dashoffset 700ms" }}
             />
           </svg>
           {/* Star icon center */}
           <div className="absolute inset-0 flex items-center justify-center">
             <svg
-              className="w-3.5 h-3.5 text-white/70"
+              className="w-3.5 h-3.5 text-sidebar-text"
               fill="currentColor"
               viewBox="0 0 24 24"
             >
@@ -114,17 +105,15 @@ export function NorthStarDistance() {
 
         {/* BHAG text + progress */}
         <div className="flex-1 min-w-0">
-          <p
-            className="text-[10px] font-medium text-white/50 uppercase tracking-wider leading-tight"
-          >
+          <p className="font-mono text-[10px] font-semibold text-sidebar-label uppercase tracking-[0.10em] leading-tight">
             North Star
           </p>
-          <p className="text-xs text-white/80 leading-tight truncate">
+          <p className="text-xs text-sidebar-text-hover leading-tight truncate">
             {data.bhag.length > 40
               ? data.bhag.slice(0, 40) + "..."
               : data.bhag}
           </p>
-          <p className="text-[10px] text-white/50 mt-0.5">
+          <p className="text-[10px] text-sidebar-label mt-0.5">
             {data.progress}% ({data.greenCount}/{data.totalCount} KPIs green)
           </p>
         </div>

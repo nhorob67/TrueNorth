@@ -103,19 +103,19 @@ export default function InvitePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-parchment">
-        <p className="text-warm-gray">Loading invite...</p>
+      <div className="flex items-center justify-center min-h-screen bg-canvas">
+        <p className="text-subtle">Loading invite...</p>
       </div>
     );
   }
 
   if (success) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-parchment">
+      <div className="flex items-center justify-center min-h-screen bg-canvas">
         <Card className="w-full max-w-sm">
           <CardContent className="pt-6 text-center">
-            <h1 className="text-xl font-bold text-moss mb-2">Check your email</h1>
-            <p className="text-sm text-warm-gray">
+            <h1 className="font-display text-[22px] font-bold tracking-[-0.02em] text-accent mb-2">Check your email</h1>
+            <p className="text-sm text-subtle">
               Confirm your account, then sign in. You&apos;ll automatically join the team.
             </p>
           </CardContent>
@@ -126,15 +126,15 @@ export default function InvitePage() {
 
   if (accepted) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-parchment">
+      <div className="flex items-center justify-center min-h-screen bg-canvas">
         <Card className="w-full max-w-sm">
           <CardContent className="pt-6 text-center">
-            <h1 className="text-xl font-bold text-moss mb-2">Invite accepted</h1>
-            <p className="text-sm text-warm-gray">
+            <h1 className="font-display text-[22px] font-bold tracking-[-0.02em] text-accent mb-2">Invite accepted</h1>
+            <p className="text-sm text-subtle">
               You&apos;ve joined {invite?.organizationName ?? "the team"}.
             </p>
             <div className="mt-4">
-              <a href="/" className="text-sm text-clay-text hover:text-clay-text/80">
+              <a href="/" className="text-sm text-accent hover:text-accent/80">
                 Continue to TrueNorth
               </a>
             </div>
@@ -145,11 +145,11 @@ export default function InvitePage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-parchment">
+    <div className="flex items-center justify-center min-h-screen bg-canvas">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-moss">TrueNorth</h1>
-          <p className="text-warm-gray mt-1">
+          <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] text-accent">TrueNorth</h1>
+          <p className="text-subtle mt-1">
             You&apos;ve been invited to join {invite?.organizationName ?? "a team"}
           </p>
         </div>
@@ -158,7 +158,7 @@ export default function InvitePage() {
           <CardContent className="pt-6">
             {invite && currentUserEmail?.toLowerCase() === invite.email.toLowerCase() ? (
               <div className="space-y-4">
-                <p className="text-sm text-warm-gray">
+                <p className="text-sm text-subtle">
                   Signed in as <strong>{currentUserEmail}</strong>. Accept this invite to join as a{" "}
                   <strong>{invite.role}</strong>.
                 </p>
@@ -207,7 +207,7 @@ export default function InvitePage() {
             <div className="mt-4 text-center">
               <a
                 href={`/login?next=${encodeURIComponent(`/invite/${token}`)}`}
-                className="text-sm text-warm-gray hover:text-charcoal"
+                className="text-sm text-subtle hover:text-ink"
               >
                 Already have an account? Sign in
               </a>

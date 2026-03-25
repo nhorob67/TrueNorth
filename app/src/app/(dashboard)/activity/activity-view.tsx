@@ -40,14 +40,14 @@ const entityTypeLabels: Record<string, string> = {
 };
 
 const entityTypeColors: Record<string, string> = {
-  bet: "bg-moss/10 text-moss",
+  bet: "bg-accent/10 text-accent",
   kpi: "bg-semantic-green/10 text-semantic-green-text",
   move: "bg-semantic-ochre/10 text-semantic-ochre-text",
   idea: "bg-brass/10 text-brass-text",
   blocker: "bg-semantic-brick/10 text-semantic-brick",
-  decision: "bg-clay/10 text-clay-text",
-  commitment: "bg-clay/10 text-clay-text",
-  issue: "bg-warm-gray/10 text-warm-gray",
+  decision: "bg-accent-dim text-accent",
+  commitment: "bg-accent-dim text-accent",
+  issue: "bg-faded/10 text-subtle",
 };
 
 // ============================================================
@@ -65,21 +65,21 @@ function ActivityItem({ comment }: { comment: Comment }) {
       <CardContent className="py-3">
         <div className="flex items-start gap-3">
           {/* Avatar */}
-          <div className="w-7 h-7 rounded-full bg-moss/20 flex items-center justify-center text-xs font-semibold text-moss flex-shrink-0">
+          <div className="w-7 h-7 rounded-full bg-accent/20 flex items-center justify-center text-xs font-semibold text-accent flex-shrink-0">
             {authorName.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm font-medium text-charcoal">
+              <span className="text-sm font-medium text-ink">
                 {authorName}
               </span>
-              <span className="text-xs text-warm-gray">
+              <span className="text-xs text-subtle">
                 {isReply ? "replied on" : "commented on"}
               </span>
               <span
                 className={`text-xs px-1.5 py-0.5 rounded font-medium ${
                   entityTypeColors[comment.entity_type] ??
-                  "bg-warm-gray/10 text-warm-gray"
+                  "bg-faded/10 text-subtle"
                 }`}
               >
                 {entityTypeLabels[comment.entity_type] ??
@@ -91,10 +91,10 @@ function ActivityItem({ comment }: { comment: Comment }) {
                 </span>
               )}
             </div>
-            <p className="text-sm text-charcoal mt-1 whitespace-pre-wrap line-clamp-3">
+            <p className="text-sm text-ink mt-1 whitespace-pre-wrap line-clamp-3">
               {comment.body}
             </p>
-            <p className="text-xs text-warm-gray mt-1">
+            <p className="text-xs text-subtle mt-1">
               {new Date(comment.created_at).toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -143,7 +143,7 @@ export function ActivityFeedView({ comments }: { comments: Comment[] }) {
   if (comments.length === 0) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-6">Activity</h1>
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6">Activity</h1>
         <EmptyState
           title="No activity yet"
           description="Comments and discussions across the system will appear here."
@@ -155,18 +155,18 @@ export function ActivityFeedView({ comments }: { comments: Comment[] }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Activity</h1>
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em]">Activity</h1>
         <div className="flex items-center gap-2">
           {/* Time filter */}
-          <div className="flex bg-ivory border border-warm-border rounded-lg overflow-hidden">
+          <div className="flex bg-surface border border-line rounded-lg overflow-hidden">
             {(["all", "today", "week"] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setTimeFilter(f)}
                 className={`px-3 py-1.5 text-xs font-medium transition-colors ${
                   timeFilter === f
-                    ? "bg-moss text-white"
-                    : "text-warm-gray hover:text-charcoal"
+                    ? "bg-accent text-white"
+                    : "text-subtle hover:text-ink"
                 }`}
               >
                 {f === "all" ? "All Time" : f === "today" ? "Today" : "This Week"}
@@ -177,7 +177,7 @@ export function ActivityFeedView({ comments }: { comments: Comment[] }) {
           <select
             value={entityFilter}
             onChange={(e) => setEntityFilter(e.target.value)}
-            className="text-xs border border-warm-border rounded-lg px-2 py-1.5 bg-ivory"
+            className="text-xs border border-line rounded-lg px-2 py-1.5 bg-surface"
           >
             <option value="all">All types</option>
             {entityTypes.map((type) => (
@@ -203,7 +203,7 @@ export function ActivityFeedView({ comments }: { comments: Comment[] }) {
       </div>
 
       {filtered.length > 0 && (
-        <p className="text-xs text-warm-gray text-center mt-4">
+        <p className="text-xs text-subtle text-center mt-4">
           Showing {filtered.length} of {comments.length} comments
         </p>
       )}

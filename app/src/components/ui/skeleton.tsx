@@ -5,7 +5,7 @@ interface SkeletonProps {
 export function Skeleton({ className = "" }: SkeletonProps) {
   return (
     <div
-      className={`animate-pulse rounded-lg bg-warm-border/50 ${className}`}
+      className={`animate-pulse rounded-lg bg-line/50 ${className}`}
     />
   );
 }
@@ -25,7 +25,7 @@ export function SkeletonText({ lines = 3, className = "" }: { lines?: number; cl
 
 export function SkeletonCard({ className = "" }: SkeletonProps) {
   return (
-    <div className={`bg-ivory border border-warm-border rounded-lg p-6 space-y-4 ${className}`}>
+    <div className={`bg-surface border border-line rounded-[10px] p-6 space-y-4 ${className}`}>
       <div className="flex items-center justify-between">
         <Skeleton className="h-5 w-1/3" />
         <Skeleton className="h-5 w-16 rounded-full" />

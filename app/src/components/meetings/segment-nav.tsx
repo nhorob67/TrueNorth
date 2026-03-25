@@ -33,8 +33,8 @@ export function SegmentNav<K extends string>({
             onClick={() => onSelect(seg.key)}
             className={`flex-1 min-w-0 px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
               isActive
-                ? "bg-moss text-white border-moss"
-                : "text-warm-gray hover:text-charcoal border-warm-border"
+                ? "bg-accent text-white border-accent"
+                : "text-subtle hover:text-ink border-line"
             }`}
           >
             <div className="truncate">{seg.label}</div>
@@ -44,7 +44,7 @@ export function SegmentNav<K extends string>({
                   ? "text-white/70"
                   : overTime
                     ? "text-semantic-brick"
-                    : "text-warm-gray"
+                    : "text-subtle"
               }`}
             >
               {seg.duration} min

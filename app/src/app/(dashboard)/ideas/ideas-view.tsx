@@ -71,14 +71,14 @@ function CoolingTimer({ expiresAt }: { expiresAt: string }) {
 
   return (
     <div className="mt-2">
-      <div className="flex items-center justify-between text-xs text-warm-gray mb-1">
+      <div className="flex items-center justify-between text-xs text-subtle mb-1">
         <span>{isThawed ? "Thawed" : `${daysLeft}d remaining`}</span>
         <span>{Math.round(elapsedPct)}%</span>
       </div>
-      <div className="h-1.5 rounded-full bg-warm-border overflow-hidden">
+      <div className="h-1.5 rounded-full bg-line overflow-hidden">
         <div
           className={`h-full rounded-full transition-all ${
-            isThawed ? "bg-semantic-green" : "bg-moss/50"
+            isThawed ? "bg-semantic-green" : "bg-accent/50"
           }`}
           style={{ width: `${elapsedPct}%` }}
         />
@@ -94,7 +94,7 @@ function CoolingTimer({ expiresAt }: { expiresAt: string }) {
 const classificationColors: Record<IdeaClassification, string> = {
   more: "bg-semantic-green/10 text-semantic-green-text",
   better: "bg-semantic-ochre/10 text-semantic-ochre-text",
-  new: "bg-moss/10 text-moss",
+  new: "bg-accent/10 text-accent",
 };
 
 function ClassificationBadge({
@@ -139,25 +139,25 @@ function IdeaCard({
       >
         <CardContent className="py-3">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-sm font-medium text-charcoal leading-tight">
+            <h3 className="text-sm font-medium text-ink leading-tight">
               {idea.name}
             </h3>
             {idea.classification && (
               <ClassificationBadge classification={idea.classification} />
             )}
           </div>
-          <p className="text-xs text-warm-gray mt-1 line-clamp-2">
+          <p className="text-xs text-subtle mt-1 line-clamp-2">
             {idea.description}
           </p>
           {isQuarantine && <CoolingTimer expiresAt={idea.cooling_expires_at} />}
           {idea.score_total !== null && (
             <div className="mt-2 flex items-center gap-1">
-              <span className="text-xs font-mono font-medium text-charcoal">
+              <span className="text-xs font-mono font-medium text-ink">
                 Score: {idea.score_total.toFixed(1)}
               </span>
             </div>
           )}
-          <p className="text-xs text-warm-gray mt-1.5">
+          <p className="text-xs text-subtle mt-1.5">
             {new Date(idea.submitted_at).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
@@ -232,7 +232,7 @@ function AddIdeaForm({ onClose }: { onClose: () => void }) {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Brief description..."
-            className="w-full min-h-[60px] rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+            className="w-full min-h-[60px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
           />
           {error && <p className="text-xs text-semantic-brick">{error}</p>}
           <div className="flex gap-2">
@@ -407,12 +407,12 @@ function IdeaDetailPanel({
   }
 
   return (
-    <div className="fixed inset-y-0 right-0 w-[480px] bg-ivory border-l border-warm-border shadow-xl z-50 overflow-y-auto">
+    <div className="fixed inset-y-0 right-0 w-[480px] bg-surface border-l border-line shadow-xl z-50 overflow-y-auto">
       <div className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h2 className="text-lg font-bold text-charcoal">{idea.name}</h2>
-            <p className="text-xs text-warm-gray mt-0.5">
+            <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-ink">{idea.name}</h2>
+            <p className="text-xs text-subtle mt-0.5">
               Submitted{" "}
               {new Date(idea.submitted_at).toLocaleDateString("en-US", {
                 month: "long",
@@ -423,13 +423,13 @@ function IdeaDetailPanel({
           </div>
           <button
             onClick={onClose}
-            className="text-warm-gray hover:text-charcoal text-xl leading-none"
+            className="text-subtle hover:text-ink text-xl leading-none"
           >
             &times;
           </button>
         </div>
 
-        <p className="text-sm text-charcoal mb-4">{idea.description}</p>
+        <p className="text-sm text-ink mb-4">{idea.description}</p>
 
         {/* Stage indicator */}
         <div className="flex gap-1 mb-6">
@@ -457,10 +457,10 @@ function IdeaDetailPanel({
                 key={stage}
                 className={`flex-1 h-1.5 rounded-full ${
                   isActive
-                    ? "bg-moss"
+                    ? "bg-accent"
                     : isDone
                       ? "bg-semantic-green"
-                      : "bg-warm-border"
+                      : "bg-line"
                 }`}
               />
             );
@@ -520,14 +520,14 @@ function IdeaDetailPanel({
                       confidence
                     </span>
                     {aiSummary && (
-                      <span className="text-xs text-warm-gray truncate">
+                      <span className="text-xs text-subtle truncate">
                         {aiSummary}
                       </span>
                     )}
                   </div>
                 )}
                 {strategicFilters.length === 0 ? (
-                  <p className="text-xs text-warm-gray">
+                  <p className="text-xs text-subtle">
                     No strategic filters defined. Add filters on the Vision
                     Board first.
                   </p>
@@ -556,8 +556,8 @@ function IdeaDetailPanel({
                                 ? "border-semantic-green/30 bg-semantic-green/5"
                                 : isReviewed && !passed
                                   ? "border-semantic-brick/30 bg-semantic-brick/5"
-                                  : "border-warm-border"
-                            } ${canEdit ? "hover:bg-parchment cursor-pointer" : "cursor-default"}`}
+                                  : "border-line"
+                            } ${canEdit ? "hover:bg-canvas cursor-pointer" : "cursor-default"}`}
                           >
                             <span
                               className={`w-5 h-5 rounded flex items-center justify-center text-xs font-bold ${
@@ -565,7 +565,7 @@ function IdeaDetailPanel({
                                   ? "bg-semantic-green text-white"
                                   : isReviewed && !passed
                                     ? "bg-semantic-brick text-white"
-                                    : "bg-warm-border text-warm-gray"
+                                    : "bg-line text-subtle"
                               }`}
                             >
                               {isReviewed && passed
@@ -576,7 +576,7 @@ function IdeaDetailPanel({
                             </span>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-1.5">
-                                <p className="text-sm font-medium text-charcoal">
+                                <p className="text-sm font-medium text-ink">
                                   {filter.name}
                                 </p>
                                 {isAi && (
@@ -585,13 +585,13 @@ function IdeaDetailPanel({
                                   </span>
                                 )}
                               </div>
-                              <p className="text-xs text-warm-gray truncate">
+                              <p className="text-xs text-subtle truncate">
                                 {filter.description}
                               </p>
                             </div>
                           </button>
                           {isAi && result.reasoning && (
-                            <p className="text-xs italic text-warm-gray mt-1 ml-8 leading-relaxed">
+                            <p className="text-xs italic text-subtle mt-1 ml-8 leading-relaxed">
                               {result.reasoning}
                             </p>
                           )}
@@ -601,7 +601,7 @@ function IdeaDetailPanel({
                   </div>
                 )}
                 {aiSourceInputs && aiSourceInputs.length > 0 && (
-                  <p className="text-xs text-warm-gray mt-3">
+                  <p className="text-xs text-subtle mt-3">
                     Based on: {aiSourceInputs.join(" + ")}
                   </p>
                 )}
@@ -628,8 +628,8 @@ function IdeaDetailPanel({
                       }
                       className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium border transition-colors ${
                         classification === cls
-                          ? "border-moss bg-moss/10 text-moss"
-                          : "border-warm-border text-warm-gray hover:border-moss/30"
+                          ? "border-accent bg-accent/10 text-accent"
+                          : "border-line text-subtle hover:border-accent/30"
                       }`}
                     >
                       {cls.charAt(0).toUpperCase() + cls.slice(1)}
@@ -637,7 +637,7 @@ function IdeaDetailPanel({
                   )
                 )}
               </div>
-              <p className="text-xs text-warm-gray mt-2">
+              <p className="text-xs text-subtle mt-2">
                 {classification === "more"
                   ? "Doing more of what already works (scaling)."
                   : classification === "better"
@@ -657,7 +657,7 @@ function IdeaDetailPanel({
               <h3 className="text-sm font-semibold mb-2">Scoring</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs font-medium text-warm-gray">
+                  <label className="text-xs font-medium text-subtle">
                     Alignment (40%) — 1-10
                   </label>
                   <Input
@@ -670,7 +670,7 @@ function IdeaDetailPanel({
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-warm-gray">
+                  <label className="text-xs font-medium text-subtle">
                     Revenue Potential (35%) — 1-10
                   </label>
                   <Input
@@ -683,7 +683,7 @@ function IdeaDetailPanel({
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-warm-gray">
+                  <label className="text-xs font-medium text-subtle">
                     Effort (25%) — 1-10
                   </label>
                   <Input
@@ -696,13 +696,13 @@ function IdeaDetailPanel({
                   />
                 </div>
                 {scoreAlignment && scoreRevenue && scoreEffort && (
-                  <div className="pt-2 border-t border-warm-border">
+                  <div className="pt-2 border-t border-line">
                     <p className="text-sm font-medium">
                       Weighted Score:{" "}
-                      <span className="font-mono text-lg text-charcoal">
+                      <span className="font-mono text-lg text-ink">
                         {totalScore.toFixed(1)}
                       </span>
-                      <span className="text-warm-gray"> / 10</span>
+                      <span className="text-subtle"> / 10</span>
                     </p>
                   </div>
                 )}
@@ -716,14 +716,14 @@ function IdeaDetailPanel({
           <Card className="mt-4">
             <CardContent className="py-3">
               <h3 className="text-sm font-semibold mb-1">Score</h3>
-              <p className="text-2xl font-mono font-bold text-charcoal">
+              <p className="text-2xl font-mono font-bold text-ink">
                 {idea.score_total.toFixed(1)}
-                <span className="text-sm text-warm-gray font-normal">
+                <span className="text-sm text-subtle font-normal">
                   {" "}
                   / 10
                 </span>
               </p>
-              <div className="flex gap-3 mt-1 text-xs text-warm-gray">
+              <div className="flex gap-3 mt-1 text-xs text-subtle">
                 <span>Alignment: {idea.score_alignment}</span>
                 <span>Revenue: {idea.score_revenue}</span>
                 <span>Effort: {idea.score_effort}</span>
@@ -823,15 +823,15 @@ function KanbanColumn({
     <div className="flex-1 min-w-[240px]">
       <div className="mb-3">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold text-charcoal">
+          <h3 className="text-sm font-semibold text-ink">
             {stageLabels[stage]}
           </h3>
-          <span className="text-xs px-1.5 py-0.5 rounded-full bg-warm-gray/10 text-warm-gray">
+          <span className="text-xs px-1.5 py-0.5 rounded-full bg-faded/10 text-subtle">
             {ideas.length}
           </span>
         </div>
         {stageDescriptions[stage] && (
-          <p className="text-xs text-warm-gray mt-0.5">
+          <p className="text-xs text-subtle mt-0.5">
             {stageDescriptions[stage]}
           </p>
         )}
@@ -876,7 +876,7 @@ export function IdeaVaultView({
   if (ideas.length === 0 && !showAdd) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-6">Idea Vault</h1>
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6">Idea Vault</h1>
         <EmptyState
           title="The Vault is empty"
           description="Submit your first idea. It will enter a 14-day quarantine before evaluation."
@@ -890,8 +890,8 @@ export function IdeaVaultView({
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Idea Vault</h1>
-          <p className="text-sm text-warm-gray mt-0.5">
+          <h1 className="font-display text-[28px] font-bold tracking-[-0.03em]">Idea Vault</h1>
+          <p className="text-sm text-subtle mt-0.5">
             Anti-distraction engine — ideas must survive quarantine and filters
             before becoming candidates.
           </p>
@@ -927,7 +927,7 @@ export function IdeaVaultView({
       {/* Archived section */}
       {showArchived && archivedIdeas.length > 0 && (
         <div className="mt-8">
-          <h2 className="text-sm font-semibold text-warm-gray uppercase tracking-wider mb-3">
+          <h2 className="text-sm font-semibold text-subtle uppercase tracking-wider mb-3">
             Archived & Selected
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -942,7 +942,7 @@ export function IdeaVaultView({
       {selectedIdea && (
         <>
           <div
-            className="fixed inset-0 bg-charcoal/20 z-40"
+            className="fixed inset-0 bg-ink/20 z-40"
             onClick={() => setSelectedIdea(null)}
           />
           <IdeaDetailPanel

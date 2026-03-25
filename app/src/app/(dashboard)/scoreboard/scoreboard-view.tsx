@@ -65,7 +65,7 @@ function Sparkline({ entries }: { entries: KpiEntry[] }) {
         fill="none"
         stroke="currentColor"
         strokeWidth="1.5"
-        className="text-warm-gray"
+        className="text-subtle"
       />
     </svg>
   );
@@ -77,17 +77,17 @@ function KpiTile({ kpi }: { kpi: Kpi }) {
       <CardContent className="py-4">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-sm font-medium text-charcoal">{kpi.name}</p>
+            <p className="text-sm font-medium text-ink">{kpi.name}</p>
             <div className="mt-1 flex items-baseline gap-2">
               <span className="text-2xl font-mono font-bold">
                 {kpi.current_value ?? "—"}
               </span>
               {kpi.unit && (
-                <span className="text-xs text-warm-gray">{kpi.unit}</span>
+                <span className="text-xs text-subtle">{kpi.unit}</span>
               )}
             </div>
             {kpi.target !== null && (
-              <p className="text-xs text-warm-gray mt-0.5">
+              <p className="text-xs text-subtle mt-0.5">
                 Target: {kpi.target} {kpi.unit}
               </p>
             )}
@@ -123,7 +123,7 @@ export function ScoreboardView({ kpis }: { kpis: Kpi[] }) {
   if (kpis.length === 0) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-6">Scoreboard</h1>
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6">Scoreboard</h1>
         <EmptyState
           title="No KPIs yet"
           description="Create your first KPI to start tracking what matters."
@@ -140,17 +140,17 @@ export function ScoreboardView({ kpis }: { kpis: Kpi[] }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Scoreboard</h1>
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em]">Scoreboard</h1>
         <div className="flex items-center gap-2">
-          <div className="flex bg-ivory border border-warm-border rounded-lg overflow-hidden">
+          <div className="flex bg-surface border border-line rounded-lg overflow-hidden">
             {(["all", "red", "yellow"] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
                 className={`px-3 py-1.5 text-sm font-medium transition-colors ${
                   filter === f
-                    ? "bg-moss text-white"
-                    : "text-warm-gray hover:text-charcoal"
+                    ? "bg-accent text-white"
+                    : "text-subtle hover:text-ink"
                 }`}
               >
                 {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
@@ -179,7 +179,7 @@ export function ScoreboardView({ kpis }: { kpis: Kpi[] }) {
 
       {filterKpis(tier1).length > 0 && (
         <section className="mb-8 mt-6">
-          <h2 className="text-sm font-semibold text-warm-gray uppercase tracking-wider mb-3">
+          <h2 className="text-sm font-semibold text-subtle uppercase tracking-wider mb-3">
             Tier 1 — Lagging Indicators
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -192,7 +192,7 @@ export function ScoreboardView({ kpis }: { kpis: Kpi[] }) {
 
       {filterKpis(tier2).length > 0 && (
         <section>
-          <h2 className="text-sm font-semibold text-warm-gray uppercase tracking-wider mb-3">
+          <h2 className="text-sm font-semibold text-subtle uppercase tracking-wider mb-3">
             Tier 2 — Leading Indicators
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -51,15 +51,15 @@ const machineLabels: Record<MachineType, string> = {
 };
 
 const machinePillColors: Record<MachineType, string> = {
-  newsletter: "bg-moss/20 text-moss",
-  deep_content: "bg-clay/20 text-clay-text",
+  newsletter: "bg-accent/20 text-accent",
+  deep_content: "bg-accent-dim text-accent",
   short_form: "bg-brass/20 text-brass-text",
   live_event: "bg-sage/20 text-sage-text",
 };
 
 const machineDotColors: Record<MachineType, string> = {
-  newsletter: "bg-moss",
-  deep_content: "bg-clay",
+  newsletter: "bg-accent",
+  deep_content: "bg-cta",
   short_form: "bg-brass",
   live_event: "bg-sage",
 };
@@ -167,12 +167,12 @@ function QuickScheduleForm({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/30">
-      <div className="bg-ivory rounded-xl border border-warm-border shadow-lg p-5 w-full max-w-sm">
-        <h3 className="text-sm font-semibold text-charcoal mb-1">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/30">
+      <div className="bg-surface rounded-xl border border-line shadow-lg p-5 w-full max-w-sm">
+        <h3 className="text-sm font-semibold text-ink mb-1">
           Quick Schedule
         </h3>
-        <p className="text-xs text-warm-gray mb-3">
+        <p className="text-xs text-subtle mb-3">
           {date.toLocaleDateString("en-US", {
             weekday: "long",
             month: "long",
@@ -190,7 +190,7 @@ function QuickScheduleForm({
           <select
             value={machineType}
             onChange={(e) => setMachineType(e.target.value as MachineType)}
-            className="w-full text-sm border border-warm-border rounded-lg px-3 py-2 bg-ivory"
+            className="w-full text-sm border border-line rounded-lg px-3 py-2 bg-surface"
           >
             {Object.entries(machineLabels).map(([key, label]) => (
               <option key={key} value={key}>
@@ -327,28 +327,28 @@ function DayCell({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`min-h-[100px] border border-warm-border p-1.5 transition-colors cursor-pointer ${
-        isCurrentMonth ? "bg-ivory" : "bg-parchment/60 opacity-40"
-      } ${isToday ? "border-2 border-moss" : ""} ${
+      className={`min-h-[100px] border border-line p-1.5 transition-colors cursor-pointer ${
+        isCurrentMonth ? "bg-surface" : "bg-canvas/60 opacity-40"
+      } ${isToday ? "border-2 border-accent" : ""} ${
         isGap
           ? "border-dashed border-semantic-brick/30 bg-semantic-brick/5"
           : ""
-      } ${dragOver ? "bg-moss/10" : ""}`}
+      } ${dragOver ? "bg-accent/10" : ""}`}
     >
       <div className="flex items-center justify-between mb-1">
         <span
           className={`text-xs font-medium ${
             isToday
-              ? "text-moss font-semibold"
+              ? "text-accent font-semibold"
               : isCurrentMonth
-                ? "text-charcoal"
-                : "text-warm-gray"
+                ? "text-ink"
+                : "text-subtle"
           }`}
         >
           {date.getDate()}
         </span>
         {isGap && (
-          <span className="text-[10px] text-warm-gray font-medium">Gap</span>
+          <span className="text-[10px] text-subtle font-medium">Gap</span>
         )}
       </div>
       <div className="space-y-1">
@@ -405,20 +405,20 @@ function MobileWeekList({
             key={key}
             onClick={() => pieces.length === 0 && onEmptyClick(day)}
             className={`flex items-start gap-3 p-2 rounded-lg border ${
-              todayMatch ? "border-moss border-2" : "border-warm-border"
-            } ${gap ? "border-dashed border-semantic-brick/30 bg-semantic-brick/5" : "bg-ivory"}`}
+              todayMatch ? "border-accent border-2" : "border-line"
+            } ${gap ? "border-dashed border-semantic-brick/30 bg-semantic-brick/5" : "bg-surface"}`}
           >
             <div className="text-center w-10 shrink-0">
-              <div className="text-xs text-warm-gray">
+              <div className="text-xs text-subtle">
                 {day.toLocaleDateString("en-US", { weekday: "short" })}
               </div>
               <div
-                className={`text-sm font-semibold ${todayMatch ? "text-moss" : "text-charcoal"}`}
+                className={`text-sm font-semibold ${todayMatch ? "text-accent" : "text-ink"}`}
               >
                 {day.getDate()}
               </div>
               {gap && (
-                <span className="text-[9px] text-warm-gray">Gap</span>
+                <span className="text-[9px] text-subtle">Gap</span>
               )}
             </div>
             <div className="flex-1 flex flex-wrap gap-1 min-h-[24px]">
@@ -673,8 +673,8 @@ export function CalendarView({
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-bold text-charcoal">Media Calendar</h1>
-          <p className="text-sm text-warm-gray mt-0.5">
+          <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] text-ink">Media Calendar</h1>
+          <p className="text-sm text-subtle mt-0.5">
             {gapDays.size} content gap{gapDays.size !== 1 ? "s" : ""} this month
           </p>
         </div>
@@ -723,7 +723,7 @@ export function CalendarView({
               />
             </svg>
           </Button>
-          <span className="text-base font-semibold text-charcoal ml-2">
+          <span className="text-base font-semibold text-ink ml-2">
             {monthLabel}
           </span>
         </div>
@@ -739,11 +739,11 @@ export function CalendarView({
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
                   on
                     ? `${machinePillColors[mt]} border-transparent`
-                    : "bg-parchment text-warm-gray border-warm-border opacity-50"
+                    : "bg-canvas text-subtle border-line opacity-50"
                 }`}
               >
                 <span
-                  className={`w-2 h-2 rounded-full ${on ? machineDotColors[mt] : "bg-warm-gray/40"}`}
+                  className={`w-2 h-2 rounded-full ${on ? machineDotColors[mt] : "bg-faded/40"}`}
                 />
                 {machineLabels[mt]}
               </button>
@@ -756,7 +756,7 @@ export function CalendarView({
             onChange={(e) =>
               setStatusFilter(e.target.value as "all" | "scheduled")
             }
-            className="text-xs border border-warm-border rounded-lg px-2 py-1 bg-ivory text-charcoal"
+            className="text-xs border border-line rounded-lg px-2 py-1 bg-surface text-ink"
           >
             <option value="all">All statuses</option>
             <option value="scheduled">Scheduled only</option>
@@ -771,12 +771,12 @@ export function CalendarView({
             One-Ask Rule — Audience Collision Detected
           </p>
           {oneAskConflicts.slice(0, 5).map((c) => (
-            <p key={`${c.pieceId}-${c.conflictingPieceId}`} className="text-xs text-charcoal">
+            <p key={`${c.pieceId}-${c.conflictingPieceId}`} className="text-xs text-ink">
               <span className="font-medium">{c.pieceTitle}</span>
               {" and "}
               <span className="font-medium">{c.conflictingPieceTitle}</span>
               {" target the same funnel "}
-              <span className="text-warm-gray">
+              <span className="text-subtle">
                 ({funnelMap.get(c.funnelId) ?? "Unknown"})
               </span>
               {" — only "}
@@ -785,7 +785,7 @@ export function CalendarView({
             </p>
           ))}
           {oneAskConflicts.length > 5 && (
-            <p className="text-xs text-warm-gray">
+            <p className="text-xs text-subtle">
               ...and {oneAskConflicts.length - 5} more conflicts
             </p>
           )}
@@ -799,7 +799,7 @@ export function CalendarView({
             Content Gap — Recurring Moves at Risk
           </p>
           {moveGaps.map((g) => (
-            <p key={g.moveTitle} className="text-xs text-charcoal">
+            <p key={g.moveTitle} className="text-xs text-ink">
               <span className="font-medium">{g.moveTitle}</span>
               {" expects "}
               <span className="font-medium text-semantic-brick">
@@ -808,7 +808,7 @@ export function CalendarView({
               {" but only "}
               <span className="font-medium">{g.scheduled} scheduled</span>
               {" this month"}
-              <span className="text-warm-gray"> — {g.betOutcome}</span>
+              <span className="text-subtle"> — {g.betOutcome}</span>
             </p>
           ))}
         </div>
@@ -821,7 +821,7 @@ export function CalendarView({
           {WEEKDAY_HEADERS.map((d) => (
             <div
               key={d}
-              className="text-xs font-semibold text-warm-gray text-center py-1"
+              className="text-xs font-semibold text-subtle text-center py-1"
             >
               {d}
             </div>

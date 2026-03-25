@@ -42,8 +42,8 @@ const machineLabels: Record<MachineType, string> = {
 };
 
 const machineColors: Record<MachineType, string> = {
-  newsletter: "bg-moss/10 text-moss",
-  deep_content: "bg-clay/10 text-clay-text",
+  newsletter: "bg-accent/10 text-accent",
+  deep_content: "bg-accent-dim text-accent",
   short_form: "bg-brass/10 text-brass-text",
   live_event: "bg-sage/10 text-sage-text",
 };
@@ -65,7 +65,7 @@ function ContentCard({ piece }: { piece: ContentPiece }) {
     <a href={`/content/${piece.id}`} className="block">
       <Card className="hover:shadow-md transition-shadow">
         <CardContent className="py-3">
-          <h3 className="text-sm font-medium text-charcoal leading-tight">
+          <h3 className="text-sm font-medium text-ink leading-tight">
             {piece.title}
           </h3>
           <div className="flex items-center gap-2 mt-2">
@@ -76,7 +76,7 @@ function ContentCard({ piece }: { piece: ContentPiece }) {
             </span>
           </div>
           {piece.scheduled_at && (
-            <p className="text-xs text-warm-gray mt-1">
+            <p className="text-xs text-subtle mt-1">
               Scheduled:{" "}
               {new Date(piece.scheduled_at).toLocaleDateString("en-US", {
                 month: "short",
@@ -84,7 +84,7 @@ function ContentCard({ piece }: { piece: ContentPiece }) {
               })}
             </p>
           )}
-          <p className="text-xs text-warm-gray mt-1">
+          <p className="text-xs text-subtle mt-1">
             {new Date(piece.created_at).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
@@ -153,7 +153,7 @@ function AddContentForm({ onClose }: { onClose: () => void }) {
             <select
               value={machineType}
               onChange={(e) => setMachineType(e.target.value as MachineType)}
-              className="text-sm border border-warm-border rounded-lg px-3 py-2 bg-ivory"
+              className="text-sm border border-line rounded-lg px-3 py-2 bg-surface"
             >
               {Object.entries(machineLabels).map(([key, label]) => (
                 <option key={key} value={key}>
@@ -249,15 +249,15 @@ function SuggestedNextCard({
             AI Suggested
           </span>
         </div>
-        <h3 className="text-sm font-medium text-charcoal leading-tight">
+        <h3 className="text-sm font-medium text-ink leading-tight">
           {suggestion.title}
         </h3>
-        <p className="text-xs text-warm-gray mt-1">{suggestion.reason}</p>
+        <p className="text-xs text-subtle mt-1">{suggestion.reason}</p>
         <button
           onClick={() =>
             onAccept(suggestion.title, suggestion.machineType)
           }
-          className="mt-2 text-xs text-moss font-medium hover:underline"
+          className="mt-2 text-xs text-accent font-medium hover:underline"
         >
           Create content piece
         </button>
@@ -281,10 +281,10 @@ function KanbanColumn({
     <div className="flex-1 min-w-[200px]">
       <div className="mb-3">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold text-charcoal">
+          <h3 className="text-sm font-semibold text-ink">
             {stageLabels[stage]}
           </h3>
-          <span className="text-xs px-1.5 py-0.5 rounded-full bg-warm-gray/10 text-warm-gray">
+          <span className="text-xs px-1.5 py-0.5 rounded-full bg-faded/10 text-subtle">
             {pieces.length}
           </span>
         </div>
@@ -323,15 +323,15 @@ function MachineFilter({
   ];
 
   return (
-    <div className="flex gap-1 bg-ivory border border-warm-border rounded-lg p-1">
+    <div className="flex gap-1 bg-surface border border-line rounded-lg p-1">
       {options.map((opt) => (
         <button
           key={opt.key}
           onClick={() => onSelect(opt.key)}
           className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
             active === opt.key
-              ? "bg-moss text-white"
-              : "text-warm-gray hover:text-charcoal"
+              ? "bg-accent text-white"
+              : "text-subtle hover:text-ink"
           }`}
         >
           {opt.label}
@@ -427,7 +427,7 @@ export function ContentMachinesView({
   if (pieces.length === 0 && !showAdd) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-6">Content Machines</h1>
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6">Content Machines</h1>
         <EmptyState
           title="No content yet"
           description="Create your first content piece. It will flow through the pipeline: Ideation → Drafting → Review → Scheduled → Published."
@@ -445,8 +445,8 @@ export function ContentMachinesView({
     <div>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-bold">Content Machines</h1>
-          <p className="text-sm text-warm-gray mt-0.5">
+          <h1 className="font-display text-[28px] font-bold tracking-[-0.03em]">Content Machines</h1>
+          <p className="text-sm text-subtle mt-0.5">
             4 machines, 5-stage pipeline. Click any piece to open the editor.
           </p>
         </div>
@@ -477,13 +477,13 @@ export function ContentMachinesView({
       {searchResults !== null && (
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-semibold text-charcoal">
-              Search Results {searching && <span className="text-warm-gray font-normal">(searching...)</span>}
+            <h3 className="text-sm font-semibold text-ink">
+              Search Results {searching && <span className="text-subtle font-normal">(searching...)</span>}
             </h3>
             <button
               type="button"
               onClick={() => { setSearchQuery(""); setSearchResults(null); }}
-              className="text-xs text-warm-gray hover:text-charcoal transition-colors"
+              className="text-xs text-subtle hover:text-ink transition-colors"
             >
               Clear search
             </button>
@@ -495,7 +495,7 @@ export function ContentMachinesView({
               ))}
             </div>
           ) : (
-            <p className="text-sm text-warm-gray">No content pieces match your search.</p>
+            <p className="text-sm text-subtle">No content pieces match your search.</p>
           )}
         </div>
       )}
@@ -513,13 +513,13 @@ export function ContentMachinesView({
       {campaignNames.length > 0 && (
         <div className="mb-4">
           <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-xs font-semibold text-warm-gray uppercase">
+            <h3 className="text-xs font-semibold text-subtle uppercase">
               Campaigns
             </h3>
             {campaignFilter !== "all" && (
               <button
                 onClick={() => setCampaignFilter("all")}
-                className="text-xs text-clay-text hover:text-clay"
+                className="text-xs text-accent hover:text-accent"
               >
                 Clear filter
               </button>
@@ -537,14 +537,14 @@ export function ContentMachinesView({
                   onClick={() => setCampaignFilter(isActive ? "all" : name)}
                   className={`flex-shrink-0 rounded-lg border px-3 py-2 text-left transition-colors ${
                     isActive
-                      ? "border-moss bg-moss/10"
-                      : "border-warm-border bg-ivory hover:bg-parchment"
+                      ? "border-accent bg-accent/10"
+                      : "border-line bg-surface hover:bg-canvas"
                   }`}
                 >
-                  <p className={`text-xs font-semibold ${isActive ? "text-moss" : "text-charcoal"}`}>
+                  <p className={`text-xs font-semibold ${isActive ? "text-accent" : "text-ink"}`}>
                     {name}
                   </p>
-                  <p className="text-[10px] text-warm-gray mt-0.5">
+                  <p className="text-[10px] text-subtle mt-0.5">
                     {c.total} pieces · {published} published · {scheduled} scheduled
                   </p>
                 </button>

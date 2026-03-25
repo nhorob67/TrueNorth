@@ -113,16 +113,16 @@ export function MentionInput({
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
-        className={`block w-full rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm min-h-[60px] focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20 ${className}`}
+        className={`block w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm min-h-[60px] focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20 ${className}`}
       />
       {showDropdown && (
-        <div className="absolute z-50 mt-1 w-full rounded-lg border border-warm-border bg-ivory shadow-lg max-h-40 overflow-auto">
+        <div className="absolute z-50 mt-1 w-full rounded-lg border border-line bg-surface shadow-lg max-h-40 overflow-auto">
           {filteredMembers.map((m) => (
             <button
               key={m.user_id}
               type="button"
               onClick={() => selectMember(m)}
-              className="w-full text-left px-3 py-2 text-sm hover:bg-parchment"
+              className="w-full text-left px-3 py-2 text-sm hover:bg-canvas"
             >
               @{m.full_name}
             </button>

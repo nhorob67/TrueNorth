@@ -50,15 +50,15 @@ function Tombstone({ bet }: { bet: KilledBet }) {
   return (
     <Card className="overflow-hidden">
       {/* Tombstone header — dark, somber, but celebratory */}
-      <div className="bg-charcoal px-6 py-5 text-center">
-        <div className="text-warm-gray/40 text-3xl mb-2">&#x2020;</div>
-        <h3 className="text-ivory font-semibold text-base leading-tight">
+      <div className="bg-ink px-6 py-5 text-center">
+        <div className="text-subtle/40 text-3xl mb-2">&#x2020;</div>
+        <h3 className="text-surface font-semibold text-base leading-tight">
           {bet.outcome}
         </h3>
         {bet.mechanism && (
-          <p className="text-warm-gray text-xs mt-1">{bet.mechanism}</p>
+          <p className="text-subtle text-xs mt-1">{bet.mechanism}</p>
         )}
-        <div className="flex items-center justify-center gap-3 mt-3 text-xs text-warm-gray">
+        <div className="flex items-center justify-center gap-3 mt-3 text-xs text-subtle">
           <span>
             {created.toLocaleDateString("en-US", {
               month: "short",
@@ -73,7 +73,7 @@ function Tombstone({ bet }: { bet: KilledBet }) {
             })}
           </span>
         </div>
-        <p className="text-xs text-warm-gray/60 mt-1">
+        <p className="text-xs text-subtle/60 mt-1">
           {durationWeeks > 0
             ? `${durationWeeks} week${durationWeeks !== 1 ? "s" : ""}`
             : `${durationDays} day${durationDays !== 1 ? "s" : ""}`}
@@ -84,10 +84,10 @@ function Tombstone({ bet }: { bet: KilledBet }) {
         {/* Lessons learned */}
         {bet.kill_reason && (
           <div>
-            <p className="text-xs font-semibold text-warm-gray uppercase mb-1">
+            <p className="text-xs font-semibold text-subtle uppercase mb-1">
               What We Learned
             </p>
-            <p className="text-sm text-charcoal whitespace-pre-wrap">
+            <p className="text-sm text-ink whitespace-pre-wrap">
               {bet.kill_reason}
             </p>
           </div>
@@ -100,7 +100,7 @@ function Tombstone({ bet }: { bet: KilledBet }) {
               <p className="text-lg font-mono font-bold text-semantic-green-text">
                 {recoveredHours}h
               </p>
-              <p className="text-xs text-warm-gray">Hours saved</p>
+              <p className="text-xs text-subtle">Hours saved</p>
             </div>
           )}
           {capHours > 0 && (
@@ -108,20 +108,20 @@ function Tombstone({ bet }: { bet: KilledBet }) {
               <p className="text-lg font-mono font-bold text-semantic-green-text">
                 {capHours}h/wk
               </p>
-              <p className="text-xs text-warm-gray">Capacity freed</p>
+              <p className="text-xs text-subtle">Capacity freed</p>
             </div>
           )}
-          <div className="flex-1 p-2 bg-moss/5 rounded text-center">
-            <p className="text-lg font-mono font-bold text-moss">
+          <div className="flex-1 p-2 bg-accent/5 rounded text-center">
+            <p className="text-lg font-mono font-bold text-accent">
               {bet.moves.filter((m) => m.lifecycle_status === "shipped").length}
             </p>
-            <p className="text-xs text-warm-gray">Moves shipped</p>
+            <p className="text-xs text-subtle">Moves shipped</p>
           </div>
         </div>
 
         {/* Quarter tag */}
         {bet.quarter && (
-          <p className="text-xs text-warm-gray text-center">{bet.quarter}</p>
+          <p className="text-xs text-subtle text-center">{bet.quarter}</p>
         )}
       </CardContent>
     </Card>
@@ -154,7 +154,7 @@ export function GraveyardView({
     return (
       <div>
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">Bet Graveyard</h1>
+          <h1 className="font-display text-[28px] font-bold tracking-[-0.03em]">Bet Graveyard</h1>
           <Button
             variant="tertiary"
             size="sm"
@@ -175,8 +175,8 @@ export function GraveyardView({
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Bet Graveyard</h1>
-          <p className="text-sm text-warm-gray mt-0.5">
+          <h1 className="font-display text-[28px] font-bold tracking-[-0.03em]">Bet Graveyard</h1>
+          <p className="text-sm text-subtle mt-0.5">
             The system worked. Every tombstone here represents a smart kill
             that protected focus and resources.
           </p>
@@ -195,10 +195,10 @@ export function GraveyardView({
         <CardContent className="py-5">
           <div className="grid grid-cols-3 gap-6 text-center">
             <div>
-              <p className="text-3xl font-mono font-bold text-charcoal">
+              <p className="text-3xl font-mono font-bold text-ink">
                 {totalKilled}
               </p>
-              <p className="text-xs text-warm-gray mt-1">
+              <p className="text-xs text-subtle mt-1">
                 Smart Kill{totalKilled !== 1 ? "s" : ""}
               </p>
             </div>
@@ -206,15 +206,15 @@ export function GraveyardView({
               <p className="text-3xl font-mono font-bold text-semantic-green-text">
                 {totalHoursSaved}h
               </p>
-              <p className="text-xs text-warm-gray mt-1">
+              <p className="text-xs text-subtle mt-1">
                 Total Hours Saved
               </p>
             </div>
             <div>
-              <p className="text-3xl font-mono font-bold text-moss">
+              <p className="text-3xl font-mono font-bold text-accent">
                 {totalCapacityFreed}h/wk
               </p>
-              <p className="text-xs text-warm-gray mt-1">
+              <p className="text-xs text-subtle mt-1">
                 Total Capacity Freed
               </p>
             </div>

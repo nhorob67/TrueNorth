@@ -65,16 +65,16 @@ function FunnelCard({
         <CardContent className="py-4">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-sm font-semibold text-charcoal">
+              <h3 className="text-sm font-semibold text-ink">
                 {funnel.name}
               </h3>
-              <p className="text-xs text-warm-gray mt-1">
+              <p className="text-xs text-subtle mt-1">
                 {funnel.entry_point}
               </p>
             </div>
             <Badge status={badge.status}>{badge.label}</Badge>
           </div>
-          <div className="flex gap-4 mt-3 text-xs text-warm-gray">
+          <div className="flex gap-4 mt-3 text-xs text-subtle">
             <div>
               <span className="font-medium">Capture:</span>{" "}
               {funnel.capture_mechanism}
@@ -85,7 +85,7 @@ function FunnelCard({
             </div>
           </div>
           {funnel.last_result_at && (
-            <p className="text-xs text-warm-gray mt-2">
+            <p className="text-xs text-subtle mt-2">
               Last result:{" "}
               {new Date(funnel.last_result_at).toLocaleDateString("en-US", {
                 month: "short",
@@ -197,7 +197,7 @@ function FunnelForm({
         <h2 className="text-sm font-semibold">
           {funnel ? "Edit Funnel" : "Register New Funnel"}
         </h2>
-        <p className="text-xs text-warm-gray">
+        <p className="text-xs text-subtle">
           All 5 elements are required per TrueNorth rules.
         </p>
       </CardHeader>
@@ -245,13 +245,13 @@ function FunnelForm({
             placeholder="KPI names this funnel drives (comma separated)"
           />
           <div>
-            <label className="block text-sm font-medium text-charcoal mb-1">
+            <label className="block text-sm font-medium text-ink mb-1">
               Linked Idea (from Vault)
             </label>
             <select
               value={linkedIdeaId}
               onChange={(e) => setLinkedIdeaId(e.target.value)}
-              className="block w-full rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+              className="block w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
             >
               <option value="">No linked idea</option>
               {approvedIdeas.map((idea) => (
@@ -260,7 +260,7 @@ function FunnelForm({
                 </option>
               ))}
             </select>
-            <p className="text-xs text-warm-gray mt-0.5">
+            <p className="text-xs text-subtle mt-0.5">
               Funnels should link to an approved idea from the Vault.
             </p>
           </div>
@@ -323,18 +323,18 @@ function FunnelDetailPanel({
   ];
 
   return (
-    <div className="fixed inset-y-0 right-0 w-[420px] bg-ivory border-l border-warm-border shadow-xl z-50 overflow-y-auto">
+    <div className="fixed inset-y-0 right-0 w-[420px] bg-surface border-l border-line shadow-xl z-50 overflow-y-auto">
       <div className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h2 className="text-lg font-bold text-charcoal">{funnel.name}</h2>
+            <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-ink">{funnel.name}</h2>
             <Badge status={badge.status} className="mt-1">
               {badge.label}
             </Badge>
           </div>
           <button
             onClick={onClose}
-            className="text-warm-gray hover:text-charcoal text-xl"
+            className="text-subtle hover:text-ink text-xl"
           >
             &times;
           </button>
@@ -343,16 +343,16 @@ function FunnelDetailPanel({
         <div className="space-y-4">
           {elements.map((el, idx) => (
             <div key={el.label}>
-              <p className="text-xs font-semibold text-warm-gray uppercase mb-0.5">
+              <p className="text-xs font-semibold text-subtle uppercase mb-0.5">
                 {idx + 1}. {el.label}
               </p>
-              <p className="text-sm text-charcoal">{el.value}</p>
+              <p className="text-sm text-ink">{el.value}</p>
             </div>
           ))}
         </div>
 
         {funnel.last_result_at && (
-          <p className="text-xs text-warm-gray mt-4">
+          <p className="text-xs text-subtle mt-4">
             Last result:{" "}
             {new Date(funnel.last_result_at).toLocaleDateString("en-US", {
               month: "long",
@@ -364,11 +364,11 @@ function FunnelDetailPanel({
 
         {/* Linked Content from Media Calendar */}
         <div className="mt-6">
-          <p className="text-xs font-semibold text-warm-gray uppercase mb-2">
+          <p className="text-xs font-semibold text-subtle uppercase mb-2">
             Linked Content ({linkedContent.length})
           </p>
           {linkedContent.length === 0 ? (
-            <p className="text-xs text-warm-gray">
+            <p className="text-xs text-subtle">
               No content pieces linked to this funnel yet.
             </p>
           ) : (
@@ -377,10 +377,10 @@ function FunnelDetailPanel({
                 <a
                   key={piece.id}
                   href={`/content/${piece.id}`}
-                  className="flex items-center justify-between text-xs py-1.5 px-2 rounded bg-parchment hover:bg-warm-border/30 transition-colors"
+                  className="flex items-center justify-between text-xs py-1.5 px-2 rounded bg-canvas hover:bg-line/30 transition-colors"
                 >
-                  <span className="text-charcoal truncate">{piece.title}</span>
-                  <span className="text-warm-gray flex-shrink-0 ml-2">
+                  <span className="text-ink truncate">{piece.title}</span>
+                  <span className="text-subtle flex-shrink-0 ml-2">
                     {piece.scheduled_at
                       ? new Date(piece.scheduled_at).toLocaleDateString("en-US", {
                           month: "short",
@@ -427,7 +427,7 @@ export function FunnelRegistryView({
   if (funnels.length === 0 && !showForm) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-6">Funnel Registry</h1>
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6">Funnel Registry</h1>
         <EmptyState
           title="No funnels registered"
           description="Register your first funnel with all 5 required elements: entry point, capture, nurture, conversion, and scoreboard tie."
@@ -445,8 +445,8 @@ export function FunnelRegistryView({
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Funnel Registry</h1>
-          <p className="text-sm text-warm-gray mt-0.5">
+          <h1 className="font-display text-[28px] font-bold tracking-[-0.03em]">Funnel Registry</h1>
+          <p className="text-sm text-subtle mt-0.5">
             Every active funnel with all 5 required elements.
           </p>
         </div>
@@ -486,7 +486,7 @@ export function FunnelRegistryView({
       {/* Archived */}
       {archivedFunnels.length > 0 && (
         <div className="mt-8">
-          <h2 className="text-sm font-semibold text-warm-gray uppercase tracking-wider mb-3">
+          <h2 className="text-sm font-semibold text-subtle uppercase tracking-wider mb-3">
             Archived ({archivedFunnels.length})
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 opacity-60">
@@ -505,7 +505,7 @@ export function FunnelRegistryView({
       {selectedFunnel && (
         <>
           <div
-            className="fixed inset-0 bg-charcoal/20 z-40"
+            className="fixed inset-0 bg-ink/20 z-40"
             onClick={() => setSelectedFunnel(null)}
           />
           <FunnelDetailPanel

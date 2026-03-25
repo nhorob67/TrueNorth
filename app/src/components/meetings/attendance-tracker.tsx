@@ -35,10 +35,10 @@ export function AttendanceTracker({
 
   return (
     <Card>
-      <CardHeader className="bg-moss/5">
+      <CardHeader className="bg-accent/5">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-moss">Attendance</h3>
-          <span className="text-xs text-warm-gray">
+          <h3 className="text-sm font-semibold text-accent">Attendance</h3>
+          <span className="text-xs text-subtle">
             {checkedIds.size}/{teamMembers.length} present
           </span>
         </div>
@@ -54,10 +54,10 @@ export function AttendanceTracker({
                 type="checkbox"
                 checked={checkedIds.has(member.user_id)}
                 onChange={() => toggle(member.user_id)}
-                className="rounded border-warm-border text-moss focus:ring-moss"
+                className="rounded border-line text-accent focus:ring-accent-glow"
               />
-              <span className="text-charcoal">{member.full_name}</span>
-              <span className="text-xs text-warm-gray capitalize">
+              <span className="text-ink">{member.full_name}</span>
+              <span className="text-xs text-subtle capitalize">
                 {member.role}
               </span>
             </label>

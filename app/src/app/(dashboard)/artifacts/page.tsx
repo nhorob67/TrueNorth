@@ -9,7 +9,7 @@ export default async function ArtifactsPage() {
     getCachedUserContext(),
   ]);
 
-  if (!ctx) return <p className="text-warm-gray">Not authenticated.</p>;
+  if (!ctx) return <p className="text-subtle">Not authenticated.</p>;
 
   const stalenessResults = await checkStaleness(
     supabase,

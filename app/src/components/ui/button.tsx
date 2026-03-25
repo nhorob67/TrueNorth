@@ -11,19 +11,19 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: "bg-clay text-white hover:bg-clay/90 active:scale-[0.98] focus-visible:ring-clay/50",
+  primary: "bg-cta text-cta-text hover:bg-cta-hover active:scale-[0.98] focus-visible:ring-accent/50 shadow-[0_2px_8px_rgba(183,78,40,0.18)] hover:shadow-[0_4px_20px_rgba(183,78,40,0.28)]",
   secondary:
-    "bg-ivory text-charcoal border border-warm-border hover:bg-parchment active:scale-[0.98] focus-visible:ring-warm-border/50",
+    "bg-surface text-ink border border-line hover:bg-well active:scale-[0.98] focus-visible:ring-line/50",
   tertiary:
-    "bg-transparent text-clay-text hover:bg-clay/5 active:scale-[0.98] focus-visible:ring-clay/50",
+    "bg-transparent text-accent hover:bg-accent-dim active:scale-[0.98] focus-visible:ring-accent/50",
   destructive:
     "bg-semantic-brick text-white hover:bg-semantic-brick/90 active:scale-[0.98] focus-visible:ring-semantic-brick/50",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 text-sm",
-  md: "px-4 py-2 text-sm",
-  lg: "px-6 py-3 text-base",
+  sm: "px-3 py-1.5 text-sm rounded-[6px]",
+  md: "px-4 py-2 text-sm rounded-[8px]",
+  lg: "px-6 py-3 text-base rounded-[8px]",
 };
 
 export function Button({ variant = "primary", size = "md", loading = false, className = "", ref, children, disabled, ...props }: ButtonProps) {
@@ -31,7 +31,7 @@ export function Button({ variant = "primary", size = "md", loading = false, clas
     <button
       ref={ref}
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
       {...props}
     >
       {loading && (

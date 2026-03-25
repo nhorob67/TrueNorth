@@ -64,11 +64,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-parchment">
+    <div className="flex items-center justify-center min-h-screen bg-canvas">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-moss">TrueNorth</h1>
-          <p className="text-warm-gray mt-1">Sign in to your account</p>
+          <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] text-accent">TrueNorth</h1>
+          <p className="text-subtle mt-1">Sign in to your account</p>
         </div>
 
         <Card>
@@ -127,7 +127,7 @@ export default function LoginPage() {
                 onClick={() =>
                   setMode(mode === "password" ? "magic" : "password")
                 }
-                className="text-sm text-clay-text hover:text-clay-text/80"
+                className="text-sm text-accent hover:text-accent/80"
               >
                 {mode === "password"
                   ? "Use magic link instead"
@@ -138,7 +138,7 @@ export default function LoginPage() {
             <div className="mt-4 text-center">
               <a
                 href="/signup"
-                className="text-sm text-warm-gray hover:text-charcoal"
+                className="text-sm text-subtle hover:text-ink"
               >
                 Don&apos;t have an account? Sign up
               </a>

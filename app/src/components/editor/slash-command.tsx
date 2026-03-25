@@ -438,8 +438,8 @@ function CommandList({ items, command, ref }: CommandListProps & { ref?: React.R
 
     if (items.length === 0) {
       return (
-        <div className="slash-command-popup rounded-lg border border-warm-border bg-ivory shadow-lg p-2">
-          <p className="text-xs text-warm-gray px-2 py-1">No matching commands</p>
+        <div className="slash-command-popup rounded-lg border border-line bg-surface shadow-lg p-2">
+          <p className="text-xs text-subtle px-2 py-1">No matching commands</p>
         </div>
       );
     }
@@ -447,7 +447,7 @@ function CommandList({ items, command, ref }: CommandListProps & { ref?: React.R
     return (
       <div
         ref={scrollRef}
-        className="slash-command-popup rounded-lg border border-warm-border bg-ivory shadow-lg max-h-72 overflow-y-auto p-1 w-64"
+        className="slash-command-popup rounded-lg border border-line bg-surface shadow-lg max-h-72 overflow-y-auto p-1 w-64"
       >
         {items.map((item, index) => (
           <button
@@ -456,16 +456,16 @@ function CommandList({ items, command, ref }: CommandListProps & { ref?: React.R
             onClick={() => selectItem(index)}
             className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-md text-left transition-colors ${
               index === selectedIndex
-                ? "bg-moss/10 text-charcoal"
-                : "text-charcoal hover:bg-parchment"
+                ? "bg-accent/10 text-ink"
+                : "text-ink hover:bg-canvas"
             }`}
           >
-            <div className="w-8 h-8 rounded-md border border-warm-border bg-white flex items-center justify-center text-warm-gray flex-shrink-0">
+            <div className="w-8 h-8 rounded-md border border-line bg-surface flex items-center justify-center text-subtle flex-shrink-0">
               {item.icon}
             </div>
             <div className="min-w-0">
               <p className="text-sm font-medium leading-tight">{item.title}</p>
-              <p className="text-xs text-warm-gray leading-tight mt-0.5">
+              <p className="text-xs text-subtle leading-tight mt-0.5">
                 {item.description}
               </p>
             </div>

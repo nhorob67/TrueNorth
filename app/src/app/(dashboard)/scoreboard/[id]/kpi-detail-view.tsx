@@ -107,7 +107,7 @@ export function KpiDetailView({
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-xl font-bold">{kpi.name}</h1>
+                <h1 className="font-display text-[22px] font-bold tracking-[-0.02em]">{kpi.name}</h1>
                 <Button
                   variant="tertiary"
                   size="sm"
@@ -117,7 +117,7 @@ export function KpiDetailView({
                 </Button>
               </div>
               {kpi.description && (
-                <p className="text-sm text-warm-gray mt-1">
+                <p className="text-sm text-subtle mt-1">
                   {kpi.description}
                 </p>
               )}
@@ -130,7 +130,7 @@ export function KpiDetailView({
         <CardContent>
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div>
-              <p className="text-xs text-warm-gray uppercase font-semibold">
+              <p className="text-xs text-subtle uppercase font-semibold">
                 Current
               </p>
               <p className="text-2xl font-mono font-bold">
@@ -138,13 +138,13 @@ export function KpiDetailView({
               </p>
             </div>
             <div>
-              <p className="text-xs text-warm-gray uppercase font-semibold">
+              <p className="text-xs text-subtle uppercase font-semibold">
                 Target
               </p>
               <p className="text-2xl font-mono">{kpi.target ?? "—"}</p>
             </div>
             <div>
-              <p className="text-xs text-warm-gray uppercase font-semibold">
+              <p className="text-xs text-subtle uppercase font-semibold">
                 Frequency
               </p>
               <p className="text-sm capitalize">{kpi.frequency}</p>
@@ -153,8 +153,8 @@ export function KpiDetailView({
 
           {/* Action Playbook */}
           {(kpi.action_playbook.yellow || kpi.action_playbook.red) && (
-            <div className="mb-6 p-3 rounded-lg bg-parchment border border-warm-border">
-              <p className="text-xs font-semibold text-warm-gray uppercase mb-2">
+            <div className="mb-6 p-3 rounded-lg bg-canvas border border-line">
+              <p className="text-xs font-semibold text-subtle uppercase mb-2">
                 Action Playbook
               </p>
               {kpi.action_playbook.yellow && (
@@ -186,21 +186,21 @@ export function KpiDetailView({
               History ({entries.length})
             </h2>
             {entries.length === 0 ? (
-              <p className="text-sm text-warm-gray">No data points yet.</p>
+              <p className="text-sm text-subtle">No data points yet.</p>
             ) : (
               <div className="space-y-1">
                 {entries.map((entry) => (
                   <div
                     key={entry.id}
-                    className="flex items-center justify-between py-1.5 border-b border-warm-border last:border-0"
+                    className="flex items-center justify-between py-1.5 border-b border-line last:border-0"
                   >
                     <span className="text-sm font-mono">
                       {entry.value}
                       {kpi.unit ? ` ${kpi.unit}` : ""}
                     </span>
-                    <span className="text-xs text-warm-gray">
+                    <span className="text-xs text-subtle">
                       {new Date(entry.recorded_at).toLocaleDateString()}{" "}
-                      <span className="text-warm-gray/60">({entry.source})</span>
+                      <span className="text-subtle/60">({entry.source})</span>
                     </span>
                   </div>
                 ))}

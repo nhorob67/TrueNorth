@@ -116,11 +116,11 @@ export function VersionDiff({
   const removedCount = diffLines.filter((d) => d.type === "removed").length;
 
   return (
-    <div className="border border-warm-border rounded-lg bg-ivory overflow-hidden">
-      <div className="flex items-center justify-between px-3 py-2 bg-parchment border-b border-warm-border">
+    <div className="border border-line rounded-lg bg-surface overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-2 bg-canvas border-b border-line">
         <div className="flex items-center gap-3">
-          <h4 className="text-xs font-semibold text-charcoal">Version Diff</h4>
-          <span className="text-xs text-warm-gray">
+          <h4 className="text-xs font-semibold text-ink">Version Diff</h4>
+          <span className="text-xs text-subtle">
             {new Date(oldVersion.created_at).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
@@ -136,7 +136,7 @@ export function VersionDiff({
         <button
           type="button"
           onClick={onClose}
-          className="text-xs text-warm-gray hover:text-charcoal transition-colors"
+          className="text-xs text-subtle hover:text-ink transition-colors"
         >
           Close
         </button>
@@ -150,17 +150,17 @@ export function VersionDiff({
                 ? "bg-semantic-green/10 text-semantic-green-text"
                 : line.type === "removed"
                   ? "bg-semantic-brick/10 text-semantic-brick"
-                  : "text-charcoal"
+                  : "text-ink"
             }`}
           >
-            <span className="inline-block w-4 text-warm-gray select-none">
+            <span className="inline-block w-4 text-subtle select-none">
               {line.type === "added" ? "+" : line.type === "removed" ? "-" : " "}
             </span>
             {line.text || "\u00A0"}
           </div>
         ))}
         {diffLines.length === 0 && (
-          <p className="px-3 py-4 text-warm-gray text-center">No differences found.</p>
+          <p className="px-3 py-4 text-subtle text-center">No differences found.</p>
         )}
       </div>
     </div>

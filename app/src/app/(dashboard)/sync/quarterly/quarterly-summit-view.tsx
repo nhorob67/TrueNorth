@@ -162,7 +162,7 @@ function BhagProgressSegment({
 }) {
   if (!vision) {
     return (
-      <div className="py-8 text-center text-warm-gray">
+      <div className="py-8 text-center text-subtle">
         No vision data found. Set up your Vision Board first.
       </div>
     );
@@ -174,30 +174,30 @@ function BhagProgressSegment({
 
   return (
     <div className="space-y-6">
-      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[0].description}</p>
+      <p className="text-xs text-subtle">{SEGMENT_CONFIG[0].description}</p>
 
       {/* BHAG */}
       <Card className="bg-brass/5 border-brass/20">
         <CardContent className="py-4">
-          <p className="text-xs font-semibold text-brass uppercase tracking-wider mb-1">BHAG</p>
-          <p className="text-lg font-medium text-charcoal">{vision.bhag}</p>
+          <p className="font-mono text-[10px] font-semibold text-brass uppercase tracking-[0.10em] mb-1">BHAG</p>
+          <p className="text-lg font-medium text-ink">{vision.bhag}</p>
         </CardContent>
       </Card>
 
       {/* Annual Outcomes */}
       <div>
-        <h3 className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">
+        <h3 className="font-mono text-[10px] font-semibold text-ink uppercase tracking-[0.10em] mb-2">
           Annual Outcomes ({vision.year})
         </h3>
         <div className="space-y-2">
           {vision.annual_outcomes.map((outcome) => (
             <Card key={outcome.id}>
               <CardContent className="py-3">
-                <p className="text-sm text-charcoal">{outcome.description}</p>
+                <p className="text-sm text-ink">{outcome.description}</p>
                 {Object.keys(outcome.constraints).length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
                     {Object.entries(outcome.constraints).map(([k, v]) => (
-                      <span key={k} className="text-xs px-2 py-0.5 bg-parchment border border-warm-border rounded">
+                      <span key={k} className="text-xs px-2 py-0.5 bg-canvas border border-line rounded">
                         {k}: {v}
                       </span>
                     ))}
@@ -211,29 +211,29 @@ function BhagProgressSegment({
 
       {/* Key metrics summary */}
       <div>
-        <h3 className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">
+        <h3 className="font-mono text-[10px] font-semibold text-ink uppercase tracking-[0.10em] mb-2">
           Scoreboard Health
         </h3>
         <div className="grid grid-cols-3 gap-3">
           <div className="text-center p-3 bg-semantic-green/10 rounded-lg">
             <p className="text-2xl font-mono font-bold text-semantic-green-text">{greenCount}</p>
-            <p className="text-xs text-warm-gray">Green</p>
+            <p className="text-xs text-subtle">Green</p>
           </div>
           <div className="text-center p-3 bg-semantic-ochre/10 rounded-lg">
             <p className="text-2xl font-mono font-bold text-semantic-ochre-text">{yellowCount}</p>
-            <p className="text-xs text-warm-gray">Yellow</p>
+            <p className="text-xs text-subtle">Yellow</p>
           </div>
           <div className="text-center p-3 bg-semantic-brick/10 rounded-lg">
             <p className="text-2xl font-mono font-bold text-semantic-brick">{redCount}</p>
-            <p className="text-xs text-warm-gray">Red</p>
+            <p className="text-xs text-subtle">Red</p>
           </div>
         </div>
       </div>
 
       {/* Discussion prompts */}
       <div className="p-3 bg-sage/10 border border-sage/20 rounded-lg">
-        <p className="text-xs font-semibold text-sage uppercase tracking-wider mb-2">Discussion Prompts</p>
-        <ul className="space-y-1 text-sm text-charcoal">
+        <p className="font-mono text-[10px] font-semibold text-sage uppercase tracking-[0.10em] mb-2">Discussion Prompts</p>
+        <ul className="space-y-1 text-sm text-ink">
           <li>• Are we closer to our BHAG than 3 months ago?</li>
           <li>• Which annual outcomes are at risk?</li>
           <li>• Do our current bets align with the biggest gaps?</li>
@@ -264,14 +264,14 @@ function OutgoingBetsSegment({
   const allBets = [...activeBets, ...closedBets.map((b) => ({ ...b, moves: [] as BetMove[] }))];
   const gradeColors: Record<string, string> = {
     A: "text-semantic-green-text bg-semantic-green/10",
-    B: "text-moss bg-moss/10",
+    B: "text-accent bg-accent/10",
     C: "text-semantic-ochre-text bg-semantic-ochre/10",
     D: "text-semantic-brick bg-semantic-brick/10",
   };
 
   return (
     <div className="space-y-6">
-      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[1].description}</p>
+      <p className="text-xs text-subtle">{SEGMENT_CONFIG[1].description}</p>
 
       <div className="space-y-3">
         {allBets.map((bet) => {
@@ -283,13 +283,13 @@ function OutgoingBetsSegment({
               <CardContent className="py-3">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-charcoal">{bet.outcome}</p>
-                    <p className="text-xs text-warm-gray mt-0.5">
+                    <p className="text-sm font-medium text-ink">{bet.outcome}</p>
+                    <p className="text-xs text-subtle mt-0.5">
                       Owner: {teamMembers.find((m) => m.user_id === bet.owner_id)?.full_name ?? "Unassigned"}
                       {" · "}{bet.lifecycle_status}
                     </p>
                     {"moves" in bet && (bet as ActiveBet).moves.length > 0 && (
-                      <div className="flex gap-2 mt-1 text-xs text-warm-gray">
+                      <div className="flex gap-2 mt-1 text-xs text-subtle">
                         <span>{(bet as ActiveBet).moves.filter((m) => m.lifecycle_status === "shipped").length}/{(bet as ActiveBet).moves.length} shipped</span>
                       </div>
                     )}
@@ -317,13 +317,13 @@ function OutgoingBetsSegment({
                 </div>
 
                 {existingGrade && (
-                  <div className="mt-2 p-2 bg-parchment rounded text-xs text-charcoal">
+                  <div className="mt-2 p-2 bg-canvas rounded text-xs text-ink">
                     <span className="font-semibold">Lessons:</span> {existingGrade.lessons}
                   </div>
                 )}
 
                 {isEditing && (
-                  <div className="mt-3 space-y-2 p-3 bg-parchment rounded-lg">
+                  <div className="mt-3 space-y-2 p-3 bg-canvas rounded-lg">
                     <div className="flex gap-2">
                       {(["A", "B", "C", "D"] as const).map((g) => (
                         <button
@@ -332,13 +332,13 @@ function OutgoingBetsSegment({
                           className={`px-3 py-1.5 rounded text-sm font-bold border transition-colors ${
                             tempGrade === g
                               ? gradeColors[g] + " border-current"
-                              : "text-warm-gray border-warm-border"
+                              : "text-subtle border-line"
                           }`}
                         >
                           {g}
                         </button>
                       ))}
-                      <div className="text-xs text-warm-gray flex items-center ml-2">
+                      <div className="text-xs text-subtle flex items-center ml-2">
                         A=Exceeded B=Met C=Partial D=Failed
                       </div>
                     </div>
@@ -347,7 +347,7 @@ function OutgoingBetsSegment({
                       onChange={(e) => setTempLessons(e.target.value)}
                       placeholder="Lessons learned..."
                       rows={2}
-                      className="w-full text-sm border border-warm-border rounded-lg px-3 py-2 bg-ivory text-charcoal placeholder:text-warm-gray focus:outline-none focus:border-moss"
+                      className="w-full text-sm border border-line rounded-lg px-3 py-2 bg-surface text-ink placeholder:text-subtle focus:outline-none focus:border-line-focus"
                     />
                     <div className="flex justify-end gap-2">
                       <Button variant="tertiary" size="sm" onClick={() => setEditingBetId(null)}>
@@ -396,18 +396,18 @@ function IncomingBetsSegment({
 
   return (
     <div className="space-y-6">
-      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[2].description}</p>
+      <p className="text-xs text-subtle">{SEGMENT_CONFIG[2].description}</p>
 
       {/* Selection summary */}
       <div className="flex items-center justify-between p-3 bg-brass/5 border border-brass/20 rounded-lg">
         <div>
-          <span className="text-sm font-medium text-charcoal">
+          <span className="text-sm font-medium text-ink">
             {selectedIdeas.size}/3 bets selected
           </span>
           {selectedIdeas.size > 0 && (
             <div className="flex gap-2 mt-1">
               {Object.entries(classificationCounts).map(([cls, count]) => (
-                <span key={cls} className="text-xs px-2 py-0.5 bg-ivory border border-warm-border rounded capitalize">
+                <span key={cls} className="text-xs px-2 py-0.5 bg-surface border border-line rounded capitalize">
                   {cls}: {count}
                 </span>
               ))}
@@ -422,7 +422,7 @@ function IncomingBetsSegment({
       {/* Idea candidates */}
       <div className="space-y-2">
         {ideaCandidates.length === 0 ? (
-          <p className="text-sm text-warm-gray py-4 text-center">
+          <p className="text-sm text-subtle py-4 text-center">
             No idea candidates available. Score ideas in the Idea Vault first.
           </p>
         ) : (
@@ -436,13 +436,13 @@ function IncomingBetsSegment({
                 <CardContent className="py-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-charcoal">{idea.name}</p>
+                      <p className="text-sm font-medium text-ink">{idea.name}</p>
                       {idea.description && (
-                        <p className="text-xs text-warm-gray mt-0.5 line-clamp-2">{idea.description}</p>
+                        <p className="text-xs text-subtle mt-0.5 line-clamp-2">{idea.description}</p>
                       )}
                       <div className="flex items-center gap-2 mt-1.5">
                         {idea.classification && (
-                          <span className="text-xs px-1.5 py-0.5 bg-moss/10 text-moss rounded capitalize">
+                          <span className="text-xs px-1.5 py-0.5 bg-accent/10 text-accent rounded capitalize">
                             {idea.classification}
                           </span>
                         )}
@@ -451,7 +451,7 @@ function IncomingBetsSegment({
                             Score: {idea.score_total}
                           </span>
                         )}
-                        <div className="flex gap-1 text-xs text-warm-gray">
+                        <div className="flex gap-1 text-xs text-subtle">
                           {idea.score_alignment !== null && <span>A:{idea.score_alignment}</span>}
                           {idea.score_revenue !== null && <span>R:{idea.score_revenue}</span>}
                           {idea.score_effort !== null && <span>E:{idea.score_effort}</span>}
@@ -503,7 +503,7 @@ function ScoreboardRecalibrationSegment({
 
   return (
     <div className="space-y-6">
-      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[3].description}</p>
+      <p className="text-xs text-subtle">{SEGMENT_CONFIG[3].description}</p>
 
       <div className="space-y-2">
         {kpis.map((kpi) => {
@@ -517,20 +517,20 @@ function ScoreboardRecalibrationSegment({
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-charcoal">{kpi.name}</p>
+                      <p className="text-sm font-medium text-ink">{kpi.name}</p>
                       <Badge status={kpi.health_status}>{kpi.health_status.toUpperCase()}</Badge>
                     </div>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-warm-gray">
+                    <div className="flex items-center gap-3 mt-1 text-xs text-subtle">
                       <span>
-                        Current: <span className="font-mono font-medium text-charcoal">{kpi.current_value ?? "—"}</span>
+                        Current: <span className="font-mono font-medium text-ink">{kpi.current_value ?? "—"}</span>
                       </span>
                       <span>
                         Target:{" "}
-                        <span className={`font-mono font-medium ${editedTarget !== undefined ? "text-brass" : "text-charcoal"}`}>
+                        <span className={`font-mono font-medium ${editedTarget !== undefined ? "text-brass" : "text-ink"}`}>
                           {displayTarget ?? "—"}
                         </span>
                         {editedTarget !== undefined && kpi.target !== null && (
-                          <span className="text-warm-gray ml-1">(was {kpi.target})</span>
+                          <span className="text-subtle ml-1">(was {kpi.target})</span>
                         )}
                       </span>
                       {kpi.unit && <span>{kpi.unit}</span>}
@@ -594,21 +594,21 @@ function NotDoingListSegment({
 
   return (
     <div className="space-y-6">
-      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[4].description}</p>
+      <p className="text-xs text-subtle">{SEGMENT_CONFIG[4].description}</p>
 
       <div>
-        <h3 className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">
+        <h3 className="font-mono text-[10px] font-semibold text-ink uppercase tracking-[0.10em] mb-2">
           Current Not Doing List ({items.length})
         </h3>
         {items.length === 0 ? (
-          <p className="text-sm text-warm-gray py-4 text-center">
+          <p className="text-sm text-subtle py-4 text-center">
             No items on the Not Doing list.
           </p>
         ) : (
           <div className="space-y-1">
             {items.map((item, i) => (
-              <div key={i} className="flex items-center justify-between text-sm py-2 px-3 bg-ivory border border-warm-border rounded">
-                <span className="text-charcoal">{item}</span>
+              <div key={i} className="flex items-center justify-between text-sm py-2 px-3 bg-surface border border-line rounded">
+                <span className="text-ink">{item}</span>
                 <button
                   onClick={() => onRemove(i)}
                   className="text-xs text-semantic-brick hover:underline"
@@ -678,26 +678,26 @@ function CommitmentsCloseSegment({
 }) {
   return (
     <div className="space-y-6">
-      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[5].description}</p>
+      <p className="text-xs text-subtle">{SEGMENT_CONFIG[5].description}</p>
 
       {/* Summit summary */}
-      <Card className="bg-moss/5">
+      <Card className="bg-accent/5">
         <CardHeader>
-          <h3 className="text-sm font-semibold text-moss">Summit Summary</h3>
+          <h3 className="text-sm font-semibold text-accent">Summit Summary</h3>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div>
-              <p className="text-xs font-semibold text-warm-gray uppercase mb-1">Bets Graded</p>
-              <p className="font-mono text-lg text-charcoal">{betGrades.length}</p>
+              <p className="text-xs font-semibold text-subtle uppercase mb-1">Bets Graded</p>
+              <p className="font-mono text-lg text-ink">{betGrades.length}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold text-warm-gray uppercase mb-1">New Bets Selected</p>
-              <p className="font-mono text-lg text-charcoal">{selectedIdeas.size}</p>
+              <p className="text-xs font-semibold text-subtle uppercase mb-1">New Bets Selected</p>
+              <p className="font-mono text-lg text-ink">{selectedIdeas.size}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold text-warm-gray uppercase mb-1">KPIs Adjusted</p>
-              <p className="font-mono text-lg text-charcoal">{Object.keys(kpiChanges).length}</p>
+              <p className="text-xs font-semibold text-subtle uppercase mb-1">KPIs Adjusted</p>
+              <p className="font-mono text-lg text-ink">{Object.keys(kpiChanges).length}</p>
             </div>
           </div>
         </CardContent>
@@ -705,15 +705,15 @@ function CommitmentsCloseSegment({
 
       {/* Commitments */}
       <div>
-        <h3 className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">
+        <h3 className="font-mono text-[10px] font-semibold text-ink uppercase tracking-[0.10em] mb-2">
           Commitments ({commitments.length})
         </h3>
         {commitments.length > 0 && (
           <div className="space-y-1 mb-3">
             {commitments.map((c, i) => (
-              <div key={i} className="flex items-center justify-between text-sm py-1.5 px-2 bg-moss/5 rounded">
-                <span className="text-charcoal">{c.description}</span>
-                <span className="text-xs text-warm-gray">
+              <div key={i} className="flex items-center justify-between text-sm py-1.5 px-2 bg-accent/5 rounded">
+                <span className="text-ink">{c.description}</span>
+                <span className="text-xs text-subtle">
                   {teamMembers.find((m) => m.user_id === c.ownerId)?.full_name ?? "Unassigned"}
                   {c.dueDate && ` · Due ${c.dueDate}`}
                 </span>
@@ -732,7 +732,7 @@ function CommitmentsCloseSegment({
           <select
             value={newCommOwner}
             onChange={(e) => onNewCommOwnerChange(e.target.value)}
-            className="text-sm border border-warm-border rounded-lg px-2 py-2 bg-ivory w-36"
+            className="text-sm border border-line rounded-lg px-2 py-2 bg-surface w-36"
           >
             <option value="">Owner</option>
             {teamMembers.map((m) => (
@@ -1012,8 +1012,8 @@ export function QuarterlySummitView({
     <div className="max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-bold text-charcoal">Quarterly Summit</h1>
-          <p className="text-sm text-warm-gray mt-0.5">
+          <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] text-ink">Quarterly Summit</h1>
+          <p className="text-sm text-subtle mt-0.5">
             {new Date().toLocaleDateString("en-US", {
               weekday: "long",
               month: "long",
@@ -1059,7 +1059,7 @@ export function QuarterlySummitView({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-charcoal">{currentConfig?.label}</h2>
+            <h2 className="text-sm font-semibold text-ink">{currentConfig?.label}</h2>
             <Button variant="tertiary" size="sm" onClick={advanceSegment}>
               Next Segment &rarr;
             </Button>

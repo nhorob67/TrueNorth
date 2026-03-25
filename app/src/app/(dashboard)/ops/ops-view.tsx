@@ -87,7 +87,7 @@ function QuickCreateBlocker({ onCreated }: { onCreated: () => void }) {
       <select
         value={severity}
         onChange={(e) => setSeverity(e.target.value)}
-        className="rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm"
+        className="rounded-lg border border-line bg-surface px-3 py-2 text-sm"
       >
         <option value="low">Low</option>
         <option value="medium">Medium</option>
@@ -246,7 +246,7 @@ function QuickCreateIssue({ onCreated }: { onCreated: () => void }) {
       <select
         value={severity}
         onChange={(e) => setSeverity(e.target.value)}
-        className="rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm"
+        className="rounded-lg border border-line bg-surface px-3 py-2 text-sm"
       >
         <option value="low">Low</option>
         <option value="medium">Medium</option>
@@ -292,17 +292,17 @@ export function OpsView({
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Operations</h1>
+      <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6">Operations</h1>
 
-      <div className="flex gap-1 mb-6 bg-ivory border border-warm-border rounded-lg p-1">
+      <div className="flex gap-1 mb-6 bg-surface border border-line rounded-lg p-1">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
             className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
               tab === t.key
-                ? "bg-moss text-white"
-                : "text-warm-gray hover:text-charcoal"
+                ? "bg-accent text-white"
+                : "text-subtle hover:text-ink"
             }`}
           >
             {t.label}
@@ -321,7 +321,7 @@ export function OpsView({
               <Card key={b.id} borderColor={b.resolution_state === "open" ? "var(--color-semantic-brick)" : undefined}>
                 <CardContent className="py-3">
                   <div className="flex items-center justify-between">
-                    <p className={`text-sm ${b.resolution_state !== "open" ? "line-through text-warm-gray" : ""}`}>
+                    <p className={`text-sm ${b.resolution_state !== "open" ? "line-through text-subtle" : ""}`}>
                       {b.description}
                     </p>
                     <div className="flex items-center gap-2">
@@ -331,7 +331,7 @@ export function OpsView({
                         entityLabel={b.description}
                       />
                       <Badge status={severityBadge(b.severity)}>{b.severity}</Badge>
-                      <span className="text-xs text-warm-gray">{b.resolution_state}</span>
+                      <span className="text-xs text-subtle">{b.resolution_state}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -349,12 +349,12 @@ export function OpsView({
               <Card key={c.id}>
                 <CardContent className="py-3">
                   <div className="flex items-center justify-between">
-                    <p className={`text-sm ${c.status === "completed" ? "line-through text-warm-gray" : ""}`}>
+                    <p className={`text-sm ${c.status === "completed" ? "line-through text-subtle" : ""}`}>
                       {c.description}
                     </p>
                     <div className="flex items-center gap-2">
                       {c.due_date && (
-                        <span className="text-xs text-warm-gray">
+                        <span className="text-xs text-subtle">
                           Due {new Date(c.due_date).toLocaleDateString()}
                         </span>
                       )}
@@ -389,7 +389,7 @@ export function OpsView({
                     <div>
                       <p className="text-sm font-medium">{d.title}</p>
                       {d.context && (
-                        <p className="text-xs text-warm-gray mt-0.5">{d.context}</p>
+                        <p className="text-xs text-subtle mt-0.5">{d.context}</p>
                       )}
                       {d.final_decision && (
                         <p className="text-sm text-semantic-green-text mt-1 font-medium">
@@ -416,12 +416,12 @@ export function OpsView({
               <Card key={i.id}>
                 <CardContent className="py-3">
                   <div className="flex items-center justify-between">
-                    <p className={`text-sm ${i.status === "resolved" || i.status === "closed" ? "line-through text-warm-gray" : ""}`}>
+                    <p className={`text-sm ${i.status === "resolved" || i.status === "closed" ? "line-through text-subtle" : ""}`}>
                       {i.description}
                     </p>
                     <div className="flex items-center gap-2">
                       <Badge status={severityBadge(i.severity)}>{i.severity}</Badge>
-                      <span className="text-xs text-warm-gray">{i.status}</span>
+                      <span className="text-xs text-subtle">{i.status}</span>
                     </div>
                   </div>
                 </CardContent>

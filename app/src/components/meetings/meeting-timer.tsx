@@ -29,14 +29,14 @@ export function MeetingTimer({
         <div className="flex items-center gap-3">
           <button
             onClick={onToggle}
-            className="w-8 h-8 rounded-full border border-warm-border flex items-center justify-center hover:bg-parchment transition-colors"
+            className="w-8 h-8 rounded-full border border-line flex items-center justify-center hover:bg-canvas transition-colors"
           >
             {running ? (
-              <svg className="w-4 h-4 text-charcoal" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-ink" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
               </svg>
             ) : (
-              <svg className="w-4 h-4 text-charcoal" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-ink" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z" />
               </svg>
             )}
@@ -49,24 +49,24 @@ export function MeetingTimer({
                     ? "text-semantic-brick"
                     : isWarning
                       ? "text-semantic-ochre-text"
-                      : "text-charcoal"
+                      : "text-ink"
                 }`}
               >
                 {isOvertime ? "-" : ""}
                 {mins}:{secs.toString().padStart(2, "0")}
               </span>
-              <span className="text-xs text-warm-gray">
+              <span className="text-xs text-subtle">
                 {totalMinutes} min meeting
               </span>
             </div>
-            <div className="h-1.5 rounded-full bg-warm-border overflow-hidden">
+            <div className="h-1.5 rounded-full bg-line overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all ${
                   isCritical
                     ? "bg-semantic-brick"
                     : isWarning
                       ? "bg-semantic-ochre"
-                      : "bg-moss"
+                      : "bg-accent"
                 }`}
                 style={{ width: `${pct}%` }}
               />

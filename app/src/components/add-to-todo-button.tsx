@@ -43,7 +43,7 @@ export function AddToTodoButton({
       onClick={handleClick}
       disabled={status === "adding"}
       title={status === "added" ? "Added!" : "Add to todos"}
-      className="inline-flex items-center justify-center w-6 h-6 rounded-full text-warm-gray hover:text-moss hover:bg-moss/10 transition-colors disabled:opacity-50"
+      className="inline-flex items-center justify-center w-6 h-6 rounded-full text-subtle hover:text-accent hover:bg-accent/10 transition-colors disabled:opacity-50"
     >
       {status === "added" ? (
         <svg

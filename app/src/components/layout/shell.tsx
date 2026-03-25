@@ -38,7 +38,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-charcoal/50 z-40 lg:hidden transition-opacity duration-200"
+          className="fixed inset-0 bg-ink/50 z-40 lg:hidden transition-opacity duration-200"
           onClick={closeSidebar}
           aria-hidden="true"
         />
@@ -53,19 +53,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <Sidebar />
       </div>
 
-      <main className="flex-1 bg-parchment min-w-0">
+      <main className="flex-1 bg-canvas min-w-0">
         {/* Mobile header */}
-        <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-moss text-white">
+        <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-sidebar text-sidebar-text-hover">
           <button
             onClick={() => setSidebarOpen(true)}
             aria-label="Open navigation menu"
-            className="p-1 -ml-1 rounded-lg hover:bg-white/10 transition-colors"
+            className="p-1 -ml-1 rounded-lg hover:bg-sidebar-hover transition-colors"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
             </svg>
           </button>
-          <span className="font-bold">TrueNorth</span>
+          <span className="font-display font-bold">TrueNorth</span>
         </div>
 
         <div className="px-4 py-4 md:px-8 md:py-6">{children}</div>

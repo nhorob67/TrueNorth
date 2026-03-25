@@ -11,14 +11,14 @@ const statusStyles: Record<BadgeStatus, string> = {
   green: "bg-semantic-green/10 text-semantic-green-text",
   yellow: "bg-semantic-ochre/10 text-semantic-ochre-text",
   red: "bg-semantic-brick/10 text-semantic-brick",
-  neutral: "bg-warm-gray/10 text-warm-gray",
+  neutral: "bg-faded/10 text-subtle",
 };
 
 const dotColors: Record<BadgeStatus, string> = {
   green: "bg-semantic-green",
   yellow: "bg-semantic-ochre",
   red: "bg-semantic-brick",
-  neutral: "bg-warm-gray",
+  neutral: "bg-faded",
 };
 
 export function Badge({
@@ -30,7 +30,7 @@ export function Badge({
 }: BadgeProps) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyles[status]} ${className}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[4px] font-mono text-[10.5px] font-semibold tracking-[0.04em] ${statusStyles[status]} ${className}`}
       {...props}
     >
       {dot && (

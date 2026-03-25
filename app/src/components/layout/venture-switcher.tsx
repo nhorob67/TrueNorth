@@ -55,7 +55,7 @@ export function VentureSwitcher() {
         type="button"
         onClick={() => setOpen(!open)}
         disabled={switching}
-        className="flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm font-medium text-white/90 bg-white/10 hover:bg-white/15 transition-colors"
+        className="flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm font-medium text-sidebar-text-hover bg-sidebar-hover hover:bg-sidebar-active transition-colors"
       >
         <span className="truncate">{activeVenture?.name ?? "Select venture"}</span>
         <svg
@@ -70,16 +70,16 @@ export function VentureSwitcher() {
       </button>
 
       {open && (
-        <div className="absolute left-3 right-3 top-full mt-1 z-50 rounded-lg bg-[#4a5a3f] border border-white/10 shadow-lg overflow-hidden">
+        <div className="absolute left-3 right-3 top-full mt-1 z-50 rounded-lg bg-sidebar-hover border border-sidebar-divider shadow-lg overflow-hidden">
           {userCtx.ventures.map((v) => (
             <button
               key={v.id}
               type="button"
               onClick={() => handleSwitch(v.id)}
-              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors"
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-sidebar-text hover:bg-sidebar-active hover:text-sidebar-text-hover transition-colors"
             >
               {v.id === userCtx.ventureId ? (
-                <svg className="w-4 h-4 flex-shrink-0 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <svg className="w-4 h-4 flex-shrink-0 text-sidebar-text-active" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                 </svg>
               ) : (

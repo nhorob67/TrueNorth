@@ -11,7 +11,7 @@ export default async function ProfilePage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user || !ctx) return <p className="text-warm-gray p-8">Not authenticated.</p>;
+  if (!user || !ctx) return <p className="text-subtle p-8">Not authenticated.</p>;
 
   const [
     { data: profile, error: e1 },

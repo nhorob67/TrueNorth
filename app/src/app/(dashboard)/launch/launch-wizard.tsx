@@ -76,14 +76,14 @@ function ImportPanel({
 
   return (
     <div className="mt-4 p-4 rounded-lg border border-sage/40 bg-sage/5">
-      <p className="text-sm font-medium text-charcoal mb-2">
+      <p className="text-sm font-medium text-ink mb-2">
         Paste &amp; Import
       </p>
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Paste from a spreadsheet, doc, or notes..."
-        className="block w-full rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm min-h-[80px] focus:border-sage focus:outline-none focus:ring-2 focus:ring-sage/20"
+        className="block w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm min-h-[80px] focus:border-sage focus:outline-none focus:ring-2 focus:ring-sage/20"
       />
       <div className="flex items-center gap-2 mt-2">
         <Button
@@ -101,25 +101,25 @@ function ImportPanel({
       {result && (
         <div className="mt-3 space-y-2">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-warm-gray">
+            <span className="text-xs font-medium text-subtle">
               Confidence: {result.confidence}
             </span>
           </div>
           {result.items.map((item, i) => (
             <div
               key={i}
-              className="p-2 rounded border border-warm-border bg-ivory text-sm"
+              className="p-2 rounded border border-line bg-surface text-sm"
             >
               {Object.entries(item).map(([key, val]) => (
                 <span key={key} className="mr-3">
-                  <span className="font-medium text-charcoal">{key}:</span>{" "}
-                  <span className="text-warm-gray">{String(val ?? "")}</span>
+                  <span className="font-medium text-ink">{key}:</span>{" "}
+                  <span className="text-subtle">{String(val ?? "")}</span>
                 </span>
               ))}
             </div>
           ))}
           {result.suggestions.length > 0 && (
-            <ul className="text-xs text-warm-gray list-disc ml-4">
+            <ul className="text-xs text-subtle list-disc ml-4">
               {result.suggestions.map((s, i) => (
                 <li key={i}>{s}</li>
               ))}
@@ -189,17 +189,17 @@ function GuidancePanel({
 
       {guidance && (
         <div className="space-y-2 mt-2">
-          <p className="text-sm text-charcoal">{guidance.guidance}</p>
+          <p className="text-sm text-ink">{guidance.guidance}</p>
 
           {guidance.examples.length > 0 && (
             <div>
-              <p className="text-xs font-medium text-warm-gray mb-1">Examples:</p>
+              <p className="text-xs font-medium text-subtle mb-1">Examples:</p>
               <ul className="space-y-1">
                 {guidance.examples.map((ex, i) => (
                   <li key={i}>
                     <button
                       type="button"
-                      className="text-sm text-moss hover:underline text-left"
+                      className="text-sm text-accent hover:underline text-left"
                       onClick={() => onSuggestion?.(ex)}
                     >
                       {ex}
@@ -212,8 +212,8 @@ function GuidancePanel({
 
           {guidance.tips.length > 0 && (
             <div>
-              <p className="text-xs font-medium text-warm-gray mb-1">Tips:</p>
-              <ul className="text-xs text-warm-gray list-disc ml-4 space-y-0.5">
+              <p className="text-xs font-medium text-subtle mb-1">Tips:</p>
+              <ul className="text-xs text-subtle list-disc ml-4 space-y-0.5">
                 {guidance.tips.map((tip, i) => (
                   <li key={i}>{tip}</li>
                 ))}
@@ -273,11 +273,11 @@ function LaunchMilestones({
       {achieved.map((m) => (
         <div
           key={m.label}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-moss/10 border border-moss/20"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20"
         >
           <span className="text-sm">{m.icon}</span>
-          <span className="text-xs font-semibold text-moss">{m.label}</span>
-          <span className="text-[10px] text-warm-gray">{m.description}</span>
+          <span className="text-xs font-semibold text-accent">{m.label}</span>
+          <span className="text-[10px] text-subtle">{m.description}</span>
         </div>
       ))}
     </div>
@@ -419,8 +419,8 @@ export function LaunchWizard({
     <div className="max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Launch Mode</h1>
-          <p className="text-sm text-warm-gray">{done}/{ONBOARDING_STEPS.length} steps complete</p>
+          <h1 className="font-display text-[28px] font-bold tracking-[-0.03em]">Launch Mode</h1>
+          <p className="text-sm text-subtle">{done}/{ONBOARDING_STEPS.length} steps complete</p>
           {isSecondVenture && firstVentureContext && (
             <p className="text-xs text-sage mt-1">
               Based on your first venture — suggestions are pre-loaded
@@ -449,8 +449,8 @@ export function LaunchWizard({
                 isCompleted
                   ? "bg-semantic-green"
                   : isCurrent
-                    ? "bg-moss"
-                    : "bg-warm-border"
+                    ? "bg-accent"
+                    : "bg-line"
               }`}
             >
               {isCompleted && (
@@ -469,7 +469,7 @@ export function LaunchWizard({
       <Card>
         <CardContent className="pt-6">
           <div className="flex items-center gap-2 mb-1">
-            <h2 className="text-lg font-semibold">
+            <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em]">
               Step {currentStep}: {step?.name}
             </h2>
             {progress.steps[String(currentStep)]?.completed && (
@@ -478,7 +478,7 @@ export function LaunchWizard({
               </span>
             )}
           </div>
-          <p className="text-sm text-warm-gray mb-4">{step?.description}</p>
+          <p className="text-sm text-subtle mb-4">{step?.description}</p>
 
           {/* Step 1: Name Venture */}
           {currentStep === 1 && (
@@ -493,14 +493,14 @@ export function LaunchWizard({
           {/* Step 2: BHAG */}
           {currentStep === 2 && (
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-charcoal">
+              <label className="block text-sm font-medium text-ink">
                 Big Hairy Audacious Goal
               </label>
               <textarea
                 value={bhag}
                 onChange={(e) => setBhag(e.target.value)}
                 placeholder="What does the world look like when you succeed at the biggest scale? Think 10-25 years out."
-                className="block w-full rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm min-h-[100px] focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+                className="block w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm min-h-[100px] focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
               />
             </div>
           )}
@@ -508,7 +508,7 @@ export function LaunchWizard({
           {/* Step 3: Strategic Filters */}
           {currentStep === 3 && (
             <div className="space-y-3">
-              <p className="text-sm text-warm-gray">
+              <p className="text-sm text-subtle">
                 Define 3-5 filters that help you say yes or no to new ideas.
               </p>
               {filters.map((f, i) => (
@@ -539,7 +539,7 @@ export function LaunchWizard({
           {/* Step 4: Annual Outcomes */}
           {currentStep === 4 && (
             <div className="space-y-3">
-              <p className="text-sm text-warm-gray">
+              <p className="text-sm text-subtle">
                 Define up to 3 annual outcomes. What must be true by year-end?
               </p>
               {outcomes.map((o, i) => (
@@ -561,7 +561,7 @@ export function LaunchWizard({
           {/* Steps 5-6: Redirect to existing pages */}
           {currentStep === 5 && (
             <div className="text-center py-4">
-              <p className="text-sm text-warm-gray mb-4">
+              <p className="text-sm text-subtle mb-4">
                 Create your first KPIs to track what matters.
               </p>
               <Button onClick={() => router.push("/scoreboard/new")}>
@@ -572,7 +572,7 @@ export function LaunchWizard({
 
           {currentStep === 6 && (
             <div className="text-center py-4">
-              <p className="text-sm text-warm-gray mb-4">
+              <p className="text-sm text-subtle mb-4">
                 Choose up to 3 quarterly bets to focus your team.
               </p>
               <Button onClick={() => router.push("/bets/new")}>
@@ -584,7 +584,7 @@ export function LaunchWizard({
           {/* Step 7: Invite */}
           {currentStep === 7 && (
             <div className="text-center py-4">
-              <p className="text-sm text-warm-gray mb-4">
+              <p className="text-sm text-subtle mb-4">
                 Invite your team members to join.
               </p>
               <Button onClick={() => router.push("/settings")}>
@@ -596,7 +596,7 @@ export function LaunchWizard({
           {/* Step 8: First Pulse */}
           {currentStep === 8 && (
             <div className="text-center py-4">
-              <p className="text-sm text-warm-gray mb-4">
+              <p className="text-sm text-subtle mb-4">
                 Submit your first daily pulse to build the habit.
               </p>
               <Button onClick={() => router.push("/pulse")}>
@@ -608,16 +608,16 @@ export function LaunchWizard({
           {/* Step 9: Weekly Sync */}
           {currentStep === 9 && (
             <div className="space-y-3">
-              <p className="text-sm text-warm-gray">
+              <p className="text-sm text-subtle">
                 Schedule your weekly sync meeting.
               </p>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="block text-sm font-medium text-charcoal">Day</label>
+                  <label className="block text-sm font-medium text-ink">Day</label>
                   <select
                     value={syncDay}
                     onChange={(e) => setSyncDay(e.target.value)}
-                    className="block w-full rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm"
+                    className="block w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm"
                   >
                     {["monday", "tuesday", "wednesday", "thursday", "friday"].map((d) => (
                       <option key={d} value={d}>
@@ -639,7 +639,7 @@ export function LaunchWizard({
           {/* Step 10: Monthly Review */}
           {currentStep === 10 && (
             <div className="text-center py-4">
-              <p className="text-sm text-warm-gray mb-4">
+              <p className="text-sm text-subtle mb-4">
                 Your monthly operating review will be auto-generated from your data.
                 Complete this step to finish Launch Mode.
               </p>

@@ -63,8 +63,8 @@ function BhagSection({
 }) {
   return (
     <Card>
-      <CardHeader className="bg-moss/5">
-        <h2 className="text-lg font-semibold text-moss">
+      <CardHeader className="bg-accent/5">
+        <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-accent">
           Big Hairy Audacious Goal
         </h2>
       </CardHeader>
@@ -73,11 +73,11 @@ function BhagSection({
           <textarea
             value={bhag}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full min-h-[80px] rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+            className="w-full min-h-[80px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
             placeholder="What is the bold, long-term vision for this venture?"
           />
         ) : (
-          <p className="text-lg font-medium text-charcoal leading-relaxed">
+          <p className="text-lg font-medium text-ink leading-relaxed">
             {bhag || "No BHAG defined yet."}
           </p>
         )}
@@ -118,9 +118,9 @@ function StrategicFiltersSection({
 
   return (
     <Card>
-      <CardHeader className="bg-moss/5">
+      <CardHeader className="bg-accent/5">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-moss">Strategic Filters</h2>
+          <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-accent">Strategic Filters</h2>
           {editing && (
             <Button variant="tertiary" size="sm" onClick={addFilter}>
               + Add Filter
@@ -130,7 +130,7 @@ function StrategicFiltersSection({
       </CardHeader>
       <CardContent>
         {filters.length === 0 && !editing && (
-          <p className="text-sm text-warm-gray">
+          <p className="text-sm text-subtle">
             No strategic filters defined. These are used to evaluate new ideas.
           </p>
         )}
@@ -138,7 +138,7 @@ function StrategicFiltersSection({
           {filters.map((filter) => (
             <div
               key={filter.id}
-              className="p-4 rounded-lg border border-warm-border bg-parchment"
+              className="p-4 rounded-lg border border-line bg-canvas"
             >
               {editing ? (
                 <div className="space-y-2">
@@ -155,7 +155,7 @@ function StrategicFiltersSection({
                       updateFilter(filter.id, "description", e.target.value)
                     }
                     placeholder="What does this filter evaluate?"
-                    className="w-full min-h-[60px] rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+                    className="w-full min-h-[60px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
                   />
                   <Button
                     variant="tertiary"
@@ -168,10 +168,10 @@ function StrategicFiltersSection({
                 </div>
               ) : (
                 <>
-                  <h3 className="text-sm font-semibold text-charcoal">
+                  <h3 className="text-sm font-semibold text-ink">
                     {filter.name}
                   </h3>
-                  <p className="text-sm text-warm-gray mt-1">
+                  <p className="text-sm text-subtle mt-1">
                     {filter.description}
                   </p>
                 </>
@@ -231,9 +231,9 @@ function AnnualOutcomesSection({
 
   return (
     <Card>
-      <CardHeader className="bg-moss/5">
+      <CardHeader className="bg-accent/5">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-moss">
+          <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-accent">
             Annual Outcomes ({outcomes.length}/3)
           </h2>
           {editing && outcomes.length < 3 && (
@@ -245,7 +245,7 @@ function AnnualOutcomesSection({
       </CardHeader>
       <CardContent>
         {outcomes.length === 0 && !editing && (
-          <p className="text-sm text-warm-gray">
+          <p className="text-sm text-subtle">
             No annual outcomes defined yet.
           </p>
         )}
@@ -253,12 +253,12 @@ function AnnualOutcomesSection({
           {outcomes.map((outcome, idx) => (
             <div
               key={outcome.id}
-              className="p-4 rounded-lg border border-warm-border bg-parchment"
+              className="p-4 rounded-lg border border-line bg-canvas"
             >
               {editing ? (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-warm-gray uppercase">
+                    <span className="text-xs font-semibold text-subtle uppercase">
                       Outcome {idx + 1}
                     </span>
                     <Button
@@ -276,7 +276,7 @@ function AnnualOutcomesSection({
                       updateOutcome(outcome.id, e.target.value)
                     }
                     placeholder="Describe this annual outcome..."
-                    className="w-full min-h-[60px] rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+                    className="w-full min-h-[60px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
                   />
                   <div className="grid grid-cols-2 gap-2">
                     <Input
@@ -315,31 +315,31 @@ function AnnualOutcomesSection({
                 </div>
               ) : (
                 <>
-                  <p className="text-xs font-semibold text-warm-gray uppercase mb-1">
+                  <p className="text-xs font-semibold text-subtle uppercase mb-1">
                     Outcome {idx + 1}
                   </p>
-                  <p className="text-sm font-medium text-charcoal">
+                  <p className="text-sm font-medium text-ink">
                     {outcome.description}
                   </p>
                   {Object.entries(outcome.constraints).some(([, v]) => v) && (
                     <div className="flex flex-wrap gap-2 mt-2">
                       {outcome.constraints.team_size && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-moss/10 text-moss">
+                        <span className="text-xs px-2 py-0.5 rounded bg-accent/10 text-accent">
                           Team: {outcome.constraints.team_size}
                         </span>
                       )}
                       {outcome.constraints.budget_cap && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-moss/10 text-moss">
+                        <span className="text-xs px-2 py-0.5 rounded bg-accent/10 text-accent">
                           Budget: {outcome.constraints.budget_cap}
                         </span>
                       )}
                       {outcome.constraints.timeline && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-moss/10 text-moss">
+                        <span className="text-xs px-2 py-0.5 rounded bg-accent/10 text-accent">
                           Timeline: {outcome.constraints.timeline}
                         </span>
                       )}
                       {outcome.constraints.complexity && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-moss/10 text-moss">
+                        <span className="text-xs px-2 py-0.5 rounded bg-accent/10 text-accent">
                           Complexity: {outcome.constraints.complexity}
                         </span>
                       )}
@@ -383,16 +383,16 @@ function NotDoingSection({
   return (
     <Card>
       <CardHeader className="bg-brass/10 border-b border-brass/20">
-        <h2 className="text-lg font-semibold text-brass-text">
+        <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-brass-text">
           Not Doing List
         </h2>
-        <p className="text-xs text-warm-gray mt-0.5">
+        <p className="text-xs text-subtle mt-0.5">
           Sacred commitments to what this venture will NOT pursue.
         </p>
       </CardHeader>
       <CardContent>
         {items.length === 0 && !editing && (
-          <p className="text-sm text-warm-gray">
+          <p className="text-sm text-subtle">
             No items on the Not Doing list yet.
           </p>
         )}
@@ -400,12 +400,12 @@ function NotDoingSection({
           {items.map((item, idx) => (
             <li
               key={idx}
-              className="flex items-center gap-3 py-2 border-b border-warm-border last:border-0"
+              className="flex items-center gap-3 py-2 border-b border-line last:border-0"
             >
               <span className="text-semantic-brick font-bold text-lg leading-none">
                 &times;
               </span>
-              <span className="text-sm text-charcoal flex-1">{item}</span>
+              <span className="text-sm text-ink flex-1">{item}</span>
               {editing && (
                 <Button
                   variant="tertiary"
@@ -458,7 +458,7 @@ function VersionHistory({ snapshots }: { snapshots: Snapshot[] }) {
   return (
     <Card>
       <CardHeader>
-        <h2 className="text-sm font-semibold text-warm-gray uppercase">
+        <h2 className="text-sm font-semibold text-subtle uppercase">
           Version History
         </h2>
       </CardHeader>
@@ -467,9 +467,9 @@ function VersionHistory({ snapshots }: { snapshots: Snapshot[] }) {
           {snapshots.map((snap) => (
             <div
               key={snap.id}
-              className="flex items-center gap-3 py-1.5 text-xs text-warm-gray"
+              className="flex items-center gap-3 py-1.5 text-xs text-subtle"
             >
-              <span className="w-2 h-2 rounded-full bg-moss/30" />
+              <span className="w-2 h-2 rounded-full bg-accent/30" />
               <span>
                 {new Date(snap.created_at).toLocaleDateString("en-US", {
                   month: "short",
@@ -563,7 +563,7 @@ export function VisionBoardView({
   if (!vision && !editing) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-6">Vision Board</h1>
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6">Vision Board</h1>
         <EmptyState
           title="No vision defined"
           description="Define your BHAG, strategic filters, and annual outcomes to anchor your operating system."
@@ -585,12 +585,12 @@ export function VisionBoardView({
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Vision Board</h1>
+          <h1 className="font-display text-[28px] font-bold tracking-[-0.03em]">Vision Board</h1>
           {vision && (
-            <p className="text-sm text-warm-gray mt-0.5">
+            <p className="text-sm text-subtle mt-0.5">
               {vision.year}
               {vision.locked && (
-                <span className="ml-2 text-xs px-2 py-0.5 rounded bg-moss/10 text-moss font-medium">
+                <span className="ml-2 text-xs px-2 py-0.5 rounded bg-accent/10 text-accent font-medium">
                   Locked
                 </span>
               )}

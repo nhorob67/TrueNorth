@@ -18,7 +18,7 @@ type PriorityFilter = "all" | "high" | "medium" | "low";
 const priorityBadgeClasses: Record<TodoPriority, string> = {
   high: "bg-semantic-brick/10 text-semantic-brick",
   medium: "bg-semantic-ochre/10 text-semantic-ochre-text",
-  low: "bg-warm-gray/10 text-warm-gray",
+  low: "bg-faded/10 text-subtle",
 };
 
 const priorityOrder: Record<string, number> = {
@@ -160,12 +160,12 @@ function QuickAddForm({ onAdded }: { onAdded: () => void }) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Add a new todo..."
-              className="flex-1 rounded-lg border border-warm-border bg-parchment px-3 py-2 text-sm text-charcoal placeholder:text-warm-gray focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+              className="flex-1 rounded-lg border border-line bg-canvas px-3 py-2 text-sm text-ink placeholder:text-subtle focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
             />
             <button
               type="submit"
               disabled={!title.trim() || submitting}
-              className="rounded-lg bg-clay px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-clay/90 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-lg bg-cta px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-cta-hover disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Add
             </button>
@@ -174,22 +174,22 @@ function QuickAddForm({ onAdded }: { onAdded: () => void }) {
           <div className="mt-2 flex items-center gap-3 flex-wrap">
             {/* Due date */}
             <div className="flex items-center gap-1.5">
-              <label className="text-xs text-warm-gray">Due:</label>
+              <label className="text-xs text-subtle">Due:</label>
               <input
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="rounded border border-warm-border bg-parchment px-2 py-1 text-xs text-charcoal focus:border-moss focus:outline-none focus:ring-1 focus:ring-moss/20"
+                className="rounded border border-line bg-canvas px-2 py-1 text-xs text-ink focus:border-line-focus focus:outline-none focus:ring-1 focus:ring-accent-glow/20"
               />
             </div>
 
             {/* Priority */}
             <div className="flex items-center gap-1.5">
-              <label className="text-xs text-warm-gray">Priority:</label>
+              <label className="text-xs text-subtle">Priority:</label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as TodoPriority)}
-                className="rounded border border-warm-border bg-parchment px-2 py-1 text-xs text-charcoal focus:border-moss focus:outline-none focus:ring-1 focus:ring-moss/20"
+                className="rounded border border-line bg-canvas px-2 py-1 text-xs text-ink focus:border-line-focus focus:outline-none focus:ring-1 focus:ring-accent-glow/20"
               >
                 <option value="high">High</option>
                 <option value="medium">Medium</option>
@@ -200,7 +200,7 @@ function QuickAddForm({ onAdded }: { onAdded: () => void }) {
             {/* Entity link */}
             <div className="relative flex items-center gap-1.5" ref={pickerRef}>
               {linkedEntity ? (
-                <span className="inline-flex items-center gap-1 rounded bg-moss/10 px-2 py-1 text-xs font-medium text-moss">
+                <span className="inline-flex items-center gap-1 rounded bg-accent/10 px-2 py-1 text-xs font-medium text-accent">
                   {entityTypeLabels[linkedEntity.type] ?? linkedEntity.type}: {linkedEntity.label}
                   <button
                     type="button"
@@ -208,14 +208,14 @@ function QuickAddForm({ onAdded }: { onAdded: () => void }) {
                       setLinkedEntity(null);
                       entitySearch.clear();
                     }}
-                    className="ml-0.5 text-moss/60 hover:text-moss"
+                    className="ml-0.5 text-accent/60 hover:text-accent"
                   >
                     x
                   </button>
                 </span>
               ) : (
                 <>
-                  <label className="text-xs text-warm-gray">Link:</label>
+                  <label className="text-xs text-subtle">Link:</label>
                   <input
                     type="text"
                     value={entitySearch.query}
@@ -225,10 +225,10 @@ function QuickAddForm({ onAdded }: { onAdded: () => void }) {
                     }}
                     onFocus={() => entitySearch.query && setShowEntityPicker(true)}
                     placeholder="Search entities..."
-                    className="w-40 rounded border border-warm-border bg-parchment px-2 py-1 text-xs text-charcoal focus:border-moss focus:outline-none focus:ring-1 focus:ring-moss/20"
+                    className="w-40 rounded border border-line bg-canvas px-2 py-1 text-xs text-ink focus:border-line-focus focus:outline-none focus:ring-1 focus:ring-accent-glow/20"
                   />
                   {showEntityPicker && entitySearch.results.length > 0 && (
-                    <div className="absolute top-full left-0 z-10 mt-1 w-64 rounded-lg border border-warm-border bg-ivory shadow-lg">
+                    <div className="absolute top-full left-0 z-10 mt-1 w-64 rounded-lg border border-line bg-surface shadow-lg">
                       {entitySearch.results.map((r) => (
                         <button
                           key={`${r.type}-${r.id}`}
@@ -238,12 +238,12 @@ function QuickAddForm({ onAdded }: { onAdded: () => void }) {
                             setShowEntityPicker(false);
                             entitySearch.clear();
                           }}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs hover:bg-parchment transition-colors first:rounded-t-lg last:rounded-b-lg"
+                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs hover:bg-canvas transition-colors first:rounded-t-lg last:rounded-b-lg"
                         >
-                          <span className="rounded bg-warm-gray/10 px-1.5 py-0.5 text-[10px] font-medium text-warm-gray uppercase">
+                          <span className="rounded bg-faded/10 px-1.5 py-0.5 text-[10px] font-medium text-subtle uppercase">
                             {r.type}
                           </span>
-                          <span className="truncate text-charcoal">{r.label}</span>
+                          <span className="truncate text-ink">{r.label}</span>
                         </button>
                       ))}
                     </div>
@@ -252,7 +252,7 @@ function QuickAddForm({ onAdded }: { onAdded: () => void }) {
               )}
             </div>
 
-            <span className="text-[10px] text-warm-gray ml-auto hidden sm:inline">
+            <span className="text-[10px] text-subtle ml-auto hidden sm:inline">
               Cmd+Enter to submit
             </span>
           </div>
@@ -327,8 +327,8 @@ function TodoItem({
         disabled={toggling}
         className={`flex-shrink-0 w-5 h-5 rounded border-2 transition-colors flex items-center justify-center ${
           todo.completed
-            ? "bg-moss border-moss text-white"
-            : "border-warm-border hover:border-moss"
+            ? "bg-accent border-accent text-white"
+            : "border-line hover:border-accent"
         }`}
       >
         {todo.completed && (
@@ -354,13 +354,13 @@ function TodoItem({
                 setEditing(false);
               }
             }}
-            className="w-full rounded border border-moss bg-parchment px-2 py-0.5 text-sm text-charcoal focus:outline-none focus:ring-1 focus:ring-moss/20"
+            className="w-full rounded border border-accent bg-canvas px-2 py-0.5 text-sm text-ink focus:outline-none focus:ring-1 focus:ring-accent-glow/20"
           />
         ) : (
           <button
             onClick={() => setEditing(true)}
             className={`text-left text-sm truncate max-w-full ${
-              todo.completed ? "line-through text-warm-gray" : "text-charcoal"
+              todo.completed ? "line-through text-subtle" : "text-ink"
             }`}
           >
             {todo.title}
@@ -381,7 +381,7 @@ function TodoItem({
         {todo.due_date && (
           <span
             className={`text-xs ${
-              isOverdue ? "text-semantic-brick font-medium" : "text-warm-gray"
+              isOverdue ? "text-semantic-brick font-medium" : "text-subtle"
             }`}
           >
             {new Date(todo.due_date + "T00:00:00").toLocaleDateString("en-US", {
@@ -393,7 +393,7 @@ function TodoItem({
 
         {/* Linked entity */}
         {todo.linked_entity_type && (
-          <span className="rounded bg-moss/10 px-1.5 py-0.5 text-[10px] font-medium text-moss">
+          <span className="rounded bg-accent/10 px-1.5 py-0.5 text-[10px] font-medium text-accent">
             {entityTypeLabels[todo.linked_entity_type] ?? todo.linked_entity_type}
           </span>
         )}
@@ -401,7 +401,7 @@ function TodoItem({
         {/* Delete */}
         <button
           onClick={handleDelete}
-          className="opacity-0 group-hover:opacity-100 text-warm-gray hover:text-semantic-brick transition-all p-0.5"
+          className="opacity-0 group-hover:opacity-100 text-subtle hover:text-semantic-brick transition-all p-0.5"
           title="Delete"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -469,8 +469,8 @@ export function TodosView({ todos: initialTodos }: { todos: Todo[] }) {
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-charcoal">Todos</h1>
-        <span className="text-sm text-warm-gray">
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] text-ink">Todos</h1>
+        <span className="text-sm text-subtle">
           {activeTodos.length} active{completedTodos.length > 0 ? `, ${completedTodos.length} completed` : ""}
         </span>
       </div>
@@ -483,15 +483,15 @@ export function TodosView({ todos: initialTodos }: { todos: Todo[] }) {
       {/* Filter bar */}
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         {/* Status filter */}
-        <div className="flex bg-ivory border border-warm-border rounded-lg overflow-hidden">
+        <div className="flex bg-surface border border-line rounded-lg overflow-hidden">
           {(["all", "active", "completed"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setStatusFilter(f)}
               className={`px-3 py-1.5 text-xs font-medium transition-colors ${
                 statusFilter === f
-                  ? "bg-moss text-white"
-                  : "text-warm-gray hover:text-charcoal"
+                  ? "bg-accent text-white"
+                  : "text-subtle hover:text-ink"
               }`}
             >
               {f === "all" ? "All" : f === "active" ? "Active" : "Completed"}
@@ -503,7 +503,7 @@ export function TodosView({ todos: initialTodos }: { todos: Todo[] }) {
         <select
           value={priorityFilter}
           onChange={(e) => setPriorityFilter(e.target.value as PriorityFilter)}
-          className="text-xs border border-warm-border rounded-lg px-2 py-1.5 bg-ivory text-charcoal"
+          className="text-xs border border-line rounded-lg px-2 py-1.5 bg-surface text-ink"
         >
           <option value="all">All priorities</option>
           <option value="high">High</option>
@@ -517,7 +517,7 @@ export function TodosView({ todos: initialTodos }: { todos: Todo[] }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search todos..."
-          className="rounded-lg border border-warm-border bg-ivory px-3 py-1.5 text-xs text-charcoal placeholder:text-warm-gray focus:border-moss focus:outline-none focus:ring-1 focus:ring-moss/20 w-48"
+          className="rounded-lg border border-line bg-surface px-3 py-1.5 text-xs text-ink placeholder:text-subtle focus:border-line-focus focus:outline-none focus:ring-1 focus:ring-accent-glow/20 w-48"
         />
       </div>
 
@@ -532,7 +532,7 @@ export function TodosView({ todos: initialTodos }: { todos: Todo[] }) {
       {/* Active todos */}
       {activeTodos.length > 0 && (
         <Card className="mb-4">
-          <div className="divide-y divide-warm-border">
+          <div className="divide-y divide-line">
             {activeTodos.map((todo) => (
               <TodoItem key={todo.id} todo={todo} onUpdate={refresh} />
             ))}
@@ -553,7 +553,7 @@ export function TodosView({ todos: initialTodos }: { todos: Todo[] }) {
         <div>
           <button
             onClick={() => setShowCompleted(!showCompleted)}
-            className="flex items-center gap-2 text-sm font-medium text-warm-gray hover:text-charcoal transition-colors mb-2"
+            className="flex items-center gap-2 text-sm font-medium text-subtle hover:text-ink transition-colors mb-2"
           >
             <svg
               className={`w-4 h-4 transition-transform ${showCompleted ? "rotate-90" : ""}`}
@@ -569,7 +569,7 @@ export function TodosView({ todos: initialTodos }: { todos: Todo[] }) {
 
           {showCompleted && (
             <Card>
-              <div className="divide-y divide-warm-border">
+              <div className="divide-y divide-line">
                 {completedTodos.map((todo) => (
                   <TodoItem key={todo.id} todo={todo} onUpdate={refresh} />
                 ))}

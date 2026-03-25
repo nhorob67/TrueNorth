@@ -70,7 +70,7 @@ export function Dialog({ open, onClose, children, title, description }: DialogPr
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-charcoal/50 transition-opacity duration-200"
+        className="fixed inset-0 bg-ink/50 transition-opacity duration-200"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -82,17 +82,17 @@ export function Dialog({ open, onClose, children, title, description }: DialogPr
         aria-modal="true"
         aria-labelledby={title ? "dialog-title" : undefined}
         aria-describedby={description ? "dialog-description" : undefined}
-        className="relative z-50 w-full max-w-lg mx-4 bg-ivory border border-warm-border rounded-xl shadow-xl"
+        className="relative z-50 w-full max-w-lg mx-4 bg-surface border border-line rounded-xl shadow-xl"
       >
         {(title || description) && (
           <div className="px-6 pt-6 pb-2">
             {title && (
-              <h2 id="dialog-title" className="text-lg font-semibold text-charcoal">
+              <h2 id="dialog-title" className="text-lg font-semibold font-display text-ink">
                 {title}
               </h2>
             )}
             {description && (
-              <p id="dialog-description" className="mt-1 text-sm text-warm-gray">
+              <p id="dialog-description" className="mt-1 text-sm text-subtle">
                 {description}
               </p>
             )}
@@ -107,7 +107,7 @@ export function Dialog({ open, onClose, children, title, description }: DialogPr
 export function DialogFooter({ className = "", ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={`flex items-center justify-end gap-2 pt-4 border-t border-warm-border -mx-6 px-6 pb-2 ${className}`}
+      className={`flex items-center justify-end gap-2 pt-4 border-t border-line -mx-6 px-6 pb-2 ${className}`}
       {...props}
     />
   );

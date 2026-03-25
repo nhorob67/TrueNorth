@@ -204,7 +204,7 @@ function OperatingHealthSegment({ isActive }: { isActive: boolean }) {
   if (loading) {
     return (
       <div className="py-8 text-center">
-        <p className="text-sm text-warm-gray">Computing operating health metrics...</p>
+        <p className="text-sm text-subtle">Computing operating health metrics...</p>
       </div>
     );
   }
@@ -220,7 +220,7 @@ function OperatingHealthSegment({ isActive }: { isActive: boolean }) {
   if (!healthData) {
     return (
       <div className="py-8 text-center">
-        <p className="text-sm text-warm-gray">No health data available.</p>
+        <p className="text-sm text-subtle">No health data available.</p>
       </div>
     );
   }
@@ -244,19 +244,19 @@ function OperatingHealthSegment({ isActive }: { isActive: boolean }) {
 
   return (
     <div className="space-y-6">
-      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[0].description}</p>
+      <p className="text-xs text-subtle">{SEGMENT_CONFIG[0].description}</p>
 
       {/* Composite score */}
       <div className="flex items-center gap-3">
-        <span className="text-4xl font-mono font-bold text-charcoal">
+        <span className="text-4xl font-mono font-bold text-ink">
           {healthData.composite_score}
         </span>
         <span
           className={`w-3 h-3 rounded-full ${statusDotColor(healthData.composite_status)}`}
         />
         <div>
-          <p className="text-sm font-medium text-charcoal">Composite Score</p>
-          <p className="text-xs text-warm-gray">Operating health across all behavioral metrics</p>
+          <p className="text-sm font-medium text-ink">Composite Score</p>
+          <p className="text-xs text-subtle">Operating health across all behavioral metrics</p>
         </div>
       </div>
 
@@ -265,15 +265,15 @@ function OperatingHealthSegment({ isActive }: { isActive: boolean }) {
         {Object.values(healthData.metrics).map((metric) => (
           <div
             key={metric.key}
-            className="flex items-center justify-between py-2 px-3 border border-warm-border rounded-lg bg-ivory"
+            className="flex items-center justify-between py-2 px-3 border border-line rounded-lg bg-surface"
           >
             <div className="flex items-center gap-2">
               <span className={`w-2 h-2 rounded-full ${statusDotColor(metric.status)}`} />
-              <span className="text-sm text-charcoal">{metric.label}</span>
+              <span className="text-sm text-ink">{metric.label}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-mono font-medium text-charcoal">{metric.value}</span>
-              <span className="text-xs text-warm-gray">{metric.unit}</span>
+              <span className="text-sm font-mono font-medium text-ink">{metric.value}</span>
+              <span className="text-xs text-subtle">{metric.unit}</span>
               <span className={`text-sm ${statusTextColor(metric.status)}`}>
                 {trendArrow(metric.trend)}
               </span>
@@ -290,9 +290,9 @@ function OperatingHealthSegment({ isActive }: { isActive: boolean }) {
               <span className="text-[10px] font-semibold uppercase tracking-wider text-sage bg-sage/10 px-1.5 py-0.5 rounded">
                 AI
               </span>
-              <span className="text-xs font-medium text-charcoal">Interpretation</span>
+              <span className="text-xs font-medium text-ink">Interpretation</span>
             </div>
-            <p className="text-sm text-warm-gray whitespace-pre-line">
+            <p className="text-sm text-subtle whitespace-pre-line">
               {healthData.ai_interpretation}
             </p>
           </CardContent>
@@ -303,7 +303,7 @@ function OperatingHealthSegment({ isActive }: { isActive: boolean }) {
       <div className="pt-2">
         <a
           href="/narratives?type=monthly_board_memo"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-clay text-white text-sm font-medium rounded-lg hover:bg-clay/90 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-cta text-white text-sm font-medium rounded-lg hover:bg-cta-hover transition-colors"
         >
           Prep Board Memo
         </a>
@@ -350,22 +350,22 @@ function WinsLossesSegment({
 
   return (
     <div className="space-y-6">
-      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[1].description}</p>
+      <p className="text-xs text-subtle">{SEGMENT_CONFIG[1].description}</p>
 
       {/* Shipped milestones */}
       <div>
-        <h3 className="text-xs font-semibold text-semantic-green-text uppercase tracking-wider mb-2">
+        <h3 className="font-mono text-[10px] font-semibold text-semantic-green-text uppercase tracking-[0.10em] mb-2">
           Shipped This Month ({shippedMoves.length})
         </h3>
         {shippedMoves.length === 0 ? (
-          <p className="text-sm text-warm-gray py-2">No milestones shipped this month.</p>
+          <p className="text-sm text-subtle py-2">No milestones shipped this month.</p>
         ) : (
           <div className="space-y-1">
             {shippedMoves.map((move) => (
               <div key={move.id} className="flex items-center gap-2 text-sm py-1.5 px-2 bg-semantic-green/5 rounded">
                 <span className="w-1.5 h-1.5 rounded-full bg-semantic-green" />
-                <span className="text-charcoal">{move.title}</span>
-                <span className="text-xs text-warm-gray ml-auto">
+                <span className="text-ink">{move.title}</span>
+                <span className="text-xs text-subtle ml-auto">
                   {teamMembers.find((m) => m.user_id === move.owner_id)?.full_name ?? ""}
                 </span>
               </div>
@@ -377,14 +377,14 @@ function WinsLossesSegment({
       {/* Killed bets */}
       {killedBets.length > 0 && (
         <div>
-          <h3 className="text-xs font-semibold text-semantic-brick uppercase tracking-wider mb-2">
+          <h3 className="font-mono text-[10px] font-semibold text-semantic-brick uppercase tracking-[0.10em] mb-2">
             Killed Bets ({killedBets.length})
           </h3>
           <div className="space-y-1">
             {killedBets.map((bet) => (
               <div key={bet.id} className="flex items-center gap-2 text-sm py-1.5 px-2 bg-semantic-brick/5 rounded">
                 <span className="w-1.5 h-1.5 rounded-full bg-semantic-brick" />
-                <span className="text-charcoal">{bet.outcome}</span>
+                <span className="text-ink">{bet.outcome}</span>
               </div>
             ))}
           </div>
@@ -394,15 +394,15 @@ function WinsLossesSegment({
       {/* KPI trends */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <h3 className="text-xs font-semibold text-semantic-green-text uppercase tracking-wider mb-2">
+          <h3 className="font-mono text-[10px] font-semibold text-semantic-green-text uppercase tracking-[0.10em] mb-2">
             KPIs Improved ({improved.length})
           </h3>
           {improved.length === 0 ? (
-            <p className="text-xs text-warm-gray">None</p>
+            <p className="text-xs text-subtle">None</p>
           ) : (
             <div className="space-y-1">
               {improved.map((k) => (
-                <div key={k.id} className="text-xs text-charcoal">
+                <div key={k.id} className="text-xs text-ink">
                   {k.name}: <span className="font-mono">{k.firstValue}</span> &rarr;{" "}
                   <span className="font-mono text-semantic-green-text">{k.lastValue}</span>
                 </div>
@@ -411,15 +411,15 @@ function WinsLossesSegment({
           )}
         </div>
         <div>
-          <h3 className="text-xs font-semibold text-semantic-brick uppercase tracking-wider mb-2">
+          <h3 className="font-mono text-[10px] font-semibold text-semantic-brick uppercase tracking-[0.10em] mb-2">
             KPIs Deteriorated ({deteriorated.length})
           </h3>
           {deteriorated.length === 0 ? (
-            <p className="text-xs text-warm-gray">None</p>
+            <p className="text-xs text-subtle">None</p>
           ) : (
             <div className="space-y-1">
               {deteriorated.map((k) => (
-                <div key={k.id} className="text-xs text-charcoal">
+                <div key={k.id} className="text-xs text-ink">
                   {k.name}: <span className="font-mono">{k.firstValue}</span> &rarr;{" "}
                   <span className="font-mono text-semantic-brick">{k.lastValue}</span>
                 </div>
@@ -433,7 +433,7 @@ function WinsLossesSegment({
       <Card>
         <CardContent className="py-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-charcoal">Commitment Completion Rate</span>
+            <span className="text-sm text-ink">Commitment Completion Rate</span>
             <span
               className={`text-2xl font-mono font-bold ${
                 commitmentCompletionRate !== null && commitmentCompletionRate >= 80
@@ -488,11 +488,11 @@ function RootCausesSegment({
 
   return (
     <div className="space-y-6">
-      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[2].description}</p>
+      <p className="text-xs text-subtle">{SEGMENT_CONFIG[2].description}</p>
 
       {/* Red KPIs */}
       <div>
-        <h3 className="text-xs font-semibold text-semantic-brick uppercase tracking-wider mb-2">
+        <h3 className="font-mono text-[10px] font-semibold text-semantic-brick uppercase tracking-[0.10em] mb-2">
           Red KPIs ({redKpis.length})
         </h3>
         {redKpis.length === 0 ? (
@@ -504,8 +504,8 @@ function RootCausesSegment({
                 <CardContent className="py-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-charcoal">{kpi.name}</p>
-                      <p className="text-xs text-warm-gray mt-0.5">
+                      <p className="text-sm font-medium text-ink">{kpi.name}</p>
+                      <p className="text-xs text-subtle mt-0.5">
                         Current: <span className="font-mono font-medium">{kpi.current_value ?? "—"}</span>
                         {kpi.target !== null && (
                           <> / Target: <span className="font-mono">{kpi.target}</span></>
@@ -525,19 +525,19 @@ function RootCausesSegment({
       {/* Recurring blockers */}
       {recurringBlockers.length > 0 && (
         <div>
-          <h3 className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">
+          <h3 className="font-mono text-[10px] font-semibold text-ink uppercase tracking-[0.10em] mb-2">
             Recurring Blockers
           </h3>
           <div className="space-y-2">
             {recurringBlockers.map(([key, data]) => (
               <Card key={key}>
                 <CardContent className="py-3">
-                  <p className="text-sm text-charcoal font-medium">
+                  <p className="text-sm text-ink font-medium">
                     {data.count} blockers on same entity
                   </p>
                   <ul className="mt-1 space-y-0.5">
                     {data.descriptions.slice(0, 3).map((desc, i) => (
-                      <li key={i} className="text-xs text-warm-gray">• {desc}</li>
+                      <li key={i} className="text-xs text-subtle">• {desc}</li>
                     ))}
                   </ul>
                 </CardContent>
@@ -550,14 +550,14 @@ function RootCausesSegment({
       {/* Stalled bets */}
       {stalledBets.length > 0 && (
         <div>
-          <h3 className="text-xs font-semibold text-semantic-ochre-text uppercase tracking-wider mb-2">
+          <h3 className="font-mono text-[10px] font-semibold text-semantic-ochre-text uppercase tracking-[0.10em] mb-2">
             Stalled Bets ({stalledBets.length})
           </h3>
           <div className="space-y-1">
             {stalledBets.map((bet) => (
-              <div key={bet.id} className="flex items-center gap-2 text-sm py-1.5 px-2 rounded border border-warm-border">
+              <div key={bet.id} className="flex items-center gap-2 text-sm py-1.5 px-2 rounded border border-line">
                 <Badge status={bet.health_status}>{bet.health_status.toUpperCase()}</Badge>
-                <span className="text-charcoal">{bet.outcome}</span>
+                <span className="text-ink">{bet.outcome}</span>
               </div>
             ))}
           </div>
@@ -566,7 +566,7 @@ function RootCausesSegment({
 
       {/* Facilitator notes */}
       <div>
-        <h3 className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">
+        <h3 className="font-mono text-[10px] font-semibold text-ink uppercase tracking-[0.10em] mb-2">
           Root Cause Notes
         </h3>
         <textarea
@@ -574,7 +574,7 @@ function RootCausesSegment({
           onChange={(e) => onNotesChange(e.target.value)}
           placeholder="Capture root cause observations, patterns, and insights..."
           rows={4}
-          className="w-full text-sm border border-warm-border rounded-lg px-3 py-2 bg-ivory text-charcoal placeholder:text-warm-gray focus:outline-none focus:border-moss"
+          className="w-full text-sm border border-line rounded-lg px-3 py-2 bg-surface text-ink placeholder:text-subtle focus:outline-none focus:border-line-focus"
         />
       </div>
     </div>
@@ -600,15 +600,15 @@ function SystemFixesSegment({
 
   return (
     <div className="space-y-6">
-      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[3].description}</p>
+      <p className="text-xs text-subtle">{SEGMENT_CONFIG[3].description}</p>
 
       {/* Stale artifacts */}
       <div>
-        <h3 className="text-xs font-semibold text-semantic-ochre-text uppercase tracking-wider mb-2">
+        <h3 className="font-mono text-[10px] font-semibold text-semantic-ochre-text uppercase tracking-[0.10em] mb-2">
           Stale Artifacts ({staleArtifacts.length})
         </h3>
         {staleArtifacts.length === 0 ? (
-          <p className="text-sm text-warm-gray py-2">All artifacts are up to date.</p>
+          <p className="text-sm text-subtle py-2">All artifacts are up to date.</p>
         ) : (
           <div className="space-y-2">
             {staleArtifacts.map((artifact) => {
@@ -635,14 +635,14 @@ function SystemFixesSegment({
               return (
                 <div
                   key={artifact.id}
-                  className="border border-warm-border rounded-lg p-2.5 bg-ivory"
+                  className="border border-line rounded-lg p-2.5 bg-surface"
                 >
                   <div className="flex items-center justify-between mb-1.5">
                     <div>
-                      <span className="text-sm font-medium text-charcoal">
+                      <span className="text-sm font-medium text-ink">
                         {artifact.name}
                       </span>
-                      <span className="text-xs text-warm-gray ml-2">
+                      <span className="text-xs text-subtle ml-2">
                         ({artifact.artifact_type})
                       </span>
                     </div>
@@ -656,13 +656,13 @@ function SystemFixesSegment({
                       {daysSince}d / {artifact.staleness_threshold_days}d
                     </span>
                   </div>
-                  <div className="h-1.5 rounded-full bg-warm-border overflow-hidden">
+                  <div className="h-1.5 rounded-full bg-line overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all ${barColor}`}
                       style={{ width: `${Math.min(overduePct, 100)}%` }}
                     />
                   </div>
-                  <p className="text-[10px] text-warm-gray mt-1">
+                  <p className="text-[10px] text-subtle mt-1">
                     Last updated{" "}
                     {new Date(artifact.last_updated_at).toLocaleDateString(
                       "en-US",
@@ -682,10 +682,10 @@ function SystemFixesSegment({
 
       {/* KPI threshold review */}
       <div>
-        <h3 className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">
+        <h3 className="font-mono text-[10px] font-semibold text-ink uppercase tracking-[0.10em] mb-2">
           KPI Thresholds to Review
         </h3>
-        <p className="text-xs text-warm-gray mb-2">
+        <p className="text-xs text-subtle mb-2">
           Consider adjusting targets for KPIs that have been consistently red or green.
         </p>
         <div className="space-y-1">
@@ -693,8 +693,8 @@ function SystemFixesSegment({
             .filter((k) => k.health_status === "red" || k.health_status === "green")
             .slice(0, 5)
             .map((kpi) => (
-              <div key={kpi.id} className="flex items-center justify-between text-xs py-1 px-2 border border-warm-border rounded">
-                <span className="text-charcoal">{kpi.name}</span>
+              <div key={kpi.id} className="flex items-center justify-between text-xs py-1 px-2 border border-line rounded">
+                <span className="text-ink">{kpi.name}</span>
                 <div className="flex items-center gap-2">
                   <span className="font-mono">{kpi.current_value ?? "—"} / {kpi.target ?? "—"}</span>
                   <Badge status={kpi.health_status}>{kpi.health_status.toUpperCase()}</Badge>
@@ -706,15 +706,15 @@ function SystemFixesSegment({
 
       {/* Action items capture */}
       <div>
-        <h3 className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">
+        <h3 className="font-mono text-[10px] font-semibold text-ink uppercase tracking-[0.10em] mb-2">
           Action Items ({actionItems.length})
         </h3>
         {actionItems.length > 0 && (
           <div className="space-y-1 mb-3">
             {actionItems.map((item, i) => (
-              <div key={i} className="flex items-center justify-between text-sm py-1.5 px-2 bg-moss/5 rounded">
-                <span className="text-charcoal">{item.description}</span>
-                <span className="text-xs text-warm-gray">
+              <div key={i} className="flex items-center justify-between text-sm py-1.5 px-2 bg-accent/5 rounded">
+                <span className="text-ink">{item.description}</span>
+                <span className="text-xs text-subtle">
                   {teamMembers.find((m) => m.user_id === item.ownerId)?.full_name ?? "Unassigned"}
                   {item.dueDate && ` · Due ${item.dueDate}`}
                 </span>
@@ -732,7 +732,7 @@ function SystemFixesSegment({
           <select
             value={newOwner}
             onChange={(e) => setNewOwner(e.target.value)}
-            className="text-sm border border-warm-border rounded-lg px-2 py-2 bg-ivory w-36"
+            className="text-sm border border-line rounded-lg px-2 py-2 bg-surface w-36"
           >
             <option value="">Owner</option>
             {teamMembers.map((m) => (
@@ -776,15 +776,15 @@ function PipelineReviewSegment({
 
   return (
     <div className="space-y-6">
-      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[4].description}</p>
+      <p className="text-xs text-subtle">{SEGMENT_CONFIG[4].description}</p>
 
       {/* Idea vault candidates */}
       <div>
-        <h3 className="text-xs font-semibold text-brass uppercase tracking-wider mb-2">
+        <h3 className="font-mono text-[10px] font-semibold text-brass uppercase tracking-[0.10em] mb-2">
           Idea Vault Candidates ({ideaCandidates.length})
         </h3>
         {ideaCandidates.length === 0 ? (
-          <p className="text-sm text-warm-gray py-2">No idea candidates this month.</p>
+          <p className="text-sm text-subtle py-2">No idea candidates this month.</p>
         ) : (
           <div className="space-y-2">
             {ideaCandidates.map((idea) => (
@@ -792,9 +792,9 @@ function PipelineReviewSegment({
                 <CardContent className="py-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-charcoal">{idea.name}</p>
+                      <p className="text-sm font-medium text-ink">{idea.name}</p>
                       {idea.classification && (
-                        <span className="text-xs text-warm-gray capitalize">{idea.classification}</span>
+                        <span className="text-xs text-subtle capitalize">{idea.classification}</span>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
@@ -815,19 +815,19 @@ function PipelineReviewSegment({
 
       {/* Content pipeline */}
       <div>
-        <h3 className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">
+        <h3 className="font-mono text-[10px] font-semibold text-ink uppercase tracking-[0.10em] mb-2">
           Content Pipeline ({totalContent} pieces)
         </h3>
         {totalContent === 0 ? (
-          <p className="text-sm text-warm-gray py-2">No content in pipeline.</p>
+          <p className="text-sm text-subtle py-2">No content in pipeline.</p>
         ) : (
           <div className="grid grid-cols-5 gap-2">
             {["ideation", "drafting", "review", "scheduled", "published"].map((stage) => (
-              <div key={stage} className="text-center p-2 bg-ivory border border-warm-border rounded">
-                <p className="text-lg font-mono font-bold text-charcoal">
+              <div key={stage} className="text-center p-2 bg-surface border border-line rounded">
+                <p className="text-lg font-mono font-bold text-ink">
                   {contentPipeline[stage] ?? 0}
                 </p>
-                <p className="text-xs text-warm-gray capitalize">{stage}</p>
+                <p className="text-xs text-subtle capitalize">{stage}</p>
               </div>
             ))}
           </div>
@@ -836,7 +836,7 @@ function PipelineReviewSegment({
 
       {/* Bet health overview */}
       <div>
-        <h3 className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">
+        <h3 className="font-mono text-[10px] font-semibold text-ink uppercase tracking-[0.10em] mb-2">
           Active Bets Health
         </h3>
         <div className="space-y-1">
@@ -846,10 +846,10 @@ function PipelineReviewSegment({
             );
             const shippedMoves = bet.moves.filter((m) => m.lifecycle_status === "shipped");
             return (
-              <div key={bet.id} className="flex items-center justify-between text-sm py-1.5 px-2 border border-warm-border rounded">
-                <span className="text-charcoal truncate flex-1">{bet.outcome}</span>
+              <div key={bet.id} className="flex items-center justify-between text-sm py-1.5 px-2 border border-line rounded">
+                <span className="text-ink truncate flex-1">{bet.outcome}</span>
                 <div className="flex items-center gap-2 ml-2">
-                  <span className="text-xs text-warm-gray">
+                  <span className="text-xs text-subtle">
                     {shippedMoves.length}/{bet.moves.length} shipped
                   </span>
                   <Badge status={bet.health_status}>{bet.health_status.toUpperCase()}</Badge>
@@ -882,14 +882,14 @@ function ActionItemsSegment({
 
   return (
     <div className="space-y-6">
-      <p className="text-xs text-warm-gray">{SEGMENT_CONFIG[5].description}</p>
+      <p className="text-xs text-subtle">{SEGMENT_CONFIG[5].description}</p>
 
       <div>
-        <h3 className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">
+        <h3 className="font-mono text-[10px] font-semibold text-ink uppercase tracking-[0.10em] mb-2">
           Meeting Action Items ({allItems.length})
         </h3>
         {allItems.length === 0 ? (
-          <p className="text-sm text-warm-gray py-4 text-center">
+          <p className="text-sm text-subtle py-4 text-center">
             No action items captured yet. Add them in the System Fixes segment.
           </p>
         ) : (
@@ -899,8 +899,8 @@ function ActionItemsSegment({
                 <CardContent className="py-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-charcoal">{item.description}</p>
-                      <p className="text-xs text-warm-gray mt-0.5">
+                      <p className="text-sm text-ink">{item.description}</p>
+                      <p className="text-xs text-subtle mt-0.5">
                         {item.owner}
                         {item.dueDate && ` · Due ${item.dueDate}`}
                       </p>
@@ -915,14 +915,14 @@ function ActionItemsSegment({
       </div>
 
       {newCommitments.length > 0 && (
-        <Card className="bg-moss/5">
+        <Card className="bg-accent/5">
           <CardHeader>
-            <h3 className="text-sm font-semibold text-moss">Commitments Created ({newCommitments.length})</h3>
+            <h3 className="text-sm font-semibold text-accent">Commitments Created ({newCommitments.length})</h3>
           </CardHeader>
           <CardContent>
             <ul className="space-y-1">
               {newCommitments.map((desc, i) => (
-                <li key={i} className="text-sm text-charcoal">• {desc}</li>
+                <li key={i} className="text-sm text-ink">• {desc}</li>
               ))}
             </ul>
           </CardContent>
@@ -1086,8 +1086,8 @@ export function MonthlyReviewView({
     <div className="max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-bold text-charcoal">Monthly Operating Review</h1>
-          <p className="text-sm text-warm-gray mt-0.5">
+          <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] text-ink">Monthly Operating Review</h1>
+          <p className="text-sm text-subtle mt-0.5">
             {new Date().toLocaleDateString("en-US", {
               weekday: "long",
               month: "long",
@@ -1133,7 +1133,7 @@ export function MonthlyReviewView({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-charcoal">{currentConfig?.label}</h2>
+            <h2 className="text-sm font-semibold text-ink">{currentConfig?.label}</h2>
             <Button variant="tertiary" size="sm" onClick={advanceSegment}>
               Next Segment &rarr;
             </Button>

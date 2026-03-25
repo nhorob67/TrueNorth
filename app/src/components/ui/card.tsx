@@ -9,7 +9,7 @@ export function Card({ borderColor, className = "", style, children, ref, ...pro
   return (
     <div
       ref={ref}
-      className={`bg-ivory border border-warm-border rounded-lg shadow-sm transition-shadow duration-200 hover:shadow-md ${className}`}
+      className={`bg-surface border border-line rounded-[10px] shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-shadow duration-200 hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)] ${className}`}
       style={{
         ...style,
         ...(borderColor ? { borderLeftWidth: "4px", borderLeftColor: borderColor } : {}),
@@ -25,7 +25,7 @@ export function CardHeader({
   className = "",
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={`px-6 py-4 border-b border-warm-border ${className}`} {...props} />;
+  return <div className={`px-6 py-4 border-b border-line ${className}`} {...props} />;
 }
 
 export function CardContent({
@@ -40,6 +40,6 @@ export function CardFooter({
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={`px-6 py-4 border-t border-warm-border ${className}`} {...props} />
+    <div className={`px-6 py-4 border-t border-line ${className}`} {...props} />
   );
 }

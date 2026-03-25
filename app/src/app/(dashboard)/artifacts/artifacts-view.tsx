@@ -72,10 +72,10 @@ function ArtifactCard({ artifact }: { artifact: StalenessResult }) {
         <CardContent className="py-4">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <h3 className="text-sm font-semibold text-charcoal">
+              <h3 className="text-sm font-semibold text-ink">
                 {artifact.name}
               </h3>
-              <p className="text-xs text-warm-gray mt-0.5">{description}</p>
+              <p className="text-xs text-subtle mt-0.5">{description}</p>
             </div>
             <Badge
               status={
@@ -91,7 +91,7 @@ function ArtifactCard({ artifact }: { artifact: StalenessResult }) {
           </div>
 
           <div className="flex items-center justify-between mt-3 text-xs">
-            <div className="text-warm-gray">
+            <div className="text-subtle">
               {artifact.last_updated_at ? (
                 <>
                   Last updated:{" "}
@@ -111,7 +111,7 @@ function ArtifactCard({ artifact }: { artifact: StalenessResult }) {
                 </span>
               )}
             </div>
-            <div className="text-warm-gray">
+            <div className="text-subtle">
               Cadence: every {artifact.staleness_threshold_days}d
             </div>
           </div>
@@ -119,7 +119,7 @@ function ArtifactCard({ artifact }: { artifact: StalenessResult }) {
           {/* Freshness bar */}
           {artifact.days_since_update !== null && (
             <div className="mt-2">
-              <div className="h-1 rounded-full bg-warm-border overflow-hidden">
+              <div className="h-1 rounded-full bg-line overflow-hidden">
                 <div
                   className={`h-full rounded-full ${
                     healthStatus === "red"
@@ -169,8 +169,8 @@ export function ArtifactsView({
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Core Artifacts</h1>
-          <p className="text-sm text-warm-gray mt-0.5">
+          <h1 className="font-display text-[28px] font-bold tracking-[-0.03em]">Core Artifacts</h1>
+          <p className="text-sm text-subtle mt-0.5">
             The 7 artifacts that keep the operating system alive. Each has an
             owner and an expected update cadence.
           </p>

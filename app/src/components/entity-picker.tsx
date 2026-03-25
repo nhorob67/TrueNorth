@@ -16,13 +16,13 @@ interface EntityPickerProps {
 }
 
 const typeColors: Record<string, string> = {
-  bet: "bg-moss/10 text-moss",
+  bet: "bg-accent/10 text-accent",
   kpi: "bg-semantic-green/10 text-semantic-green-text",
   move: "bg-semantic-ochre/10 text-semantic-ochre-text",
   blocker: "bg-semantic-brick/10 text-semantic-brick",
   decision: "bg-brass/10 text-brass-text",
-  commitment: "bg-clay/10 text-clay-text",
-  issue: "bg-warm-gray/10 text-warm-gray",
+  commitment: "bg-accent-dim text-accent",
+  issue: "bg-faded/10 text-subtle",
 };
 
 export function EntityPicker({
@@ -81,15 +81,15 @@ export function EntityPicker({
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => results.length > 0 && setOpen(true)}
         placeholder={placeholder}
-        className="block w-full rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+        className="block w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
       />
       {loading && (
         <div className="absolute right-2 top-2.5">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-warm-border border-t-moss" />
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-line border-t-moss" />
         </div>
       )}
       {open && results.length > 0 && (
-        <div className="absolute z-50 mt-1 w-full rounded-lg border border-warm-border bg-ivory shadow-lg max-h-60 overflow-auto">
+        <div className="absolute z-50 mt-1 w-full rounded-lg border border-line bg-surface shadow-lg max-h-60 overflow-auto">
           {results.map((result) => (
             <button
               key={`${result.type}-${result.id}`}
@@ -99,10 +99,10 @@ export function EntityPicker({
                 setQuery("");
                 setOpen(false);
               }}
-              className="w-full text-left px-3 py-2 text-sm hover:bg-parchment flex items-center gap-2"
+              className="w-full text-left px-3 py-2 text-sm hover:bg-canvas flex items-center gap-2"
             >
               <span
-                className={`text-xs px-1.5 py-0.5 rounded font-medium ${typeColors[result.type] ?? "bg-warm-gray/10 text-warm-gray"}`}
+                className={`text-xs px-1.5 py-0.5 rounded font-medium ${typeColors[result.type] ?? "bg-faded/10 text-subtle"}`}
               >
                 {result.type}
               </span>

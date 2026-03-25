@@ -40,7 +40,7 @@ function MoveProgressBar({ moves }: { moves: Move[] }) {
 
   return (
     <div className="mt-3">
-      <div className="flex h-2 rounded-full overflow-hidden bg-warm-border">
+      <div className="flex h-2 rounded-full overflow-hidden bg-line">
         {shipped > 0 && (
           <div
             className="bg-semantic-green"
@@ -55,12 +55,12 @@ function MoveProgressBar({ moves }: { moves: Move[] }) {
         )}
         {notStarted > 0 && (
           <div
-            className="bg-warm-border"
+            className="bg-line"
             style={{ width: `${(notStarted / total) * 100}%` }}
           />
         )}
       </div>
-      <p className="text-xs text-warm-gray mt-1">
+      <p className="text-xs text-subtle mt-1">
         {shipped} shipped, {inProgress} in progress, {notStarted} not started
       </p>
       <RhythmIndicators moves={moves} />
@@ -82,12 +82,12 @@ function RhythmIndicators({ moves }: { moves: Move[] }) {
 
   return (
     <div className="flex items-center gap-1 mt-1">
-      <span className="text-[10px] text-warm-gray mr-0.5">Rhythms:</span>
+      <span className="text-[10px] text-subtle mr-0.5">Rhythms:</span>
       {recurring.map((m) => (
         <span
           key={m.id}
           title={m.title}
-          className={`w-2 h-2 rounded-full ${dotColor[m.health_status] ?? "bg-warm-gray"}`}
+          className={`w-2 h-2 rounded-full ${dotColor[m.health_status] ?? "bg-faded"}`}
         />
       ))}
     </div>
@@ -123,9 +123,9 @@ function ExecutionHealth({ moves }: { moves: Move[] }) {
 function BetCard({ bet }: { bet: Bet }) {
   return (
     <Card className="flex flex-col">
-      <CardHeader className="bg-moss/5 border-b border-warm-border">
+      <CardHeader className="bg-accent/5 border-b border-line">
         <div className="flex items-start justify-between">
-          <h3 className="text-sm font-semibold text-charcoal leading-tight">
+          <h3 className="text-sm font-semibold text-ink leading-tight">
             {bet.outcome}
           </h3>
           <div className="flex items-center gap-1.5">
@@ -143,10 +143,10 @@ function BetCard({ bet }: { bet: Bet }) {
       </CardHeader>
       <CardContent className="flex-1">
         {bet.mechanism && (
-          <p className="text-sm text-warm-gray mt-2">{bet.mechanism}</p>
+          <p className="text-sm text-subtle mt-2">{bet.mechanism}</p>
         )}
         {bet.quarter && (
-          <p className="text-xs text-warm-gray mt-1">Q: {bet.quarter}</p>
+          <p className="text-xs text-subtle mt-1">Q: {bet.quarter}</p>
         )}
         <MoveProgressBar moves={bet.moves} />
 
@@ -173,20 +173,20 @@ function BetCard({ bet }: { bet: Bet }) {
                         ? "bg-semantic-green"
                         : move.lifecycle_status === "in_progress"
                           ? "bg-semantic-ochre"
-                          : "bg-warm-gray"
+                          : "bg-faded"
                     }`}
                   />
                   <span
                     className={
                       move.lifecycle_status === "shipped"
-                        ? "line-through text-warm-gray"
-                        : "text-charcoal"
+                        ? "line-through text-subtle"
+                        : "text-ink"
                     }
                   >
                     {move.title}
                   </span>
                   {move.due_date && (
-                    <span className="text-warm-gray ml-auto">
+                    <span className="text-subtle ml-auto">
                       {new Date(move.due_date).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
@@ -206,7 +206,7 @@ export function BetsWarRoom({ bets }: { bets: Bet[] }) {
   if (bets.length === 0) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-6">War Room</h1>
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6">War Room</h1>
         <EmptyState
           title="No active bets"
           description="Create your first quarterly bet to focus your team's energy."
@@ -223,7 +223,7 @@ export function BetsWarRoom({ bets }: { bets: Bet[] }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">War Room</h1>
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em]">War Room</h1>
         <div className="flex items-center gap-2">
           <Button
             variant="tertiary"

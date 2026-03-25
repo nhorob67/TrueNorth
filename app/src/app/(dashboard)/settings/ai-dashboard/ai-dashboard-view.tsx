@@ -161,7 +161,7 @@ function computeWeeklyTrends(actions: AiAction[]): WeeklyTrend[] {
 }
 
 function acceptanceColor(rate: number | null): string {
-  if (rate === null) return "text-warm-gray";
+  if (rate === null) return "text-subtle";
   if (rate >= 80) return "text-semantic-green";
   if (rate >= 60) return "text-semantic-ochre";
   return "text-semantic-brick";
@@ -182,8 +182,8 @@ function MetricBox({
 }) {
   return (
     <div className="text-center">
-      <p className="text-xs font-semibold text-warm-gray uppercase">{label}</p>
-      <p className={`text-xl font-bold ${colorClass ?? "text-charcoal"}`}>
+      <p className="text-xs font-semibold text-subtle uppercase">{label}</p>
+      <p className={`text-xl font-bold ${colorClass ?? "text-ink"}`}>
         {value}
       </p>
     </div>
@@ -192,7 +192,7 @@ function MetricBox({
 
 function OutcomeBar({ metrics }: { metrics: AgentMetrics }) {
   const total = metrics.totalActions;
-  if (total === 0) return <div className="h-3 rounded bg-warm-border" />;
+  if (total === 0) return <div className="h-3 rounded bg-line" />;
 
   const pctAccepted = (metrics.accepted / total) * 100;
   const pctOverridden = (metrics.overridden / total) * 100;
@@ -225,13 +225,13 @@ function OutcomeBar({ metrics }: { metrics: AgentMetrics }) {
         )}
         {pctPending > 0 && (
           <div
-            className="bg-warm-gray/30"
+            className="bg-faded/30"
             style={{ width: `${pctPending}%` }}
             title={`Pending: ${metrics.pending}`}
           />
         )}
       </div>
-      <div className="flex gap-3 text-[10px] text-warm-gray">
+      <div className="flex gap-3 text-[10px] text-subtle">
         <span className="flex items-center gap-1">
           <span className="inline-block w-2 h-2 rounded-full bg-semantic-green" />
           Accepted ({metrics.accepted})
@@ -245,7 +245,7 @@ function OutcomeBar({ metrics }: { metrics: AgentMetrics }) {
           Ignored ({metrics.ignored})
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block w-2 h-2 rounded-full bg-warm-gray/30" />
+          <span className="inline-block w-2 h-2 rounded-full bg-faded/30" />
           Pending ({metrics.pending})
         </span>
       </div>
@@ -258,7 +258,7 @@ function RecentActionsList({ actions }: { actions: AiAction[] }) {
 
   if (actions.length === 0) {
     return (
-      <p className="text-sm text-warm-gray italic">
+      <p className="text-sm text-subtle italic">
         No recent actions recorded.
       </p>
     );
@@ -268,7 +268,7 @@ function RecentActionsList({ actions }: { actions: AiAction[] }) {
     <div>
       <button
         onClick={() => setExpanded(!expanded)}
-        className="text-sm font-medium text-moss hover:underline"
+        className="text-sm font-medium text-accent hover:underline"
       >
         {expanded ? "Hide" : "Show"} Recent Actions ({actions.length})
       </button>
@@ -277,10 +277,10 @@ function RecentActionsList({ actions }: { actions: AiAction[] }) {
           {actions.map((action) => (
             <div
               key={action.id}
-              className="flex items-start gap-3 p-2 rounded-lg bg-parchment text-sm"
+              className="flex items-start gap-3 p-2 rounded-lg bg-canvas text-sm"
             >
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-warm-gray">
+                <p className="text-xs text-subtle">
                   {new Date(action.created_at).toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
@@ -289,7 +289,7 @@ function RecentActionsList({ actions }: { actions: AiAction[] }) {
                   })}{" "}
                   &middot; {action.action_type}
                 </p>
-                <p className="text-charcoal truncate">
+                <p className="text-ink truncate">
                   {action.output_summary}
                 </p>
               </div>
@@ -322,16 +322,16 @@ function AgentPerformanceCard({
       : "-";
 
   return (
-    <Card className="border-warm-border bg-ivory overflow-hidden">
+    <Card className="border-line bg-surface overflow-hidden">
       <div className="h-2 bg-sage" />
       <CardHeader>
         <div className="flex items-center gap-3">
-          <h3 className="font-semibold text-charcoal">{agent.name}</h3>
+          <h3 className="font-semibold text-ink">{agent.name}</h3>
           <span className="inline-flex items-center rounded-full bg-sage px-2 py-0.5 text-xs font-medium text-white">
             AI
           </span>
         </div>
-        <p className="text-sm text-warm-gray mt-0.5">
+        <p className="text-sm text-subtle mt-0.5">
           {CATEGORY_LABELS[agent.category] ?? agent.category} &middot;{" "}
           {AUTONOMY_LEVELS[agent.automation_level] ??
             `L${agent.automation_level}`}
@@ -406,36 +406,36 @@ function OverrideAnalytics({ actions }: { actions: AiAction[] }) {
   const weeklyTrends = computeWeeklyTrends(actions);
 
   return (
-    <Card className="border-warm-border bg-ivory">
+    <Card className="border-line bg-surface">
       <CardHeader>
-        <h3 className="text-lg font-semibold text-charcoal">
+        <h3 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-ink">
           Override Analytics
         </h3>
-        <p className="text-sm text-warm-gray">
+        <p className="text-sm text-subtle">
           Where is the team pushing back?
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Override reasons by category */}
         {overridesByCategory.size === 0 ? (
-          <p className="text-sm text-warm-gray italic">
+          <p className="text-sm text-subtle italic">
             No overrides recorded yet.
           </p>
         ) : (
           <div className="space-y-4">
             {Array.from(overridesByCategory.entries()).map(([cat, reasons]) => (
               <div key={cat}>
-                <p className="text-sm font-semibold text-charcoal mb-1">
+                <p className="text-sm font-semibold text-ink mb-1">
                   {CATEGORY_LABELS[cat] ?? cat}
                 </p>
                 <ul className="space-y-1">
                   {reasons.map((r, i) => (
                     <li
                       key={i}
-                      className="flex items-center justify-between text-sm text-charcoal bg-parchment rounded px-3 py-1.5"
+                      className="flex items-center justify-between text-sm text-ink bg-canvas rounded px-3 py-1.5"
                     >
                       <span className="truncate">{r.reason}</span>
-                      <span className="ml-2 font-mono text-xs text-warm-gray">
+                      <span className="ml-2 font-mono text-xs text-subtle">
                         {r.count}x
                       </span>
                     </li>
@@ -448,16 +448,16 @@ function OverrideAnalytics({ actions }: { actions: AiAction[] }) {
 
         {/* Weekly acceptance trend */}
         <div>
-          <p className="text-sm font-semibold text-charcoal mb-2">
+          <p className="text-sm font-semibold text-ink mb-2">
             Acceptance Rate — Last 4 Weeks
           </p>
           <div className="grid grid-cols-4 gap-2">
             {weeklyTrends.map((week, i) => (
               <div
                 key={i}
-                className="text-center p-2 rounded-lg bg-parchment"
+                className="text-center p-2 rounded-lg bg-canvas"
               >
-                <p className="text-[10px] text-warm-gray truncate">
+                <p className="text-[10px] text-subtle truncate">
                   {week.weekLabel}
                 </p>
                 <p
@@ -467,7 +467,7 @@ function OverrideAnalytics({ actions }: { actions: AiAction[] }) {
                     ? `${week.acceptanceRate}%`
                     : "-"}
                 </p>
-                <p className="text-[10px] text-warm-gray">
+                <p className="text-[10px] text-subtle">
                   {week.total} actions
                 </p>
               </div>
@@ -526,12 +526,12 @@ function AutonomyManager({
 
   return (
     <>
-      <Card className="border-warm-border bg-ivory">
+      <Card className="border-line bg-surface">
         <CardHeader>
-          <h3 className="text-lg font-semibold text-charcoal">
+          <h3 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-ink">
             Autonomy Management
           </h3>
-          <p className="text-sm text-warm-gray">
+          <p className="text-sm text-subtle">
             Control how much independence each AI agent has. Changes are
             audit-logged.
           </p>
@@ -541,11 +541,11 @@ function AutonomyManager({
             {agents.map((agent) => (
               <div
                 key={agent.id}
-                className="flex items-center justify-between p-3 rounded-lg bg-parchment"
+                className="flex items-center justify-between p-3 rounded-lg bg-canvas"
               >
                 <div>
-                  <p className="font-medium text-charcoal">{agent.name}</p>
-                  <p className="text-xs text-warm-gray">
+                  <p className="font-medium text-ink">{agent.name}</p>
+                  <p className="text-xs text-subtle">
                     Current: L{agent.automation_level} &mdash;{" "}
                     {AUTONOMY_LEVELS[agent.automation_level]}
                   </p>
@@ -555,7 +555,7 @@ function AutonomyManager({
                   onChange={(e) =>
                     handleLevelChange(agent, Number(e.target.value))
                   }
-                  className="rounded-lg border border-warm-border bg-ivory px-3 py-1.5 text-sm text-charcoal focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+                  className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
                 >
                   {Object.entries(AUTONOMY_LEVELS).map(([level, label]) => (
                     <option key={level} value={level}>
@@ -581,7 +581,7 @@ function AutonomyManager({
       >
         {confirmAgent && (
           <>
-            <div className="space-y-2 text-sm text-charcoal">
+            <div className="space-y-2 text-sm text-ink">
               <p>
                 <span className="font-semibold">From:</span> L
                 {confirmAgent.automation_level} &mdash;{" "}
@@ -648,14 +648,14 @@ export function AiDashboardView({
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-bold text-charcoal">
+            <h2 className="font-display text-[28px] font-bold tracking-[-0.03em] text-ink">
               AI Trust Dashboard
             </h2>
             <span className="inline-flex items-center rounded-full bg-sage px-2.5 py-0.5 text-xs font-medium text-white">
               Audit
             </span>
           </div>
-          <p className="text-warm-gray text-sm mt-1">
+          <p className="text-subtle text-sm mt-1">
             Monitor AI agent performance, acceptance rates, and manage autonomy
             levels
           </p>
@@ -669,7 +669,7 @@ export function AiDashboardView({
 
       {/* Agent Performance Cards */}
       <div>
-        <h3 className="text-lg font-semibold text-moss mb-3">
+        <h3 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-accent mb-3">
           Agent Performance
         </h3>
         <div className="space-y-4">
@@ -686,9 +686,9 @@ export function AiDashboardView({
             );
           })}
           {agents.length === 0 && (
-            <p className="text-sm text-warm-gray italic">
+            <p className="text-sm text-subtle italic">
               No agents configured. Visit the{" "}
-              <Link href="/settings/agents" className="text-moss underline">
+              <Link href="/settings/agents" className="text-accent underline">
                 Agents page
               </Link>{" "}
               to set up AI agents.
@@ -699,7 +699,7 @@ export function AiDashboardView({
 
       {/* Override Analytics */}
       <div>
-        <h3 className="text-lg font-semibold text-moss mb-3">
+        <h3 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-accent mb-3">
           Override Analytics
         </h3>
         <OverrideAnalytics actions={actions} />
@@ -707,7 +707,7 @@ export function AiDashboardView({
 
       {/* Autonomy Management */}
       <div>
-        <h3 className="text-lg font-semibold text-moss mb-3">
+        <h3 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-accent mb-3">
           Autonomy Management
         </h3>
         <AutonomyManager agents={agents} orgId={orgId} userId={userId} />

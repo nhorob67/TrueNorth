@@ -64,8 +64,8 @@ const machineLabels: Record<MachineType, string> = {
 };
 
 const machineColors: Record<MachineType, string> = {
-  newsletter: "bg-moss/10 text-moss",
-  deep_content: "bg-clay/10 text-clay-text",
+  newsletter: "bg-accent/10 text-accent",
+  deep_content: "bg-accent-dim text-accent",
   short_form: "bg-brass/10 text-brass-text",
   live_event: "bg-sage/10 text-sage-text",
 };
@@ -156,12 +156,12 @@ function CycleProgress({
           <span
             key={i}
             className={`w-2.5 h-2.5 rounded-full ${
-              i < completed ? "bg-semantic-green" : "bg-warm-border"
+              i < completed ? "bg-semantic-green" : "bg-line"
             }`}
           />
         ))}
       </div>
-      <span className="text-xs text-warm-gray">
+      <span className="text-xs text-subtle">
         {completed}/{target}
         {cadenceLabel}
       </span>
@@ -206,11 +206,11 @@ function InstanceRow({
             : instance.status === "missed"
               ? "bg-semantic-brick"
               : instance.status === "skipped"
-                ? "bg-warm-gray"
-                : "bg-warm-border"
+                ? "bg-faded"
+                : "bg-line"
         }`}
       />
-      <span className="text-warm-gray">
+      <span className="text-subtle">
         {start.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
         {" – "}
         {end.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
@@ -221,7 +221,7 @@ function InstanceRow({
             ? "text-semantic-green-text"
             : instance.status === "missed"
               ? "text-semantic-brick"
-              : "text-warm-gray"
+              : "text-subtle"
         }`}
       >
         {instance.status}
@@ -236,7 +236,7 @@ function InstanceRow({
           </button>
           <button
             onClick={onSkip}
-            className="px-1.5 py-0.5 rounded bg-warm-gray/10 text-warm-gray hover:bg-warm-gray/20"
+            className="px-1.5 py-0.5 rounded bg-faded/10 text-subtle hover:bg-faded/20"
           >
             Skip
           </button>
@@ -311,7 +311,7 @@ function MoveRow({
   }
 
   return (
-    <div className="border-b border-warm-border last:border-0">
+    <div className="border-b border-line last:border-0">
       <div className="flex items-center gap-3 py-2">
         <span
           className={`w-2 h-2 rounded-full flex-shrink-0 ${
@@ -321,7 +321,7 @@ function MoveRow({
                 ? "bg-semantic-ochre"
                 : move.lifecycle_status === "cut"
                   ? "bg-semantic-brick"
-                  : "bg-warm-gray"
+                  : "bg-faded"
           }`}
         />
         <button
@@ -334,14 +334,14 @@ function MoveRow({
               className={`text-sm font-medium ${
                 move.lifecycle_status === "shipped" ||
                 move.lifecycle_status === "cut"
-                  ? "line-through text-warm-gray"
+                  ? "line-through text-subtle"
                   : ""
               }`}
             >
               {move.title}
             </p>
             {isRecurring && (
-              <span className="text-xs px-1.5 py-0.5 rounded bg-moss/10 text-moss font-medium">
+              <span className="text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent font-medium">
                 Recurring
               </span>
             )}
@@ -349,7 +349,7 @@ function MoveRow({
               <span
                 className={`text-xs px-1.5 py-0.5 rounded font-medium ${
                   machineColors[move.content_machine_id as MachineType] ??
-                  "bg-warm-border/50 text-warm-gray"
+                  "bg-line/50 text-subtle"
                 }`}
               >
                 {machineLabels[move.content_machine_id as MachineType] ??
@@ -364,7 +364,7 @@ function MoveRow({
           </div>
           <div className="flex items-center gap-2 mt-0.5">
             {!isRecurring && move.due_date && (
-              <span className="text-xs text-warm-gray">
+              <span className="text-xs text-subtle">
                 Due{" "}
                 {new Date(move.due_date).toLocaleDateString("en-US", {
                   month: "short",
@@ -373,7 +373,7 @@ function MoveRow({
               </span>
             )}
             {move.effort_estimate?.value && (
-              <span className="text-xs text-warm-gray">
+              <span className="text-xs text-subtle">
                 {move.effort_estimate.value}h
               </span>
             )}
@@ -402,7 +402,7 @@ function MoveRow({
           <select
             value={move.lifecycle_status}
             onChange={(e) => onStatusChange(move.id, e.target.value)}
-            className="text-xs border border-warm-border rounded px-1.5 py-1 bg-ivory"
+            className="text-xs border border-line rounded px-1.5 py-1 bg-surface"
           >
             <option value="not_started">Not Started</option>
             <option value="in_progress">In Progress</option>
@@ -417,7 +417,7 @@ function MoveRow({
           {/* Recurring move instances */}
           {isRecurring && instances.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-warm-gray uppercase mb-1">
+              <p className="text-xs font-semibold text-subtle uppercase mb-1">
                 Recent Instances
               </p>
               <div>
@@ -486,7 +486,7 @@ function MoveRow({
             move.lifecycle_status !== "shipped" && (
               <div className="flex items-start gap-2 text-xs p-2 bg-semantic-ochre/5 border-l-2 border-semantic-ochre rounded">
                 <span className="text-semantic-ochre font-medium flex-shrink-0">Tip:</span>
-                <span className="text-charcoal">
+                <span className="text-ink">
                   This Move has no linked KPIs. Linking to a lead indicator helps track whether execution is driving outcomes.
                 </span>
               </div>
@@ -496,7 +496,7 @@ function MoveRow({
             move.lifecycle_status !== "cut" && (
               <div className="flex items-start gap-2 text-xs p-2 bg-semantic-ochre/5 border-l-2 border-semantic-ochre rounded">
                 <span className="text-semantic-ochre font-medium flex-shrink-0">Tip:</span>
-                <span className="text-charcoal">
+                <span className="text-ink">
                   This recurring Move has no content machine linked. If it tracks content output, link a content machine for auto-crediting.
                 </span>
               </div>
@@ -504,7 +504,7 @@ function MoveRow({
 
           {/* Todos */}
           <div>
-            <p className="text-xs font-semibold text-warm-gray uppercase mb-1">
+            <p className="text-xs font-semibold text-subtle uppercase mb-1">
               Sub-tasks
             </p>
             <TodoList entityId={move.id} entityType="move" orgId={orgId} />
@@ -512,7 +512,7 @@ function MoveRow({
 
           {/* Comments */}
           <div>
-            <p className="text-xs font-semibold text-warm-gray uppercase mb-1">
+            <p className="text-xs font-semibold text-subtle uppercase mb-1">
               Comments
             </p>
             <Comments entityId={move.id} entityType="move" orgId={orgId} />
@@ -626,15 +626,15 @@ function AddMoveForm({
   }
 
   return (
-    <div className="mt-4 pt-3 border-t border-warm-border">
+    <div className="mt-4 pt-3 border-t border-line">
       <div className="flex gap-2 mb-3">
         <button
           type="button"
           onClick={() => setMoveType("milestone")}
           className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${
             moveType === "milestone"
-              ? "bg-moss text-white"
-              : "text-warm-gray hover:text-charcoal border border-warm-border"
+              ? "bg-accent text-white"
+              : "text-subtle hover:text-ink border border-line"
           }`}
         >
           Milestone
@@ -644,8 +644,8 @@ function AddMoveForm({
           onClick={() => setMoveType("recurring")}
           className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${
             moveType === "recurring"
-              ? "bg-moss text-white"
-              : "text-warm-gray hover:text-charcoal border border-warm-border"
+              ? "bg-accent text-white"
+              : "text-subtle hover:text-ink border border-line"
           }`}
         >
           Recurring
@@ -686,7 +686,7 @@ function AddMoveForm({
               <select
                 value={cadence}
                 onChange={(e) => setCadence(e.target.value as MoveCadence)}
-                className="text-xs border border-warm-border rounded-lg px-2 py-2 bg-ivory"
+                className="text-xs border border-line rounded-lg px-2 py-2 bg-surface"
               >
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
@@ -711,16 +711,16 @@ function AddMoveForm({
         {moveType === "recurring" && (
           <>
             <div className="flex items-center gap-3">
-              <p className="text-xs text-warm-gray">
+              <p className="text-xs text-subtle">
                 Target: {targetPerCycle || 1}x per{" "}
                 {cadence === "biweekly" ? "2 weeks" : cadence}
               </p>
               <div className="flex items-center gap-1.5">
-                <label className="text-xs text-warm-gray">Content Machine:</label>
+                <label className="text-xs text-subtle">Content Machine:</label>
                 <select
                   value={contentMachineId}
                   onChange={(e) => setContentMachineId(e.target.value)}
-                  className="text-xs border border-warm-border rounded px-2 py-1 bg-ivory"
+                  className="text-xs border border-line rounded px-2 py-1 bg-surface"
                 >
                   <option value="">None</option>
                   <option value="newsletter">Flagship Newsletter</option>
@@ -739,11 +739,11 @@ function AddMoveForm({
             </div>
             {showExternalSource && (
               <div className="flex items-center gap-2 flex-wrap p-2 bg-sage/5 border border-sage/20 rounded-lg">
-                <label className="text-xs text-warm-gray">Platform:</label>
+                <label className="text-xs text-subtle">Platform:</label>
                 <select
                   value={extPlatform}
                   onChange={(e) => setExtPlatform(e.target.value)}
-                  className="text-xs border border-warm-border rounded px-2 py-1 bg-ivory"
+                  className="text-xs border border-line rounded px-2 py-1 bg-surface"
                 >
                   <option value="">None</option>
                   <option value="discourse">Discourse</option>
@@ -871,7 +871,7 @@ function Week6Checkpoint({
             Week-6 Checkpoint
           </h2>
         </div>
-        <p className="text-xs text-warm-gray mt-1">
+        <p className="text-xs text-subtle mt-1">
           Present your lead indicator data and proof-by-week-6 evidence. The
           team will assign a verdict.
         </p>
@@ -879,30 +879,30 @@ function Week6Checkpoint({
       <CardContent className="space-y-4">
         {/* Proof by Week 6 reminder */}
         {bet.proof_by_week6 && (
-          <div className="p-3 bg-parchment rounded-lg">
-            <p className="text-xs font-semibold text-warm-gray uppercase mb-1">
+          <div className="p-3 bg-canvas rounded-lg">
+            <p className="text-xs font-semibold text-subtle uppercase mb-1">
               Original Proof Criteria
             </p>
-            <p className="text-sm text-charcoal">{bet.proof_by_week6}</p>
+            <p className="text-sm text-ink">{bet.proof_by_week6}</p>
           </div>
         )}
 
         {/* Evidence textarea */}
         <div>
-          <label className="block text-sm font-medium text-charcoal mb-1">
+          <label className="block text-sm font-medium text-ink mb-1">
             Evidence & Lead Indicator Data
           </label>
           <textarea
             value={evidence}
             onChange={(e) => setEvidence(e.target.value)}
             placeholder="Present your evidence: What do the lead indicators show? What has shipped? What has the team learned?"
-            className="w-full min-h-[100px] rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+            className="w-full min-h-[100px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
           />
         </div>
 
         {/* Verdict selection */}
         <div>
-          <label className="block text-sm font-medium text-charcoal mb-2">
+          <label className="block text-sm font-medium text-ink mb-2">
             Verdict
           </label>
           <div className="space-y-2">
@@ -918,7 +918,7 @@ function Week6Checkpoint({
                       : v === "yellow"
                         ? "border-semantic-ochre bg-semantic-ochre/5"
                         : "border-semantic-brick bg-semantic-brick/5"
-                    : "border-warm-border hover:bg-parchment"
+                    : "border-line hover:bg-canvas"
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -931,7 +931,7 @@ function Week6Checkpoint({
                           : "bg-semantic-brick"
                     }`}
                   />
-                  <span className="text-sm font-medium text-charcoal">
+                  <span className="text-sm font-medium text-ink">
                     {verdictLabels[v]}
                   </span>
                 </div>
@@ -943,14 +943,14 @@ function Week6Checkpoint({
         {/* Pivot criteria (only for yellow) */}
         {verdict === "yellow" && (
           <div>
-            <label className="block text-sm font-medium text-charcoal mb-1">
+            <label className="block text-sm font-medium text-ink mb-1">
               New Proof Criteria for Week 9
             </label>
             <textarea
               value={pivotCriteria}
               onChange={(e) => setPivotCriteria(e.target.value)}
               placeholder="What evidence do you need by Week 9 to continue this bet?"
-              className="w-full min-h-[60px] rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+              className="w-full min-h-[60px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
             />
           </div>
         )}
@@ -1043,12 +1043,12 @@ function KillBetAction({
         <p className="text-sm font-medium text-semantic-brick">
           Kill this bet?
         </p>
-        <p className="text-xs text-warm-gray">
+        <p className="text-xs text-subtle">
           The bet will move to the Graveyard. This is the system working, not
           a failure — smart kills protect focus.
         </p>
         {bet.kill_criteria && (
-          <div className="p-2 bg-parchment rounded text-xs">
+          <div className="p-2 bg-canvas rounded text-xs">
             <span className="font-semibold">Kill criteria:</span>{" "}
             {bet.kill_criteria}
           </div>
@@ -1057,7 +1057,7 @@ function KillBetAction({
           value={lessonsLearned}
           onChange={(e) => setLessonsLearned(e.target.value)}
           placeholder="What did you learn? What would you do differently? (Required — this gets preserved in the Graveyard)"
-          className="w-full min-h-[80px] rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+          className="w-full min-h-[80px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
         />
         <div className="flex gap-2">
           <Button
@@ -1121,7 +1121,7 @@ function ExecutionHealth({ moves }: { moves: Move[] }) {
 
   return (
     <div className="flex items-center gap-3 py-2">
-      <span className="text-xs text-warm-gray">Execution health:</span>
+      <span className="text-xs text-subtle">Execution health:</span>
       <div className="flex gap-1">
         {greenCount > 0 && (
           <span className="text-xs px-1.5 py-0.5 rounded bg-semantic-green/10 text-semantic-green-text">
@@ -1139,7 +1139,7 @@ function ExecutionHealth({ moves }: { moves: Move[] }) {
           </span>
         )}
       </div>
-      <span className="text-xs font-mono text-warm-gray">{healthPct}%</span>
+      <span className="text-xs font-mono text-subtle">{healthPct}%</span>
     </div>
   );
 }
@@ -1216,12 +1216,12 @@ export function BetDetailView({
       </Button>
 
       <Card>
-        <CardHeader className="bg-moss/5">
+        <CardHeader className="bg-accent/5">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-xl font-bold">{bet.outcome}</h1>
+              <h1 className="font-display text-[22px] font-bold tracking-[-0.02em]">{bet.outcome}</h1>
               {bet.mechanism && (
-                <p className="text-sm text-warm-gray mt-1">{bet.mechanism}</p>
+                <p className="text-sm text-subtle mt-1">{bet.mechanism}</p>
               )}
             </div>
             <Badge status={bet.health_status}>
@@ -1238,7 +1238,7 @@ export function BetDetailView({
                 <p className="text-sm font-semibold text-brass-text">
                   Week-6 Checkpoint Due
                 </p>
-                <p className="text-xs text-warm-gray mt-0.5">
+                <p className="text-xs text-subtle mt-0.5">
                   This bet is {Math.round(betAgeWeeks)} weeks old. Time to
                   present evidence and assign a verdict.
                 </p>
@@ -1259,10 +1259,10 @@ export function BetDetailView({
             />
           )}
 
-          <div className="grid grid-cols-2 gap-4 py-4 border-b border-warm-border">
+          <div className="grid grid-cols-2 gap-4 py-4 border-b border-line">
             {bet.proof_by_week6 && (
               <div>
-                <p className="text-xs font-semibold text-warm-gray uppercase">
+                <p className="text-xs font-semibold text-subtle uppercase">
                   Proof by Week 6
                 </p>
                 <p className="text-sm mt-0.5">{bet.proof_by_week6}</p>
@@ -1270,7 +1270,7 @@ export function BetDetailView({
             )}
             {bet.kill_criteria && (
               <div>
-                <p className="text-xs font-semibold text-warm-gray uppercase">
+                <p className="text-xs font-semibold text-subtle uppercase">
                   Kill Criteria
                 </p>
                 <p className="text-sm mt-0.5">{bet.kill_criteria}</p>
@@ -1278,7 +1278,7 @@ export function BetDetailView({
             )}
             {bet.quarter && (
               <div>
-                <p className="text-xs font-semibold text-warm-gray uppercase">
+                <p className="text-xs font-semibold text-subtle uppercase">
                   Quarter
                 </p>
                 <p className="text-sm mt-0.5">{bet.quarter}</p>
@@ -1288,17 +1288,17 @@ export function BetDetailView({
 
           {/* Effort rollup */}
           {totalEffort > 0 && (
-            <div className="py-3 border-b border-warm-border">
+            <div className="py-3 border-b border-line">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-warm-gray">
+                <span className="text-subtle">
                   Total effort:{" "}
-                  <span className="font-mono font-medium text-charcoal">
+                  <span className="font-mono font-medium text-ink">
                     {totalEffort}h
                   </span>
                 </span>
                 {resourceCap > 0 && (
                   <span
-                    className={`font-mono text-xs ${totalEffort > resourceCap ? "text-semantic-brick" : "text-warm-gray"}`}
+                    className={`font-mono text-xs ${totalEffort > resourceCap ? "text-semantic-brick" : "text-subtle"}`}
                   >
                     {totalEffort > resourceCap ? "Over cap" : "Within cap"}:{" "}
                     {totalEffort}/{resourceCap}h
@@ -1306,9 +1306,9 @@ export function BetDetailView({
                 )}
               </div>
               {resourceCap > 0 && (
-                <div className="h-2 rounded-full bg-warm-border mt-1.5 overflow-hidden">
+                <div className="h-2 rounded-full bg-line mt-1.5 overflow-hidden">
                   <div
-                    className={`h-full rounded-full ${totalEffort > resourceCap ? "bg-semantic-brick" : "bg-moss"}`}
+                    className={`h-full rounded-full ${totalEffort > resourceCap ? "bg-semantic-brick" : "bg-accent"}`}
                     style={{
                       width: `${Math.min((totalEffort / resourceCap) * 100, 100)}%`,
                     }}
@@ -1323,11 +1323,11 @@ export function BetDetailView({
 
           {/* Milestone Moves Section */}
           <div className="mt-4">
-            <h2 className="text-sm font-semibold text-charcoal mb-2">
+            <h2 className="text-sm font-semibold text-ink mb-2">
               Milestone Moves ({milestoneMoves.length})
             </h2>
             {milestoneMoves.length === 0 ? (
-              <p className="text-sm text-warm-gray">
+              <p className="text-sm text-subtle">
                 No milestone moves yet.
               </p>
             ) : (
@@ -1348,7 +1348,7 @@ export function BetDetailView({
           {/* Recurring Moves Section */}
           {recurringMoves.length > 0 && (
             <div className="mt-6">
-              <h2 className="text-sm font-semibold text-charcoal mb-2">
+              <h2 className="text-sm font-semibold text-ink mb-2">
                 Recurring Rhythms ({recurringMoves.length})
               </h2>
               <div>
@@ -1394,7 +1394,7 @@ export function BetDetailView({
 
           {/* Kill Bet Action */}
           {bet.lifecycle_status === "active" && (
-            <div className="mt-8 pt-4 border-t border-warm-border">
+            <div className="mt-8 pt-4 border-t border-line">
               <KillBetAction
                 bet={bet}
                 onKilled={() => router.push("/bets/graveyard")}

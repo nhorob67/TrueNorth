@@ -46,11 +46,11 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-parchment">
+    <div className="flex items-center justify-center min-h-screen bg-canvas">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-moss">TrueNorth</h1>
-          <p className="text-warm-gray mt-1">Create your account</p>
+          <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] text-accent">TrueNorth</h1>
+          <p className="text-subtle mt-1">Create your account</p>
         </div>
 
         <Card>
@@ -112,7 +112,7 @@ export default function SignupPage() {
             <div className="mt-4 text-center">
               <a
                 href="/login"
-                className="text-sm text-warm-gray hover:text-charcoal"
+                className="text-sm text-subtle hover:text-ink"
               >
                 Already have an account? Sign in
               </a>

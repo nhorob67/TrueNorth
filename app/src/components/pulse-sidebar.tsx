@@ -38,7 +38,7 @@ interface RecurringMoveRhythm {
 const priorityColors: Record<string, string> = {
   high: "text-semantic-brick",
   medium: "text-semantic-ochre",
-  low: "text-warm-gray",
+  low: "text-subtle",
 };
 
 export function PulseSidebar({
@@ -69,11 +69,11 @@ export function PulseSidebar({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-semibold text-warm-gray uppercase">
+            <h3 className="text-xs font-semibold text-subtle uppercase">
               My To-Dos
             </h3>
             {pendingTodos.length > 0 && (
-              <span className="text-xs text-warm-gray">
+              <span className="text-xs text-subtle">
                 {pendingTodos.length} pending
               </span>
             )}
@@ -81,7 +81,7 @@ export function PulseSidebar({
         </CardHeader>
         <CardContent>
           {pendingTodos.length === 0 ? (
-            <p className="text-xs text-warm-gray">All caught up!</p>
+            <p className="text-xs text-subtle">All caught up!</p>
           ) : (
             <div className="space-y-1.5 max-h-64 overflow-y-auto">
               {/* Show overdue first */}
@@ -99,7 +99,7 @@ export function PulseSidebar({
                 />
               ))}
               {overdueTodos.length > 0 && pendingTodos.length > overdueTodos.length && (
-                <p className="text-[10px] font-semibold text-warm-gray uppercase tracking-wide mt-2">
+                <p className="text-[10px] font-semibold text-subtle uppercase tracking-wide mt-2">
                   Upcoming
                 </p>
               )}
@@ -121,7 +121,7 @@ export function PulseSidebar({
       {rhythms.length > 0 && (
         <Card>
           <CardHeader>
-            <h3 className="text-xs font-semibold text-warm-gray uppercase">
+            <h3 className="text-xs font-semibold text-subtle uppercase">
               Active Rhythms
             </h3>
           </CardHeader>
@@ -153,12 +153,12 @@ function TodoItem({
         type="checkbox"
         checked={todo.completed}
         onChange={() => onToggle(todo.id, todo.completed)}
-        className="mt-0.5 rounded border-warm-border text-moss focus:ring-moss/20"
+        className="mt-0.5 rounded border-line text-accent focus:ring-accent-glow/20"
       />
       <div className="flex-1 min-w-0">
         <span
           className={`block truncate ${
-            isOverdue ? "text-semantic-brick" : "text-charcoal"
+            isOverdue ? "text-semantic-brick" : "text-ink"
           }`}
         >
           {todo.title}
@@ -167,7 +167,7 @@ function TodoItem({
           {todo.due_date && (
             <span
               className={`text-[10px] ${
-                isOverdue ? "text-semantic-brick" : "text-warm-gray"
+                isOverdue ? "text-semantic-brick" : "text-subtle"
               }`}
             >
               {isOverdue ? "Overdue: " : "Due: "}
@@ -179,7 +179,7 @@ function TodoItem({
           )}
           {todo.priority && (
             <span
-              className={`text-[10px] font-medium ${priorityColors[todo.priority] ?? "text-warm-gray"}`}
+              className={`text-[10px] font-medium ${priorityColors[todo.priority] ?? "text-subtle"}`}
             >
               {todo.priority}
             </span>
@@ -214,13 +214,13 @@ function RhythmItem({ rhythm }: { rhythm: RecurringMoveRhythm }) {
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 min-w-0">
           <span
-            className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${healthColors[rhythm.health_status] ?? "bg-warm-gray"}`}
+            className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${healthColors[rhythm.health_status] ?? "bg-faded"}`}
           />
-          <span className="text-xs text-charcoal truncate">
+          <span className="text-xs text-ink truncate">
             {rhythm.title}
           </span>
         </div>
-        <span className="text-[10px] text-warm-gray flex-shrink-0">
+        <span className="text-[10px] text-subtle flex-shrink-0">
           {rhythm.instances_completed}
           {rhythm.target_per_cycle != null
             ? `/${rhythm.target_per_cycle}`
@@ -236,14 +236,14 @@ function RhythmItem({ rhythm }: { rhythm: RecurringMoveRhythm }) {
             key={i}
             className={`w-2 h-2 rounded-full ${
               i < rhythm.instances_completed
-                ? healthColors[rhythm.health_status] ?? "bg-moss"
-                : "bg-warm-border/50"
+                ? healthColors[rhythm.health_status] ?? "bg-accent"
+                : "bg-line/50"
             }`}
           />
         ))}
       </div>
 
-      <p className="text-[10px] text-warm-gray truncate">
+      <p className="text-[10px] text-subtle truncate">
         {rhythm.bet_outcome}
       </p>
     </div>

@@ -33,9 +33,9 @@ export function InstallPrompt() {
   if (!deferredPrompt || dismissed) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-ivory border border-warm-border rounded-lg shadow-lg p-4 z-50">
-      <p className="text-sm font-medium text-charcoal">Install TrueNorth</p>
-      <p className="text-xs text-warm-gray mt-1">
+    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-surface border border-line rounded-lg shadow-lg p-4 z-50">
+      <p className="text-sm font-medium text-ink">Install TrueNorth</p>
+      <p className="text-xs text-subtle mt-1">
         Add TrueNorth to your home screen for quick access.
       </p>
       <div className="flex gap-2 mt-3">

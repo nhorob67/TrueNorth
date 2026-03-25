@@ -52,10 +52,10 @@ const LEVEL_DESCRIPTIONS: Record<number, string> = {
 };
 
 const LEVEL_COLORS: Record<number, string> = {
-  0: "bg-warm-gray",
+  0: "bg-faded",
   1: "bg-sage",
   2: "bg-semantic-ochre",
-  3: "bg-moss",
+  3: "bg-accent",
   4: "bg-semantic-green",
 };
 
@@ -78,8 +78,8 @@ function LadderOverview({ processes }: { processes: ProcessInfo[] }) {
   return (
     <Card>
       <CardHeader>
-        <h2 className="text-lg font-semibold text-charcoal">Ladder Overview</h2>
-        <p className="text-xs text-warm-gray">
+        <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-ink">Ladder Overview</h2>
+        <p className="text-xs text-subtle">
           Distribution of {processes.length} processes across automation levels
         </p>
       </CardHeader>
@@ -107,7 +107,7 @@ function LadderOverview({ processes }: { processes: ProcessInfo[] }) {
           {distribution.map((count, level) => (
             <div key={level} className="flex items-center gap-1.5">
               <div className={`w-3 h-3 rounded-sm ${LEVEL_COLORS[level]}`} />
-              <span className="text-xs text-warm-gray">
+              <span className="text-xs text-subtle">
                 L{level} {LEVEL_LABELS[level]} ({count})
               </span>
             </div>
@@ -135,29 +135,29 @@ function AdvanceDialog({
   const nextLevel = Math.min(4, process.automation_level + 1);
 
   return (
-    <div className="fixed inset-0 bg-charcoal/50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-ink/50 flex items-center justify-center z-50">
       <Card className="max-w-md w-full mx-4">
         <CardHeader>
-          <h3 className="text-lg font-semibold text-charcoal">Advance Automation Level</h3>
+          <h3 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-ink">Advance Automation Level</h3>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <p className="text-sm text-charcoal font-medium">{process.name}</p>
-            <p className="text-xs text-warm-gray mt-1">
+            <p className="text-sm text-ink font-medium">{process.name}</p>
+            <p className="text-xs text-subtle mt-1">
               L{process.automation_level} {LEVEL_LABELS[process.automation_level]} &rarr;{" "}
               L{nextLevel} {LEVEL_LABELS[nextLevel]}
             </p>
           </div>
 
-          <div className="bg-parchment rounded-lg p-3">
-            <p className="text-xs font-medium text-charcoal mb-1">
+          <div className="bg-canvas rounded-lg p-3">
+            <p className="text-xs font-medium text-ink mb-1">
               What changes at L{nextLevel}:
             </p>
-            <p className="text-xs text-warm-gray">{LEVEL_DESCRIPTIONS[nextLevel]}</p>
+            <p className="text-xs text-subtle">{LEVEL_DESCRIPTIONS[nextLevel]}</p>
           </div>
 
           <div>
-            <label className="text-xs font-medium text-charcoal block mb-1">
+            <label className="text-xs font-medium text-ink block mb-1">
               Justification (required)
             </label>
             <Input
@@ -252,13 +252,13 @@ function ProcessListTable({
     <>
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold text-charcoal">Process List</h2>
+          <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-ink">Process List</h2>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-warm-border text-left text-warm-gray">
+                <tr className="border-b border-line text-left text-subtle">
                   <th className="px-4 py-2">Process</th>
                   <th className="px-4 py-2">Level</th>
                   <th className="px-4 py-2">Owner</th>
@@ -272,11 +272,11 @@ function ProcessListTable({
                   return (
                     <tr
                       key={p.id}
-                      className="border-b border-warm-border/50 hover:bg-parchment/50"
+                      className="border-b border-line/50 hover:bg-canvas/50"
                     >
                       <td className="px-4 py-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-charcoal font-medium">{p.name}</span>
+                          <span className="text-ink font-medium">{p.name}</span>
                           {isSacred && (
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border border-brass text-brass bg-brass/10">
                               Sacred
@@ -290,19 +290,19 @@ function ProcessListTable({
                             <div
                               key={level}
                               className={`w-4 h-2 rounded-sm ${
-                                level <= p.automation_level ? "bg-moss" : "bg-warm-border"
+                                level <= p.automation_level ? "bg-accent" : "bg-line"
                               }`}
                             />
                           ))}
-                          <span className="ml-1 text-warm-gray">
+                          <span className="ml-1 text-subtle">
                             L{p.automation_level}
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-2 text-warm-gray">
+                      <td className="px-4 py-2 text-subtle">
                         {userNameMap[p.owner_id] ?? "Unknown"}
                       </td>
-                      <td className="px-4 py-2 text-warm-gray">
+                      <td className="px-4 py-2 text-subtle">
                         {p.linked_kpi_ids?.length ?? 0}
                       </td>
                       <td className="px-4 py-2">
@@ -315,7 +315,7 @@ function ProcessListTable({
                             Advance
                           </Button>
                         ) : isSacred ? (
-                          <span className="text-warm-gray text-[10px]">Locked</span>
+                          <span className="text-subtle text-[10px]">Locked</span>
                         ) : (
                           <span className="text-semantic-green text-[10px]">Max level</span>
                         )}
@@ -348,21 +348,21 @@ function AgentStatusSection({ agents }: { agents: AgentInfo[] }) {
   return (
     <Card>
       <CardHeader>
-        <h2 className="text-lg font-semibold text-charcoal">Agent Status</h2>
+        <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-ink">Agent Status</h2>
       </CardHeader>
       <CardContent>
         {agents.length === 0 ? (
-          <p className="text-sm text-warm-gray">No agents configured.</p>
+          <p className="text-sm text-subtle">No agents configured.</p>
         ) : (
           <div className="space-y-2">
             {agents.map((a) => (
               <div
                 key={a.id}
-                className="flex items-center justify-between py-2 border-b border-warm-border/50 last:border-0"
+                className="flex items-center justify-between py-2 border-b border-line/50 last:border-0"
               >
                 <div>
-                  <p className="text-sm font-medium text-charcoal">{a.name}</p>
-                  <p className="text-xs text-warm-gray">{a.category}</p>
+                  <p className="text-sm font-medium text-ink">{a.name}</p>
+                  <p className="text-xs text-subtle">{a.category}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1">
@@ -370,12 +370,12 @@ function AgentStatusSection({ agents }: { agents: AgentInfo[] }) {
                       <div
                         key={level}
                         className={`w-3 h-2 rounded-sm ${
-                          level <= a.automation_level ? "bg-moss" : "bg-warm-border"
+                          level <= a.automation_level ? "bg-accent" : "bg-line"
                         }`}
                       />
                     ))}
                   </div>
-                  <span className="text-xs text-warm-gray">
+                  <span className="text-xs text-subtle">
                     L{a.automation_level} {LEVEL_LABELS[a.automation_level]}
                   </span>
                   <Badge
@@ -450,27 +450,27 @@ function SacredWorkSection({
   return (
     <Card className="border-brass" style={{ borderColor: "var(--color-brass)", borderWidth: "2px" }}>
       <CardHeader>
-        <h2 className="text-lg font-semibold text-charcoal">Sacred Work</h2>
-        <p className="text-xs text-warm-gray">
+        <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-ink">Sacred Work</h2>
+        <p className="text-xs text-subtle">
           Processes on this list cannot have their automation level raised above L0.
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
         {/* Current sacred processes */}
         {sacredProcesses.length === 0 ? (
-          <p className="text-sm text-warm-gray">No processes marked as sacred.</p>
+          <p className="text-sm text-subtle">No processes marked as sacred.</p>
         ) : (
           <div className="space-y-2">
             {sacredProcesses.map((p) => (
               <div
                 key={p.id}
-                className="flex items-center justify-between py-2 px-3 rounded-lg bg-parchment"
+                className="flex items-center justify-between py-2 px-3 rounded-lg bg-canvas"
               >
                 <div className="flex items-center gap-2">
                   <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border border-brass text-brass bg-brass/10">
                     Sacred
                   </span>
-                  <span className="text-sm text-charcoal">{p.name}</span>
+                  <span className="text-sm text-ink">{p.name}</span>
                 </div>
                 <Button
                   size="sm"
@@ -489,7 +489,7 @@ function SacredWorkSection({
           <select
             value={addingProcessId}
             onChange={(e) => setAddingProcessId(e.target.value)}
-            className="flex-1 text-sm border border-warm-border rounded-lg px-3 py-1.5 bg-ivory text-charcoal"
+            className="flex-1 text-sm border border-line rounded-lg px-3 py-1.5 bg-surface text-ink"
           >
             <option value="">Select a process to protect...</option>
             {nonSacredProcesses.map((p) => (
@@ -507,7 +507,7 @@ function SacredWorkSection({
           </Button>
         </div>
 
-        {saving && <p className="text-xs text-warm-gray">Saving...</p>}
+        {saving && <p className="text-xs text-subtle">Saving...</p>}
       </CardContent>
     </Card>
   );
@@ -595,15 +595,15 @@ function MonthlyAudit({
   return (
     <Card>
       <CardHeader>
-        <h2 className="text-lg font-semibold text-charcoal">Monthly Audit Checklist</h2>
-        <p className="text-xs text-warm-gray">
+        <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-ink">Monthly Audit Checklist</h2>
+        <p className="text-xs text-subtle">
           Review L0-L2 processes and assess which can be advanced.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
         {!auditActive ? (
           <div className="text-center py-4">
-            <p className="text-sm text-warm-gray mb-3">
+            <p className="text-sm text-subtle mb-3">
               {auditableProcesses.length} processes at L0-L2 to review.
             </p>
             <Button
@@ -621,33 +621,33 @@ function MonthlyAudit({
           <div className="space-y-4">
             {/* Progress bar */}
             <div className="space-y-1">
-              <div className="flex justify-between text-xs text-warm-gray">
+              <div className="flex justify-between text-xs text-subtle">
                 <span>
                   Process {currentIndex + 1} of {auditableProcesses.length}
                 </span>
                 <span>{progress}%</span>
               </div>
-              <div className="h-2 bg-warm-border rounded-full overflow-hidden">
+              <div className="h-2 bg-line rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-moss rounded-full transition-all"
+                  className="h-full bg-accent rounded-full transition-all"
                   style={{ width: `${progress}%` }}
                 />
               </div>
             </div>
 
             {/* Current process */}
-            <div className="bg-parchment rounded-lg p-4 space-y-2">
-              <h3 className="text-sm font-semibold text-charcoal">{currentProcess.name}</h3>
+            <div className="bg-canvas rounded-lg p-4 space-y-2">
+              <h3 className="text-sm font-semibold text-ink">{currentProcess.name}</h3>
               {currentProcess.description && (
-                <p className="text-xs text-warm-gray">{currentProcess.description}</p>
+                <p className="text-xs text-subtle">{currentProcess.description}</p>
               )}
               <div className="flex items-center gap-2">
-                <span className="text-xs text-warm-gray">
+                <span className="text-xs text-subtle">
                   Current: L{currentProcess.automation_level}{" "}
                   {LEVEL_LABELS[currentProcess.automation_level]}
                 </span>
-                <span className="text-xs text-warm-gray">&rarr;</span>
-                <span className="text-xs text-charcoal font-medium">
+                <span className="text-xs text-subtle">&rarr;</span>
+                <span className="text-xs text-ink font-medium">
                   L{Math.min(4, currentProcess.automation_level + 1)}{" "}
                   {LEVEL_LABELS[Math.min(4, currentProcess.automation_level + 1)]}
                 </span>
@@ -656,7 +656,7 @@ function MonthlyAudit({
 
             {/* Response buttons */}
             <div className="flex items-center gap-3">
-              <p className="text-sm text-charcoal">Can this process be advanced?</p>
+              <p className="text-sm text-ink">Can this process be advanced?</p>
               <div className="flex gap-2 ml-auto">
                 <Button size="sm" onClick={() => handleResponse("yes")}>
                   Yes
@@ -681,9 +681,9 @@ function MonthlyAudit({
         ) : (
           <div className="text-center py-4">
             {saving ? (
-              <p className="text-sm text-warm-gray">Saving audit results...</p>
+              <p className="text-sm text-subtle">Saving audit results...</p>
             ) : (
-              <p className="text-sm text-warm-gray">Audit complete.</p>
+              <p className="text-sm text-subtle">Audit complete.</p>
             )}
           </div>
         )}
@@ -717,8 +717,8 @@ export function AutomationLadderView({
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-charcoal">Automation Ladder</h1>
-        <p className="text-sm text-warm-gray mt-1">
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] text-ink">Automation Ladder</h1>
+        <p className="text-sm text-subtle mt-1">
           Track and advance process automation across your organization.
         </p>
       </div>

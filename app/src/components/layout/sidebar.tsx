@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 import { useOptionalUserContext } from "@/hooks/use-user-context";
 import { NotificationBell } from "@/components/notification-bell";
 import { VentureSwitcher } from "@/components/layout/venture-switcher";
@@ -161,28 +162,45 @@ const iconMap: Record<string, React.ReactNode> = {
   ),
 };
 
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+  return (
+    <button
+      type="button"
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover transition-colors w-full"
+      aria-label="Toggle theme"
+    >
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+      </svg>
+      Theme
+    </button>
+  );
+}
+
 export function Sidebar() {
   const pathname = usePathname();
   const userCtx = useOptionalUserContext();
   const isAdmin = userCtx?.orgRole === "admin";
 
   return (
-    <aside className="flex flex-col w-64 bg-moss text-white min-h-screen">
-      <div className="px-6 py-5">
-        <h1 className="text-xl font-bold tracking-tight">TrueNorth</h1>
+    <aside className="flex flex-col w-[220px] bg-sidebar min-h-screen">
+      <div className="px-5 py-5">
+        <h1 className="font-display text-[18px] font-bold tracking-[-0.02em] text-sidebar-text-hover">TrueNorth</h1>
       </div>
       <VentureSwitcher />
       <NorthStarDistance />
-      <nav className="flex-1 px-3 space-y-4 overflow-y-auto">
-        {navigationGroups.map((group) => {
+      <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
+        {navigationGroups.map((group, groupIdx) => {
           const items = group.items.filter((item) => {
-            // Hide Portfolio for single-venture users
             if (item.href === "/portfolio" && userCtx?.isSingleVenture) return false;
             return true;
           });
           return (
           <div key={group.label}>
-            <p className="px-3 mb-1 text-[11px] font-semibold uppercase tracking-wider text-white/40">
+            {groupIdx > 0 && <div className="border-b border-sidebar-divider my-2" />}
+            <p className="px-3 mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.10em] text-sidebar-label">
               {group.label}
             </p>
             <div className="space-y-0.5">
@@ -192,10 +210,10 @@ export function Sidebar() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-colors ${
                       isActive
-                        ? "bg-white/15 text-white"
-                        : "text-white/70 hover:bg-white/10 hover:text-white"
+                        ? "bg-sidebar-active text-sidebar-text-active border-l-[2.5px] border-sidebar-bar"
+                        : "text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover"
                     }`}
                   >
                     {iconMap[item.icon]}
@@ -216,10 +234,10 @@ export function Sidebar() {
         {isAdmin && (
           <Link
             href="/settings"
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-colors ${
               pathname.startsWith("/settings")
-                ? "bg-white/15 text-white"
-                : "text-white/70 hover:bg-white/10 hover:text-white"
+                ? "bg-sidebar-active text-sidebar-text-active border-l-[2.5px] border-sidebar-bar"
+                : "text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover"
             }`}
           >
             {iconMap.settings}
@@ -229,15 +247,17 @@ export function Sidebar() {
 
         <Link
           href="/profile"
-          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-colors ${
             pathname.startsWith("/profile")
-              ? "bg-white/15 text-white"
-              : "text-white/70 hover:bg-white/10 hover:text-white"
+              ? "bg-sidebar-active text-sidebar-text-active border-l-[2.5px] border-sidebar-bar"
+              : "text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover"
           }`}
         >
           {iconMap.user}
           {userCtx?.fullName || "Profile"}
         </Link>
+
+        <ThemeToggle />
       </div>
     </aside>
   );

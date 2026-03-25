@@ -1,15 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Sora, IBM_Plex_Mono } from "next/font/google";
+import { Providers } from "./providers";
 import "./globals.css";
 
-const inter = Inter({
+const bricolageGrotesque = Bricolage_Grotesque({
+  variable: "--font-display",
+  subsets: ["latin"],
+});
+
+const sora = Sora({
   variable: "--font-sans",
   subsets: ["latin"],
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const ibmPlexMono = IBM_Plex_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -24,7 +31,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#5F6F52",
+  themeColor: "#1A1816",
 };
 
 export default function RootLayout({
@@ -35,10 +42,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${bricolageGrotesque.variable} ${sora.variable} ${ibmPlexMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-parchment text-charcoal font-sans">
-        {children}
+      <body className="min-h-full flex flex-col bg-canvas text-ink font-sans">
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

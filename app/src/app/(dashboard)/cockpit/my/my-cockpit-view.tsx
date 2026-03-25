@@ -37,9 +37,9 @@ export function MyCockpitView({
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">My Cockpit</h1>
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em]">My Cockpit</h1>
         {pulseStreak > 0 && (
-          <div className="flex items-center gap-1.5 text-sm text-moss font-medium">
+          <div className="flex items-center gap-1.5 text-sm text-accent font-medium">
             <span className="text-lg">🔥</span>
             {pulseStreak} day streak
           </div>
@@ -54,7 +54,7 @@ export function MyCockpitView({
           </CardHeader>
           <CardContent>
             {moves.length === 0 ? (
-              <p className="text-sm text-warm-gray">No active moves assigned to you.</p>
+              <p className="text-sm text-subtle">No active moves assigned to you.</p>
             ) : (
               <div className="space-y-2">
                 {moves.map((m) => (
@@ -62,10 +62,10 @@ export function MyCockpitView({
                     <div>
                       <p className="text-sm font-medium">{m.title}</p>
                       {m.bets && (
-                        <p className="text-xs text-warm-gray">{m.bets.outcome}</p>
+                        <p className="text-xs text-subtle">{m.bets.outcome}</p>
                       )}
                       {m.due_date && (
-                        <p className="text-xs text-warm-gray">
+                        <p className="text-xs text-subtle">
                           Due {new Date(m.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                         </p>
                       )}
@@ -87,14 +87,14 @@ export function MyCockpitView({
           </CardHeader>
           <CardContent>
             {kpis.length === 0 ? (
-              <p className="text-sm text-warm-gray">No KPIs owned by you.</p>
+              <p className="text-sm text-subtle">No KPIs owned by you.</p>
             ) : (
               <div className="space-y-2">
                 {kpis.map((k) => (
                   <div key={k.id} className="flex items-center justify-between">
                     <div>
                       <p className="text-sm">{k.name}</p>
-                      <p className="text-xs text-warm-gray font-mono">
+                      <p className="text-xs text-subtle font-mono">
                         {k.current_value ?? "—"} / {k.target ?? "—"} {k.unit ?? ""}
                       </p>
                     </div>
@@ -119,7 +119,7 @@ export function MyCockpitView({
                 {blockers.map((b) => (
                   <div key={b.id} className="text-sm">
                     <p>{b.description}</p>
-                    <p className="text-xs text-warm-gray">Severity: {b.severity}</p>
+                    <p className="text-xs text-subtle">Severity: {b.severity}</p>
                   </div>
                 ))}
               </div>

@@ -69,11 +69,11 @@ function PolicyCard({
     <Card>
       <CardContent className="pt-4 pb-4 space-y-2">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="text-sm font-semibold text-charcoal">
+          <h3 className="text-sm font-semibold text-ink">
             {policy.name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
           </h3>
         </div>
-        <p className="text-xs text-warm-gray">{policy.description}</p>
+        <p className="text-xs text-subtle">{policy.description}</p>
         <div className="flex flex-wrap items-center gap-2">
           <Badge status={badge.status} dot={false}>
             {badge.label}
@@ -87,7 +87,7 @@ function PolicyCard({
             </Badge>
           )}
         </div>
-        <p className="text-xs text-warm-gray italic">{policy.userExplanation}</p>
+        <p className="text-xs text-subtle italic">{policy.userExplanation}</p>
       </CardContent>
     </Card>
   );
@@ -138,11 +138,11 @@ function OverrideLogTable({
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-charcoal">Override Log (Last 90 Days)</h2>
+          <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-ink">Override Log (Last 90 Days)</h2>
           <select
             value={filterPolicy}
             onChange={(e) => setFilterPolicy(e.target.value)}
-            className="text-xs border border-warm-border rounded-lg px-2 py-1 bg-ivory text-charcoal"
+            className="text-xs border border-line rounded-lg px-2 py-1 bg-surface text-ink"
           >
             <option value="all">All Policies</option>
             {policyNames.map((name) => (
@@ -155,20 +155,20 @@ function OverrideLogTable({
       </CardHeader>
       <CardContent className="p-0">
         {filtered.length === 0 ? (
-          <p className="px-6 py-4 text-sm text-warm-gray">No overrides found.</p>
+          <p className="px-6 py-4 text-sm text-subtle">No overrides found.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-warm-border text-left text-warm-gray">
+                <tr className="border-b border-line text-left text-subtle">
                   <th
-                    className="px-4 py-2 cursor-pointer hover:text-charcoal"
+                    className="px-4 py-2 cursor-pointer hover:text-ink"
                     onClick={() => toggleSort("created_at")}
                   >
                     Date {sortField === "created_at" ? (sortAsc ? "^" : "v") : ""}
                   </th>
                   <th
-                    className="px-4 py-2 cursor-pointer hover:text-charcoal"
+                    className="px-4 py-2 cursor-pointer hover:text-ink"
                     onClick={() => toggleSort("policy_name")}
                   >
                     Policy {sortField === "policy_name" ? (sortAsc ? "^" : "v") : ""}
@@ -180,14 +180,14 @@ function OverrideLogTable({
               </thead>
               <tbody>
                 {filtered.map((o) => (
-                  <tr key={o.id} className="border-b border-warm-border/50 hover:bg-parchment/50">
+                  <tr key={o.id} className="border-b border-line/50 hover:bg-canvas/50">
                     <td className="px-4 py-2 whitespace-nowrap">
                       {new Date(o.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-2">{o.policy_name.replace(/_/g, " ")}</td>
                     <td className="px-4 py-2">{userNameMap[o.overridden_by] ?? "Unknown"}</td>
                     <td className="px-4 py-2 max-w-[200px] truncate">{o.justification}</td>
-                    <td className="px-4 py-2 text-warm-gray">
+                    <td className="px-4 py-2 text-subtle">
                       {o.entity_type ? `${o.entity_type}` : "—"}
                     </td>
                   </tr>
@@ -233,31 +233,31 @@ function OverrideAnalytics({ overrides }: { overrides: Override[] }) {
   return (
     <Card>
       <CardHeader>
-        <h2 className="text-lg font-semibold text-charcoal">Override Analytics</h2>
-        <p className="text-xs text-warm-gray">
+        <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-ink">Override Analytics</h2>
+        <p className="text-xs text-subtle">
           Where is the team pushing against constraints?
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Bar chart */}
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-charcoal">Overrides by Policy</h3>
+          <h3 className="text-sm font-medium text-ink">Overrides by Policy</h3>
           {countByPolicy.length === 0 ? (
-            <p className="text-xs text-warm-gray">No overrides in the last 90 days.</p>
+            <p className="text-xs text-subtle">No overrides in the last 90 days.</p>
           ) : (
             <div className="space-y-1.5">
               {countByPolicy.map(({ name, count }) => (
                 <div key={name} className="flex items-center gap-2">
-                  <span className="text-xs text-warm-gray w-40 truncate">
+                  <span className="text-xs text-subtle w-40 truncate">
                     {name.replace(/_/g, " ")}
                   </span>
-                  <div className="flex-1 bg-parchment rounded-full h-4 overflow-hidden">
+                  <div className="flex-1 bg-canvas rounded-full h-4 overflow-hidden">
                     <div
                       className="h-full bg-semantic-ochre rounded-full transition-all"
                       style={{ width: `${(count / maxCount) * 100}%` }}
                     />
                   </div>
-                  <span className="text-xs font-medium text-charcoal w-6 text-right">
+                  <span className="text-xs font-medium text-ink w-6 text-right">
                     {count}
                   </span>
                 </div>
@@ -269,12 +269,12 @@ function OverrideAnalytics({ overrides }: { overrides: Override[] }) {
         {/* Top justifications */}
         {topJustifications.length > 0 && (
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-charcoal">Top Justifications</h3>
+            <h3 className="text-sm font-medium text-ink">Top Justifications</h3>
             <div className="space-y-1">
               {topJustifications.map(({ text, count }, i) => (
                 <div key={i} className="flex items-start gap-2 text-xs">
-                  <span className="font-medium text-charcoal shrink-0">{count}x</span>
-                  <span className="text-warm-gray">{text}</span>
+                  <span className="font-medium text-ink shrink-0">{count}x</span>
+                  <span className="text-subtle">{text}</span>
                 </div>
               ))}
             </div>
@@ -344,11 +344,11 @@ function VenturePolicyToggles({
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-charcoal">Venture Policy Overrides</h2>
+          <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-ink">Venture Policy Overrides</h2>
           <select
             value={selectedVenture}
             onChange={(e) => setSelectedVenture(e.target.value)}
-            className="text-xs border border-warm-border rounded-lg px-2 py-1 bg-ivory text-charcoal"
+            className="text-xs border border-line rounded-lg px-2 py-1 bg-surface text-ink"
           >
             {ventures.map((v) => (
               <option key={v.id} value={v.id}>
@@ -359,7 +359,7 @@ function VenturePolicyToggles({
         </div>
       </CardHeader>
       <CardContent>
-        <p className="text-xs text-warm-gray mb-3">
+        <p className="text-xs text-subtle mb-3">
           Disable specific overrideable policies for this venture. Hard-block policies cannot be disabled.
         </p>
         <div className="space-y-2">
@@ -368,19 +368,19 @@ function VenturePolicyToggles({
             return (
               <label
                 key={p.name}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-parchment cursor-pointer"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-canvas cursor-pointer"
               >
                 <input
                   type="checkbox"
                   checked={!isDisabled}
                   onChange={() => togglePolicy(p.name)}
-                  className="rounded border-warm-border text-moss focus:ring-moss"
+                  className="rounded border-line text-accent focus:ring-accent-glow"
                 />
                 <div className="flex-1">
-                  <span className="text-sm text-charcoal">
+                  <span className="text-sm text-ink">
                     {p.name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
                   </span>
-                  <p className="text-xs text-warm-gray">{p.description}</p>
+                  <p className="text-xs text-subtle">{p.description}</p>
                 </div>
                 {isDisabled && (
                   <Badge status="yellow" dot={false}>
@@ -391,7 +391,7 @@ function VenturePolicyToggles({
             );
           })}
         </div>
-        {saving && <p className="text-xs text-warm-gray mt-2">Saving...</p>}
+        {saving && <p className="text-xs text-subtle mt-2">Saving...</p>}
       </CardContent>
     </Card>
   );
@@ -427,15 +427,15 @@ export function PolicyDashboardView({
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-charcoal">Policy Dashboard</h1>
-        <p className="text-sm text-warm-gray mt-1">
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] text-ink">Policy Dashboard</h1>
+        <p className="text-sm text-subtle mt-1">
           {policies.length} active policies governing your organization.
         </p>
       </div>
 
       {/* Active Policies Grid */}
       <div>
-        <h2 className="text-lg font-semibold text-charcoal mb-3">Active Policies</h2>
+        <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-ink mb-3">Active Policies</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {policies.map((p) => (
             <PolicyCard

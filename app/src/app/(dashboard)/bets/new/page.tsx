@@ -86,7 +86,7 @@ export default function NewBetPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Create Bet</h1>
+      <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6">Create Bet</h1>
 
       <Card>
         <form onSubmit={handleSubmit}>

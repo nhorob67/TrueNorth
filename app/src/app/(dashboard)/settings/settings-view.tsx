@@ -116,14 +116,14 @@ function VenturesSection({ orgId, ventures: initialVentures, userId }: { orgId: 
     <Card>
       <CardHeader>
         <h2 className="text-sm font-semibold">Ventures</h2>
-        <p className="text-xs text-warm-gray">
+        <p className="text-xs text-subtle">
           Manage your organization&apos;s ventures. Each venture is an independent product or initiative.
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="space-y-2">
           {ventures.map((v) => (
-            <div key={v.id} className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-parchment">
+            <div key={v.id} className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-canvas">
               {editingId === v.id ? (
                 <div className="flex items-center gap-2 flex-1">
                   <Input
@@ -145,7 +145,7 @@ function VenturesSection({ orgId, ventures: initialVentures, userId }: { orgId: 
                   <button
                     type="button"
                     onClick={() => { setEditingId(v.id); setEditName(v.name); }}
-                    className="text-xs text-warm-gray hover:text-charcoal transition-colors"
+                    className="text-xs text-subtle hover:text-ink transition-colors"
                   >
                     Edit
                   </button>
@@ -333,7 +333,7 @@ function DiscordIntegrationSection({
     <Card>
       <CardHeader>
         <h2 className="text-sm font-semibold">Discord Integration</h2>
-        <p className="text-xs text-warm-gray">
+        <p className="text-xs text-subtle">
           Paste a Discord webhook URL to receive team notifications in a channel.
         </p>
       </CardHeader>
@@ -358,7 +358,7 @@ function DiscordIntegrationSection({
           </Button>
         </div>
         {message && (
-          <p className="text-sm text-warm-gray">{message}</p>
+          <p className="text-sm text-subtle">{message}</p>
         )}
       </CardContent>
     </Card>
@@ -417,7 +417,7 @@ function BrandVoiceSection({
     <Card>
       <CardHeader>
         <h2 className="text-sm font-semibold">Brand Voice</h2>
-        <p className="text-xs text-warm-gray">
+        <p className="text-xs text-subtle">
           Describe your organization&apos;s brand voice. The Content Copilot will use
           this to match your tone when drafting, rewriting, and continuing content.
         </p>
@@ -427,14 +427,14 @@ function BrandVoiceSection({
           value={brandVoice}
           onChange={(e) => setBrandVoice(e.target.value)}
           placeholder="e.g., We write in a conversational but authoritative tone. We use short sentences and active voice. We avoid jargon but aren't afraid of technical terms when they're precise. Our audience is experienced digital business operators..."
-          className="w-full min-h-[120px] text-sm border border-warm-border rounded-lg px-3 py-2 bg-ivory text-charcoal placeholder:text-warm-gray/60 outline-none focus:ring-2 focus:ring-moss/30 resize-y"
+          className="w-full min-h-[120px] text-sm border border-line rounded-lg px-3 py-2 bg-surface text-ink placeholder:text-subtle/60 outline-none focus:ring-2 focus:ring-accent-glow/30 resize-y"
         />
         <div className="flex items-center gap-2">
           <Button size="sm" onClick={handleSave} disabled={saving}>
             {saving ? "Saving..." : "Save Brand Voice"}
           </Button>
           {message && (
-            <span className="text-xs text-warm-gray">{message}</span>
+            <span className="text-xs text-subtle">{message}</span>
           )}
         </div>
       </CardContent>
@@ -496,7 +496,7 @@ function QuietHoursSection({
     <Card>
       <CardHeader>
         <h2 className="text-sm font-semibold">Quiet Hours</h2>
-        <p className="text-xs text-warm-gray">
+        <p className="text-xs text-subtle">
           Non-immediate notifications are held during quiet hours.
         </p>
       </CardHeader>
@@ -539,7 +539,7 @@ function QuietHoursSection({
               label="Timezone"
               placeholder="America/Chicago"
             />
-            <p className="text-xs text-warm-gray">
+            <p className="text-xs text-subtle">
               Quiet: {formatHour(startHour)} → {formatHour(endHour)}
             </p>
           </>
@@ -562,11 +562,11 @@ export function SettingsView({
   quietHours,
   userId,
 }: SettingsProps) {
-  if (!org) return <p className="text-warm-gray">No organization found.</p>;
+  if (!org) return <p className="text-subtle">No organization found.</p>;
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Settings</h1>
+      <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6">Settings</h1>
 
       <div className="space-y-6">
         {/* Organization Info */}
@@ -577,9 +577,9 @@ export function SettingsView({
           <CardContent>
             <p className="text-sm">
               <span className="font-medium">{org.name}</span>
-              <span className="text-warm-gray ml-2">({org.slug})</span>
+              <span className="text-subtle ml-2">({org.slug})</span>
             </p>
-            <p className="text-xs text-warm-gray mt-1">
+            <p className="text-xs text-subtle mt-1">
               {ventures.length} venture{ventures.length !== 1 ? "s" : ""}:{" "}
               {ventures.map((v) => v.name).join(", ")}
             </p>
@@ -619,7 +619,7 @@ export function SettingsView({
 
               {pendingInvites.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-xs font-semibold text-warm-gray uppercase mb-2">
+                  <p className="text-xs font-semibold text-subtle uppercase mb-2">
                     Pending Invites
                   </p>
                   <div className="space-y-1">
@@ -633,7 +633,7 @@ export function SettingsView({
                           <span>{invite.email}</span>
                           <div className="flex items-center gap-2">
                             <Badge status="neutral">{invite.role}</Badge>
-                            <span className="text-xs text-warm-gray">
+                            <span className="text-xs text-subtle">
                               {new Date(invite.created_at).toLocaleDateString()}
                             </span>
                           </div>

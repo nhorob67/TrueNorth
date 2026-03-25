@@ -67,11 +67,11 @@ interface TimelineEntry {
 }
 
 const typeColors: Record<TimelineEntryType, string> = {
-  bet: "bg-moss border-moss",
-  move: "bg-clay border-clay",
+  bet: "bg-accent border-accent",
+  move: "bg-cta border-accent",
   kpi: "bg-brass border-brass",
   decision: "bg-sage border-sage",
-  commitment: "bg-warm-gray border-warm-gray",
+  commitment: "bg-faded border-faded",
 };
 
 const typeLabels: Record<TimelineEntryType, string> = {
@@ -83,11 +83,11 @@ const typeLabels: Record<TimelineEntryType, string> = {
 };
 
 const typeBgColors: Record<TimelineEntryType, string> = {
-  bet: "bg-moss/10 text-moss",
-  move: "bg-clay/10 text-clay-text",
+  bet: "bg-accent/10 text-accent",
+  move: "bg-accent-dim text-accent",
   kpi: "bg-brass/10 text-brass-text",
   decision: "bg-sage/10 text-sage-text",
-  commitment: "bg-warm-gray/10 text-warm-gray",
+  commitment: "bg-faded/10 text-subtle",
 };
 
 // ============================================================
@@ -108,13 +108,13 @@ function TimelineItem({
         <div
           className={`w-3 h-3 rounded-full flex-shrink-0 ${typeColors[entry.type]}`}
         />
-        {!isLast && <div className="w-0.5 flex-1 bg-warm-border min-h-[40px]" />}
+        {!isLast && <div className="w-0.5 flex-1 bg-line min-h-[40px]" />}
       </div>
 
       {/* Content */}
       <div className="pb-6 flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-xs text-warm-gray">
+          <span className="text-xs text-subtle">
             {new Date(entry.date).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
@@ -127,9 +127,9 @@ function TimelineItem({
             {typeLabels[entry.type]}
           </span>
         </div>
-        <h3 className="text-sm font-medium text-charcoal">{entry.title}</h3>
+        <h3 className="text-sm font-medium text-ink">{entry.title}</h3>
         {entry.description && (
-          <p className="text-xs text-warm-gray mt-0.5">{entry.description}</p>
+          <p className="text-xs text-subtle mt-0.5">{entry.description}</p>
         )}
       </div>
     </div>
@@ -242,8 +242,8 @@ export function RetrospectiveView({
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Quarterly Retrospective</h1>
-          <p className="text-sm text-warm-gray mt-0.5">{quarterLabel}</p>
+          <h1 className="font-display text-[28px] font-bold tracking-[-0.03em]">Quarterly Retrospective</h1>
+          <p className="text-sm text-subtle mt-0.5">{quarterLabel}</p>
         </div>
         <Button
           variant="secondary"
@@ -261,16 +261,16 @@ export function RetrospectiveView({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <Card>
           <CardContent className="py-3 text-center">
-            <p className="text-2xl font-bold text-moss">{bets.length}</p>
-            <p className="text-xs text-warm-gray">Bets</p>
+            <p className="text-2xl font-bold text-accent">{bets.length}</p>
+            <p className="text-xs text-subtle">Bets</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="py-3 text-center">
-            <p className="text-2xl font-bold text-clay-text">
+            <p className="text-2xl font-bold text-accent">
               {shippedMoves.length}
             </p>
-            <p className="text-xs text-warm-gray">Moves Shipped</p>
+            <p className="text-xs text-subtle">Moves Shipped</p>
           </CardContent>
         </Card>
         <Card>
@@ -278,7 +278,7 @@ export function RetrospectiveView({
             <p className="text-2xl font-bold text-brass-text">
               {decisions.length}
             </p>
-            <p className="text-xs text-warm-gray">Decisions Made</p>
+            <p className="text-xs text-subtle">Decisions Made</p>
           </CardContent>
         </Card>
         <Card>
@@ -300,21 +300,21 @@ export function RetrospectiveView({
                 </span>
               )}
             </div>
-            <p className="text-xs text-warm-gray">KPI Health</p>
+            <p className="text-xs text-subtle">KPI Health</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-1 bg-ivory border border-warm-border rounded-lg p-1 mb-6">
+      <div className="flex gap-1 bg-surface border border-line rounded-lg p-1 mb-6">
         {filterOptions.map((opt) => (
           <button
             key={opt.key}
             onClick={() => setFilter(opt.key)}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
               filter === opt.key
-                ? "bg-moss text-white"
-                : "text-warm-gray hover:text-charcoal"
+                ? "bg-accent text-white"
+                : "text-subtle hover:text-ink"
             }`}
           >
             {opt.label}
@@ -331,7 +331,7 @@ export function RetrospectiveView({
         </CardHeader>
         <CardContent>
           {filtered.length === 0 ? (
-            <p className="text-sm text-warm-gray py-4 text-center">
+            <p className="text-sm text-subtle py-4 text-center">
               No events for this quarter yet.
             </p>
           ) : (

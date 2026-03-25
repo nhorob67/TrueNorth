@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import dynamic from "next/dynamic";
 const TrueNorthEditor = dynamic(
   () => import("@/components/editor/truenorth-editor").then((m) => m.TrueNorthEditor),
-  { ssr: false, loading: () => <div className="h-96 bg-warm-border/20 animate-pulse rounded-lg" /> }
+  { ssr: false, loading: () => <div className="h-96 bg-line/20 animate-pulse rounded-lg" /> }
 );
 import { Comments } from "@/components/comments";
 import { VersionDiff } from "@/components/editor/version-diff";
@@ -55,8 +55,8 @@ const machineLabels: Record<MachineType, string> = {
 };
 
 const machineColors: Record<MachineType, string> = {
-  newsletter: "bg-moss/10 text-moss",
-  deep_content: "bg-clay/10 text-clay-text",
+  newsletter: "bg-accent/10 text-accent",
+  deep_content: "bg-accent-dim text-accent",
   short_form: "bg-brass/10 text-brass-text",
   live_event: "bg-sage/10 text-sage-text",
 };
@@ -105,12 +105,12 @@ function StatusStepper({
             disabled={!isNext}
             className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
               isCurrent
-                ? "bg-moss text-white"
+                ? "bg-accent text-white"
                 : isDone
                   ? "bg-semantic-green/10 text-semantic-green-text"
                   : isNext
-                    ? "bg-clay/10 text-clay-text hover:bg-clay/20 cursor-pointer"
-                    : "bg-warm-border/50 text-warm-gray"
+                    ? "bg-accent-dim text-accent hover:bg-accent-dim cursor-pointer"
+                    : "bg-line/50 text-subtle"
             }`}
             title={isNext ? `Advance to ${stageLabels[stage]}` : undefined}
           >
@@ -159,7 +159,7 @@ function CollaboratorAvatars({
       ))}
 
       {collaborators.length > 0 && (
-        <span className="text-xs text-warm-gray">
+        <span className="text-xs text-subtle">
           {collaborators.length} editing
         </span>
       )}
@@ -182,7 +182,7 @@ function VersionHistory({
 
   return (
     <div>
-      <h3 className="text-xs font-semibold text-warm-gray uppercase mb-2">
+      <h3 className="text-xs font-semibold text-subtle uppercase mb-2">
         Version History
       </h3>
       <div className="space-y-1">
@@ -191,8 +191,8 @@ function VersionHistory({
             key={v.id}
             className="flex items-center justify-between gap-2 py-1"
           >
-            <div className="flex items-center gap-2 text-xs text-warm-gray">
-              <span className="w-1.5 h-1.5 rounded-full bg-moss/30" />
+            <div className="flex items-center gap-2 text-xs text-subtle">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent/30" />
               <span>
                 {new Date(v.created_at).toLocaleDateString("en-US", {
                   month: "short",
@@ -205,7 +205,7 @@ function VersionHistory({
             <button
               type="button"
               onClick={() => onCompare(v)}
-              className="text-xs text-clay-text hover:text-clay transition-colors"
+              className="text-xs text-accent hover:text-accent transition-colors"
             >
               Compare
             </button>
@@ -232,7 +232,7 @@ function SeoPanel({
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-xs font-semibold text-warm-gray uppercase">
+        <h3 className="text-xs font-semibold text-subtle uppercase">
           SEO Analysis
         </h3>
         <Button
@@ -248,21 +248,21 @@ function SeoPanel({
       {suggestions && (
         <div className="space-y-3">
           <div>
-            <label className="text-xs font-medium text-warm-gray">
+            <label className="text-xs font-medium text-subtle">
               Suggested Title
             </label>
-            <p className="text-sm text-charcoal mt-0.5">{suggestions.title}</p>
+            <p className="text-sm text-ink mt-0.5">{suggestions.title}</p>
           </div>
           <div>
-            <label className="text-xs font-medium text-warm-gray">
+            <label className="text-xs font-medium text-subtle">
               Meta Description
             </label>
-            <p className="text-xs text-charcoal mt-0.5 leading-relaxed">
+            <p className="text-xs text-ink mt-0.5 leading-relaxed">
               {suggestions.metaDescription}
             </p>
           </div>
           <div>
-            <label className="text-xs font-medium text-warm-gray">
+            <label className="text-xs font-medium text-subtle">
               Keywords
             </label>
             <div className="flex flex-wrap gap-1 mt-1">
@@ -274,11 +274,11 @@ function SeoPanel({
             </div>
           </div>
           <div>
-            <label className="text-xs font-medium text-warm-gray">
+            <label className="text-xs font-medium text-subtle">
               Readability Score
             </label>
             <div className="flex items-center gap-2 mt-1">
-              <div className="flex-1 h-2 bg-warm-border/30 rounded-full overflow-hidden">
+              <div className="flex-1 h-2 bg-line/30 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${
                     suggestions.readabilityScore >= 70
@@ -290,20 +290,20 @@ function SeoPanel({
                   style={{ width: `${suggestions.readabilityScore}%` }}
                 />
               </div>
-              <span className="text-xs font-medium text-charcoal">
+              <span className="text-xs font-medium text-ink">
                 {suggestions.readabilityScore}/100
               </span>
             </div>
           </div>
           {suggestions.improvements.length > 0 && (
             <div>
-              <label className="text-xs font-medium text-warm-gray">
+              <label className="text-xs font-medium text-subtle">
                 Improvements
               </label>
               <ul className="mt-1 space-y-1">
                 {suggestions.improvements.map((item, i) => (
-                  <li key={i} className="text-xs text-charcoal flex gap-1.5">
-                    <span className="text-clay-text flex-shrink-0">-</span>
+                  <li key={i} className="text-xs text-ink flex gap-1.5">
+                    <span className="text-accent flex-shrink-0">-</span>
                     {item}
                   </li>
                 ))}
@@ -484,7 +484,7 @@ export function ContentEditorView({
             isSynced={isSynced}
           />
           {lastSaved && (
-            <span className="text-xs text-warm-gray">
+            <span className="text-xs text-subtle">
               Saved at {lastSaved}
             </span>
           )}
@@ -518,7 +518,7 @@ export function ContentEditorView({
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full text-xl font-bold text-charcoal bg-transparent border-none outline-none placeholder:text-warm-gray"
+                className="w-full text-xl font-bold text-ink bg-transparent border-none outline-none placeholder:text-subtle"
                 placeholder="Content title..."
               />
               <div className="flex items-center gap-3 mt-2">
@@ -573,21 +573,21 @@ export function ContentEditorView({
           {/* Meta */}
           <Card>
             <CardHeader>
-              <h3 className="text-xs font-semibold text-warm-gray uppercase">
+              <h3 className="text-xs font-semibold text-subtle uppercase">
                 Details
               </h3>
             </CardHeader>
             <CardContent className="space-y-3">
               <div>
-                <label className="text-xs font-medium text-warm-gray">
+                <label className="text-xs font-medium text-subtle">
                   Status
                 </label>
-                <p className="text-sm font-medium text-charcoal">
+                <p className="text-sm font-medium text-ink">
                   {stageLabels[piece.lifecycle_status]}
                 </p>
               </div>
               <div>
-                <label className="text-xs font-medium text-warm-gray">
+                <label className="text-xs font-medium text-subtle">
                   Schedule Date
                 </label>
                 <Input
@@ -598,22 +598,22 @@ export function ContentEditorView({
               </div>
               {linkedFunnel && (
                 <div>
-                  <label className="text-xs font-medium text-warm-gray">
+                  <label className="text-xs font-medium text-subtle">
                     Linked Funnel
                   </label>
                   <a
                     href="/funnels"
-                    className="block text-sm text-clay-text hover:text-clay mt-0.5 transition-colors"
+                    className="block text-sm text-accent hover:text-accent mt-0.5 transition-colors"
                   >
                     {linkedFunnel.name} →
                   </a>
                 </div>
               )}
               <div>
-                <label className="text-xs font-medium text-warm-gray">
+                <label className="text-xs font-medium text-subtle">
                   Created
                 </label>
-                <p className="text-xs text-warm-gray">
+                <p className="text-xs text-subtle">
                   {new Date(piece.created_at).toLocaleDateString("en-US", {
                     month: "long",
                     day: "numeric",
@@ -648,7 +648,7 @@ export function ContentEditorView({
           {/* Comments */}
           <Card>
             <CardHeader>
-              <h3 className="text-xs font-semibold text-warm-gray uppercase">
+              <h3 className="text-xs font-semibold text-subtle uppercase">
                 Comments
               </h3>
             </CardHeader>

@@ -53,16 +53,16 @@ export function PolicyViolation({
         <p className="text-sm font-medium text-semantic-brick">
           {policy.description}
         </p>
-        <p className="text-sm text-charcoal mt-1">
+        <p className="text-sm text-ink mt-1">
           {policy.userExplanation}
         </p>
         {result.currentValue !== undefined && result.limit !== undefined && (
-          <p className="text-xs text-warm-gray mt-1">
+          <p className="text-xs text-subtle mt-1">
             Current: {result.currentValue} / Limit: {result.limit}
           </p>
         )}
         {result.violation && (
-          <p className="text-xs text-warm-gray mt-1">{result.violation}</p>
+          <p className="text-xs text-subtle mt-1">{result.violation}</p>
         )}
 
         {policy.overrideAllowed && !showOverride && (

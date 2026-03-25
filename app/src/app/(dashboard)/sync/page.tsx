@@ -8,7 +8,7 @@ export default async function SyncPage() {
     getCachedUserContext(),
   ]);
 
-  if (!ctx) return <p className="text-warm-gray p-8">Please sign in to access Weekly Sync.</p>;
+  if (!ctx) return <p className="text-subtle p-8">Please sign in to access Weekly Sync.</p>;
 
   // Red/Yellow KPIs with action playbooks
   const { data: kpis } = await supabase

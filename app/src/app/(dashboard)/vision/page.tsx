@@ -8,7 +8,7 @@ export default async function VisionPage() {
     getCachedUserContext(),
   ]);
 
-  if (!ctx) return <p className="text-warm-gray p-8">Please sign in to view the Vision Board.</p>;
+  if (!ctx) return <p className="text-subtle p-8">Please sign in to view the Vision Board.</p>;
 
   const { data: vision } = await supabase
     .from("visions")

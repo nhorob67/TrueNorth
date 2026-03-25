@@ -73,9 +73,9 @@ export function TodoList({
             type="checkbox"
             checked={todo.completed}
             onChange={() => toggleTodo(todo.id, todo.completed)}
-            className="rounded border-warm-border text-moss focus:ring-moss/20"
+            className="rounded border-line text-accent focus:ring-accent-glow/20"
           />
-          <span className={todo.completed ? "line-through text-warm-gray" : ""}>
+          <span className={todo.completed ? "line-through text-subtle" : ""}>
             {todo.title}
           </span>
         </label>
@@ -87,7 +87,7 @@ export function TodoList({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Add a sub-task..."
-          className="flex-1 rounded-lg border border-warm-border bg-ivory px-2 py-1 text-xs focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+          className="flex-1 rounded-lg border border-line bg-surface px-2 py-1 text-xs focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
         />
       </form>
     </div>

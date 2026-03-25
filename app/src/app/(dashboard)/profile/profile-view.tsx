@@ -60,7 +60,7 @@ interface Commitment {
 function MetricsMoved({ kpis }: { kpis: Kpi[] }) {
   if (kpis.length === 0) {
     return (
-      <p className="text-xs text-warm-gray">
+      <p className="text-xs text-subtle">
         No KPIs assigned. KPI owners appear here with live health status.
       </p>
     );
@@ -71,11 +71,11 @@ function MetricsMoved({ kpis }: { kpis: Kpi[] }) {
       {kpis.map((kpi) => (
         <div
           key={kpi.id}
-          className="flex items-center justify-between py-1.5 border-b border-warm-border last:border-0"
+          className="flex items-center justify-between py-1.5 border-b border-line last:border-0"
         >
           <div>
-            <p className="text-sm text-charcoal">{kpi.name}</p>
-            <p className="text-xs text-warm-gray">
+            <p className="text-sm text-ink">{kpi.name}</p>
+            <p className="text-xs text-subtle">
               {kpi.current_value ?? "—"}
               {kpi.target !== null && ` / ${kpi.target}`}
               {kpi.unit && ` ${kpi.unit}`}
@@ -124,53 +124,53 @@ function RoleCardEditor({
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-charcoal mb-1">
+        <label className="block text-sm font-medium text-ink mb-1">
           Outcomes Owned
         </label>
         <textarea
           value={outcomes}
           onChange={(e) => setOutcomes(e.target.value)}
           placeholder="One outcome per line..."
-          className="w-full min-h-[80px] rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+          className="w-full min-h-[80px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
         />
-        <p className="text-xs text-warm-gray mt-0.5">
+        <p className="text-xs text-subtle mt-0.5">
           What business outcomes are you accountable for?
         </p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-charcoal mb-1">
+        <label className="block text-sm font-medium text-ink mb-1">
           Decision Authority
         </label>
         <textarea
           value={authority}
           onChange={(e) => setAuthority(e.target.value)}
           placeholder="What decisions can you make without escalating?"
-          className="w-full min-h-[60px] rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+          className="w-full min-h-[60px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-charcoal mb-1">
+        <label className="block text-sm font-medium text-ink mb-1">
           Interfaces
         </label>
         <textarea
           value={interfaces}
           onChange={(e) => setInterfaces(e.target.value)}
           placeholder="Who do you regularly coordinate with and how?"
-          className="w-full min-h-[60px] rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+          className="w-full min-h-[60px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-charcoal mb-1">
+        <label className="block text-sm font-medium text-ink mb-1">
           Commitments Standard
         </label>
         <textarea
           value={standard}
           onChange={(e) => setStandard(e.target.value)}
           placeholder="What is your standard for keeping commitments?"
-          className="w-full min-h-[60px] rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+          className="w-full min-h-[60px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
         />
       </div>
 
@@ -227,7 +227,7 @@ export function ProfileView({
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
-  if (!profile) return <p className="text-warm-gray">Profile not found.</p>;
+  if (!profile) return <p className="text-subtle">Profile not found.</p>;
 
   async function handleProfileSave(e: React.FormEvent) {
     e.preventDefault();
@@ -286,13 +286,13 @@ export function ProfileView({
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Role Card</h1>
+      <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6">Role Card</h1>
 
       {/* Profile Header */}
       <Card className="mb-6">
         <CardContent className="py-5">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-moss/20 flex items-center justify-center text-2xl font-bold text-moss flex-shrink-0">
+            <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center text-2xl font-bold text-accent flex-shrink-0">
               {fullName.charAt(0) || "?"}
             </div>
             <div className="flex-1">
@@ -340,7 +340,7 @@ export function ProfileView({
                     </Button>
                   </div>
                   {profile.pulse_streak > 0 && (
-                    <p className="text-sm text-moss mt-0.5">
+                    <p className="text-sm text-accent mt-0.5">
                       {profile.pulse_streak} day pulse streak
                     </p>
                   )}
@@ -355,10 +355,10 @@ export function ProfileView({
         {/* Metrics Moved — Live KPI linkage */}
         <Card>
           <CardHeader>
-            <h2 className="text-sm font-semibold text-charcoal">
+            <h2 className="text-sm font-semibold text-ink">
               Metrics Moved
             </h2>
-            <p className="text-xs text-warm-gray">
+            <p className="text-xs text-subtle">
               KPIs you own — live health status
             </p>
           </CardHeader>
@@ -370,21 +370,21 @@ export function ProfileView({
         {/* Active Bets */}
         <Card>
           <CardHeader>
-            <h2 className="text-sm font-semibold text-charcoal">
+            <h2 className="text-sm font-semibold text-ink">
               Active Bets
             </h2>
           </CardHeader>
           <CardContent>
             {ownedBets.length === 0 ? (
-              <p className="text-xs text-warm-gray">No active bets assigned.</p>
+              <p className="text-xs text-subtle">No active bets assigned.</p>
             ) : (
               <div className="space-y-1.5">
                 {ownedBets.map((bet) => (
                   <div
                     key={bet.id}
-                    className="flex items-center justify-between py-1.5 border-b border-warm-border last:border-0"
+                    className="flex items-center justify-between py-1.5 border-b border-line last:border-0"
                   >
-                    <p className="text-sm text-charcoal">{bet.outcome}</p>
+                    <p className="text-sm text-ink">{bet.outcome}</p>
                     <Badge status={bet.health_status}>
                       {bet.health_status.toUpperCase()}
                     </Badge>
@@ -400,7 +400,7 @@ export function ProfileView({
       <Card className="mt-6">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-charcoal">
+            <h2 className="text-sm font-semibold text-ink">
               Role Card Details
             </h2>
             {!editingRoleCard && (
@@ -425,19 +425,19 @@ export function ProfileView({
             <div className="space-y-4">
               {/* Outcomes Owned */}
               <div>
-                <p className="text-xs font-semibold text-warm-gray uppercase mb-1">
+                <p className="text-xs font-semibold text-subtle uppercase mb-1">
                   Outcomes Owned
                 </p>
                 {roleCard.outcomes_owned.length === 0 ? (
-                  <p className="text-sm text-warm-gray">None defined.</p>
+                  <p className="text-sm text-subtle">None defined.</p>
                 ) : (
                   <ul className="space-y-1">
                     {roleCard.outcomes_owned.map((outcome, idx) => (
                       <li
                         key={idx}
-                        className="text-sm text-charcoal flex items-start gap-2"
+                        className="text-sm text-ink flex items-start gap-2"
                       >
-                        <span className="text-moss mt-0.5">•</span>
+                        <span className="text-accent mt-0.5">•</span>
                         {outcome}
                       </li>
                     ))}
@@ -448,10 +448,10 @@ export function ProfileView({
               {/* Decision Authority */}
               {roleCard.decision_authority && (
                 <div>
-                  <p className="text-xs font-semibold text-warm-gray uppercase mb-1">
+                  <p className="text-xs font-semibold text-subtle uppercase mb-1">
                     Decision Authority
                   </p>
-                  <p className="text-sm text-charcoal whitespace-pre-wrap">
+                  <p className="text-sm text-ink whitespace-pre-wrap">
                     {roleCard.decision_authority}
                   </p>
                 </div>
@@ -460,10 +460,10 @@ export function ProfileView({
               {/* Interfaces */}
               {roleCard.interfaces && (
                 <div>
-                  <p className="text-xs font-semibold text-warm-gray uppercase mb-1">
+                  <p className="text-xs font-semibold text-subtle uppercase mb-1">
                     Interfaces
                   </p>
-                  <p className="text-sm text-charcoal whitespace-pre-wrap">
+                  <p className="text-sm text-ink whitespace-pre-wrap">
                     {roleCard.interfaces}
                   </p>
                 </div>
@@ -472,17 +472,17 @@ export function ProfileView({
               {/* Commitments Standard */}
               {roleCard.commitments_standard && (
                 <div>
-                  <p className="text-xs font-semibold text-warm-gray uppercase mb-1">
+                  <p className="text-xs font-semibold text-subtle uppercase mb-1">
                     Commitments Standard
                   </p>
-                  <p className="text-sm text-charcoal whitespace-pre-wrap">
+                  <p className="text-sm text-ink whitespace-pre-wrap">
                     {roleCard.commitments_standard}
                   </p>
                 </div>
               )}
             </div>
           ) : (
-            <p className="text-sm text-warm-gray">
+            <p className="text-sm text-subtle">
               No role card defined yet. Set up your role card to define your
               outcomes, decision authority, and commitments standard.
             </p>
@@ -494,7 +494,7 @@ export function ProfileView({
       {activeCommitments.length > 0 && (
         <Card className="mt-6">
           <CardHeader>
-            <h2 className="text-sm font-semibold text-charcoal">
+            <h2 className="text-sm font-semibold text-ink">
               Active Commitments
             </h2>
           </CardHeader>
@@ -503,12 +503,12 @@ export function ProfileView({
               {activeCommitments.map((c) => (
                 <div
                   key={c.id}
-                  className="flex items-center justify-between py-1.5 border-b border-warm-border last:border-0"
+                  className="flex items-center justify-between py-1.5 border-b border-line last:border-0"
                 >
                   <div>
-                    <p className="text-sm text-charcoal">{c.description}</p>
+                    <p className="text-sm text-ink">{c.description}</p>
                     {c.due_date && (
-                      <p className="text-xs text-warm-gray">
+                      <p className="text-xs text-subtle">
                         Due{" "}
                         {new Date(c.due_date).toLocaleDateString("en-US", {
                           month: "short",

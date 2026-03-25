@@ -127,49 +127,49 @@ function RoleCardEditor({
   }
 
   return (
-    <div className="mt-3 space-y-3 border-t border-warm-border pt-3">
+    <div className="mt-3 space-y-3 border-t border-line pt-3">
       <div>
-        <label className="block text-sm font-medium text-charcoal mb-1">
+        <label className="block text-sm font-medium text-ink mb-1">
           Outcomes Owned
         </label>
         <textarea
           value={outcomes}
           onChange={(e) => setOutcomes(e.target.value)}
           placeholder="One outcome per line..."
-          className="w-full min-h-[60px] rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+          className="w-full min-h-[60px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-charcoal mb-1">
+        <label className="block text-sm font-medium text-ink mb-1">
           Decision Authority
         </label>
         <textarea
           value={authority}
           onChange={(e) => setAuthority(e.target.value)}
           placeholder="What can this agent decide autonomously?"
-          className="w-full min-h-[40px] rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+          className="w-full min-h-[40px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-charcoal mb-1">
+        <label className="block text-sm font-medium text-ink mb-1">
           Interfaces
         </label>
         <textarea
           value={interfaces}
           onChange={(e) => setInterfaces(e.target.value)}
           placeholder="What systems/people does this agent interact with?"
-          className="w-full min-h-[40px] rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+          className="w-full min-h-[40px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-charcoal mb-1">
+        <label className="block text-sm font-medium text-ink mb-1">
           Commitments Standard
         </label>
         <textarea
           value={standard}
           onChange={(e) => setStandard(e.target.value)}
           placeholder="SLA or quality standard for this agent"
-          className="w-full min-h-[40px] rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+          className="w-full min-h-[40px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
         />
       </div>
       <div className="flex gap-2">
@@ -187,10 +187,10 @@ function RoleCardEditor({
 function TrustMetricsSection({ metrics }: { metrics?: TrustMetrics }) {
   if (!metrics || metrics.totalActions === 0) {
     return (
-      <div className="border-t border-warm-border pt-3 mt-3">
-        <p className="text-xs font-semibold text-warm-gray uppercase mb-1">Trust Metrics</p>
-        <p className="text-sm text-warm-gray italic">No actions recorded yet.</p>
-        <Link href="/settings/ai-dashboard" className="text-xs text-moss hover:underline mt-1 inline-block">
+      <div className="border-t border-line pt-3 mt-3">
+        <p className="text-xs font-semibold text-subtle uppercase mb-1">Trust Metrics</p>
+        <p className="text-sm text-subtle italic">No actions recorded yet.</p>
+        <Link href="/settings/ai-dashboard" className="text-xs text-accent hover:underline mt-1 inline-block">
           View AI Dashboard
         </Link>
       </div>
@@ -198,34 +198,34 @@ function TrustMetricsSection({ metrics }: { metrics?: TrustMetrics }) {
   }
 
   function rateColor(rate: number | null): string {
-    if (rate === null) return "text-warm-gray";
+    if (rate === null) return "text-subtle";
     if (rate >= 80) return "text-semantic-green";
     if (rate >= 60) return "text-semantic-ochre";
     return "text-semantic-brick";
   }
 
   return (
-    <div className="border-t border-warm-border pt-3 mt-3">
-      <p className="text-xs font-semibold text-warm-gray uppercase mb-2">Trust Metrics (30d)</p>
+    <div className="border-t border-line pt-3 mt-3">
+      <p className="text-xs font-semibold text-subtle uppercase mb-2">Trust Metrics (30d)</p>
       <div className="grid grid-cols-3 gap-3 text-center">
         <div>
-          <p className="text-xs text-warm-gray">Acceptance</p>
+          <p className="text-xs text-subtle">Acceptance</p>
           <p className={`text-base font-bold ${rateColor(metrics.acceptanceRate)}`}>
             {metrics.acceptanceRate !== null ? `${metrics.acceptanceRate}%` : "-"}
           </p>
         </div>
         <div>
-          <p className="text-xs text-warm-gray">Override Rate</p>
+          <p className="text-xs text-subtle">Override Rate</p>
           <p className={`text-base font-bold ${rateColor(metrics.overrideRate !== null ? 100 - metrics.overrideRate : null)}`}>
             {metrics.overrideRate !== null ? `${metrics.overrideRate}%` : "-"}
           </p>
         </div>
         <div>
-          <p className="text-xs text-warm-gray">Total Actions</p>
-          <p className="text-base font-bold text-charcoal">{metrics.totalActions}</p>
+          <p className="text-xs text-subtle">Total Actions</p>
+          <p className="text-base font-bold text-ink">{metrics.totalActions}</p>
         </div>
       </div>
-      <Link href="/settings/ai-dashboard" className="text-xs text-moss hover:underline mt-2 inline-block">
+      <Link href="/settings/ai-dashboard" className="text-xs text-accent hover:underline mt-2 inline-block">
         View full AI Dashboard &rarr;
       </Link>
     </div>
@@ -246,7 +246,7 @@ function AgentCard({
   const [editingRoleCard, setEditingRoleCard] = useState(false);
 
   return (
-    <Card className="border-warm-border bg-ivory overflow-hidden">
+    <Card className="border-line bg-surface overflow-hidden">
       {/* Sage header bar */}
       <div className="h-2 bg-sage" />
       <CardHeader>
@@ -269,13 +269,13 @@ function AgentCard({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-semibold text-charcoal">{agent.name}</h3>
+                <h3 className="font-semibold text-ink">{agent.name}</h3>
                 <span className="inline-flex items-center rounded-full bg-sage px-2 py-0.5 text-xs font-medium text-white">
                   AI Agent
                 </span>
                 <StatusBadge status={agent.status} />
               </div>
-              <p className="text-sm text-warm-gray mt-0.5">
+              <p className="text-sm text-subtle mt-0.5">
                 {CATEGORY_LABELS[agent.category] ?? agent.category} &middot;{" "}
                 {AUTOMATION_LABELS[agent.automation_level] ??
                   `L${agent.automation_level}`}
@@ -293,22 +293,22 @@ function AgentCard({
       </CardHeader>
       <CardContent>
         {agent.description && (
-          <p className="text-sm text-charcoal mb-3">{agent.description}</p>
+          <p className="text-sm text-ink mb-3">{agent.description}</p>
         )}
 
         {/* Role card details */}
         {roleCard && !editingRoleCard && (
-          <div className="space-y-3 border-t border-warm-border pt-3">
+          <div className="space-y-3 border-t border-line pt-3">
             {roleCard.outcomes_owned.length > 0 && (
               <div>
-                <p className="text-xs font-semibold text-warm-gray uppercase mb-1">
+                <p className="text-xs font-semibold text-subtle uppercase mb-1">
                   Outcomes Owned
                 </p>
                 <ul className="space-y-0.5">
                   {roleCard.outcomes_owned.map((outcome, idx) => (
                     <li
                       key={idx}
-                      className="text-sm text-charcoal flex items-start gap-2"
+                      className="text-sm text-ink flex items-start gap-2"
                     >
                       <span className="text-sage mt-0.5">•</span>
                       {outcome}
@@ -319,30 +319,30 @@ function AgentCard({
             )}
             {roleCard.decision_authority && (
               <div>
-                <p className="text-xs font-semibold text-warm-gray uppercase mb-1">
+                <p className="text-xs font-semibold text-subtle uppercase mb-1">
                   Decision Authority
                 </p>
-                <p className="text-sm text-charcoal whitespace-pre-wrap">
+                <p className="text-sm text-ink whitespace-pre-wrap">
                   {roleCard.decision_authority}
                 </p>
               </div>
             )}
             {roleCard.interfaces && (
               <div>
-                <p className="text-xs font-semibold text-warm-gray uppercase mb-1">
+                <p className="text-xs font-semibold text-subtle uppercase mb-1">
                   Interfaces
                 </p>
-                <p className="text-sm text-charcoal whitespace-pre-wrap">
+                <p className="text-sm text-ink whitespace-pre-wrap">
                   {roleCard.interfaces}
                 </p>
               </div>
             )}
             {roleCard.commitments_standard && (
               <div>
-                <p className="text-xs font-semibold text-warm-gray uppercase mb-1">
+                <p className="text-xs font-semibold text-subtle uppercase mb-1">
                   Commitments Standard
                 </p>
-                <p className="text-sm text-charcoal whitespace-pre-wrap">
+                <p className="text-sm text-ink whitespace-pre-wrap">
                   {roleCard.commitments_standard}
                 </p>
               </div>
@@ -401,8 +401,8 @@ export function AgentsView({ agents, roleCards, orgId, trustMetrics }: AgentsVie
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-charcoal">AI Agents</h2>
-          <p className="text-warm-gray text-sm mt-1">
+          <h2 className="font-display text-[28px] font-bold tracking-[-0.03em] text-ink">AI Agents</h2>
+          <p className="text-subtle text-sm mt-1">
             Manage AI agents, their automation levels, and role cards
           </p>
         </div>
@@ -414,7 +414,7 @@ export function AgentsView({ agents, roleCards, orgId, trustMetrics }: AgentsVie
       </div>
 
       {seeding ? (
-        <p className="text-sm text-warm-gray">Setting up default agents...</p>
+        <p className="text-sm text-subtle">Setting up default agents...</p>
       ) : (
         <div className="space-y-4">
           {agents.map((agent) => (

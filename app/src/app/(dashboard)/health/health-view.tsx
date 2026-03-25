@@ -108,12 +108,12 @@ function MetricCard({
   return (
     <button
       onClick={onClick}
-      className={`bg-ivory border rounded-xl p-5 flex flex-col gap-3 text-left transition-all cursor-pointer hover:shadow-md ${
-        isExpanded ? "border-moss ring-2 ring-moss/20" : "border-warm-border"
+      className={`bg-surface border rounded-xl p-5 flex flex-col gap-3 text-left transition-all cursor-pointer hover:shadow-md ${
+        isExpanded ? "border-accent ring-2 ring-accent/20" : "border-line"
       }`}
     >
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-charcoal">{metric.label}</h3>
+        <h3 className="text-sm font-semibold text-ink">{metric.label}</h3>
         <div className="flex items-center gap-2">
           <span
             className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${colors.bg} ${colors.text}`}
@@ -122,7 +122,7 @@ function MetricCard({
             {metric.status}
           </span>
           <svg
-            className={`w-4 h-4 text-warm-gray transition-transform ${isExpanded ? "rotate-180" : ""}`}
+            className={`w-4 h-4 text-subtle transition-transform ${isExpanded ? "rotate-180" : ""}`}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -135,8 +135,8 @@ function MetricCard({
 
       <div className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-3xl font-bold font-mono text-charcoal">{metric.value}</p>
-          <p className="text-xs text-warm-gray mt-1">{metric.unit}</p>
+          <p className="text-3xl font-bold font-mono text-ink">{metric.value}</p>
+          <p className="text-xs text-subtle mt-1">{metric.unit}</p>
         </div>
         <Sparkline data={metric.sparkline} status={metric.status} />
       </div>
@@ -148,13 +148,13 @@ function MetricCard({
               ? "text-semantic-green"
               : metric.trend === "declining"
                 ? "text-semantic-brick"
-                : "text-warm-gray"
+                : "text-subtle"
           }
         >
           {trendIcons[metric.trend]} {metric.trend}
         </span>
         {metric.trend_delta !== 0 && (
-          <span className="text-warm-gray">
+          <span className="text-subtle">
             ({metric.trend_delta > 0 ? "+" : ""}
             {metric.trend_delta} pts)
           </span>
@@ -180,18 +180,18 @@ function DecisionVelocityDrillDown({ data }: { data: any }) {
     <div className="space-y-6">
       {/* Histogram */}
       <div>
-        <h4 className="text-sm font-semibold text-moss mb-3">Decision Time Distribution</h4>
+        <h4 className="text-sm font-semibold text-accent mb-3">Decision Time Distribution</h4>
         <div className="flex items-end gap-3 h-32">
           {Object.entries(histogram as Record<string, number>).map(([bucket, count]) => (
             <div key={bucket} className="flex-1 flex flex-col items-center gap-1">
-              <span className="text-xs font-mono text-charcoal">{count}</span>
-              <div className="w-full bg-warm-border/30 rounded-t-md relative" style={{ height: "100px" }}>
+              <span className="text-xs font-mono text-ink">{count}</span>
+              <div className="w-full bg-line/30 rounded-t-md relative" style={{ height: "100px" }}>
                 <div
-                  className="absolute bottom-0 w-full bg-moss/70 rounded-t-md transition-all"
+                  className="absolute bottom-0 w-full bg-accent/70 rounded-t-md transition-all"
                   style={{ height: `${maxBucket > 0 ? (count / maxBucket) * 100 : 0}%` }}
                 />
               </div>
-              <span className="text-xs text-warm-gray">{bucket}</span>
+              <span className="text-xs text-subtle">{bucket}</span>
             </div>
           ))}
         </div>
@@ -200,23 +200,23 @@ function DecisionVelocityDrillDown({ data }: { data: any }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Slowest Open Decisions */}
         <div>
-          <h4 className="text-sm font-semibold text-moss mb-3">Slowest Open Decisions</h4>
+          <h4 className="text-sm font-semibold text-accent mb-3">Slowest Open Decisions</h4>
           {slowest_open.length === 0 ? (
-            <p className="text-sm text-warm-gray">No open decisions</p>
+            <p className="text-sm text-subtle">No open decisions</p>
           ) : (
             <div className="space-y-2">
               {slowest_open.map((d: any) => (
                 <div
                   key={d.id}
-                  className="flex items-center justify-between bg-parchment rounded-lg px-3 py-2"
+                  className="flex items-center justify-between bg-canvas rounded-lg px-3 py-2"
                 >
                   <div className="min-w-0">
-                    <p className="text-sm text-charcoal truncate">{d.title}</p>
-                    <p className="text-xs text-warm-gray">{d.assigned_to}</p>
+                    <p className="text-sm text-ink truncate">{d.title}</p>
+                    <p className="text-xs text-subtle">{d.assigned_to}</p>
                   </div>
                   <span
                     className={`text-xs font-mono font-semibold flex-shrink-0 ml-2 ${
-                      d.days_open > 7 ? "text-semantic-brick" : d.days_open > 3 ? "text-semantic-ochre" : "text-charcoal"
+                      d.days_open > 7 ? "text-semantic-brick" : d.days_open > 3 ? "text-semantic-ochre" : "text-ink"
                     }`}
                   >
                     {d.days_open}d
@@ -229,13 +229,13 @@ function DecisionVelocityDrillDown({ data }: { data: any }) {
 
         {/* Per-Person Averages */}
         <div>
-          <h4 className="text-sm font-semibold text-moss mb-3">Per-Person Averages</h4>
+          <h4 className="text-sm font-semibold text-accent mb-3">Per-Person Averages</h4>
           {per_person_averages.length === 0 ? (
-            <p className="text-sm text-warm-gray">No data</p>
+            <p className="text-sm text-subtle">No data</p>
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-xs text-warm-gray border-b border-warm-border">
+                <tr className="text-xs text-subtle border-b border-line">
                   <th className="text-left pb-2">Person</th>
                   <th className="text-right pb-2">Avg Days</th>
                   <th className="text-right pb-2">Count</th>
@@ -243,10 +243,10 @@ function DecisionVelocityDrillDown({ data }: { data: any }) {
               </thead>
               <tbody>
                 {per_person_averages.map((p: any) => (
-                  <tr key={p.user_id} className="border-b border-warm-border/50">
-                    <td className="py-1.5 text-charcoal">{p.name}</td>
-                    <td className="py-1.5 text-right font-mono text-charcoal">{p.avg_days}d</td>
-                    <td className="py-1.5 text-right font-mono text-warm-gray">{p.count}</td>
+                  <tr key={p.user_id} className="border-b border-line/50">
+                    <td className="py-1.5 text-ink">{p.name}</td>
+                    <td className="py-1.5 text-right font-mono text-ink">{p.avg_days}d</td>
+                    <td className="py-1.5 text-right font-mono text-subtle">{p.count}</td>
                   </tr>
                 ))}
               </tbody>
@@ -269,7 +269,7 @@ function BlockerHalfLifeDrillDown({ data }: { data: any }) {
   const severityColors: Record<string, string> = {
     critical: "bg-semantic-brick",
     high: "bg-semantic-ochre",
-    medium: "bg-moss",
+    medium: "bg-accent",
     low: "bg-sage",
   };
 
@@ -279,21 +279,21 @@ function BlockerHalfLifeDrillDown({ data }: { data: any }) {
     <div className="space-y-6">
       {/* Severity Bars */}
       <div>
-        <h4 className="text-sm font-semibold text-moss mb-3">Resolution Time by Severity</h4>
+        <h4 className="text-sm font-semibold text-accent mb-3">Resolution Time by Severity</h4>
         <div className="space-y-3">
           {severity_breakdown.map((s: any) => (
             <div key={s.severity} className="flex items-center gap-3">
-              <span className="text-xs text-charcoal w-16 capitalize">{s.severity}</span>
-              <div className="flex-1 h-6 bg-warm-border/30 rounded-md relative overflow-hidden">
+              <span className="text-xs text-ink w-16 capitalize">{s.severity}</span>
+              <div className="flex-1 h-6 bg-line/30 rounded-md relative overflow-hidden">
                 <div
-                  className={`h-full rounded-md ${severityColors[s.severity] ?? "bg-moss"} opacity-70`}
+                  className={`h-full rounded-md ${severityColors[s.severity] ?? "bg-accent"} opacity-70`}
                   style={{ width: `${maxAvg > 0 ? (s.avg_days / maxAvg) * 100 : 0}%` }}
                 />
               </div>
-              <span className="text-xs font-mono text-charcoal w-16 text-right">
+              <span className="text-xs font-mono text-ink w-16 text-right">
                 {s.avg_days}d avg
               </span>
-              <span className="text-xs text-warm-gray w-8 text-right">{s.count}</span>
+              <span className="text-xs text-subtle w-8 text-right">{s.count}</span>
             </div>
           ))}
         </div>
@@ -302,15 +302,15 @@ function BlockerHalfLifeDrillDown({ data }: { data: any }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Longest Open */}
         <div>
-          <h4 className="text-sm font-semibold text-moss mb-3">Longest-Open Blockers</h4>
+          <h4 className="text-sm font-semibold text-accent mb-3">Longest-Open Blockers</h4>
           {longest_open.length === 0 ? (
-            <p className="text-sm text-warm-gray">No open blockers</p>
+            <p className="text-sm text-subtle">No open blockers</p>
           ) : (
             <div className="space-y-2">
               {longest_open.map((b: any) => (
                 <div
                   key={b.id}
-                  className="flex items-center justify-between bg-parchment rounded-lg px-3 py-2"
+                  className="flex items-center justify-between bg-canvas rounded-lg px-3 py-2"
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
@@ -320,18 +320,18 @@ function BlockerHalfLifeDrillDown({ data }: { data: any }) {
                             ? "bg-semantic-brick/10 text-semantic-brick"
                             : b.severity === "high"
                               ? "bg-semantic-ochre/10 text-semantic-ochre"
-                              : "bg-warm-border text-warm-gray"
+                              : "bg-line text-subtle"
                         }`}
                       >
                         {b.severity}
                       </span>
-                      <p className="text-sm text-charcoal truncate">{b.title}</p>
+                      <p className="text-sm text-ink truncate">{b.title}</p>
                     </div>
-                    <p className="text-xs text-warm-gray mt-0.5">{b.owner}</p>
+                    <p className="text-xs text-subtle mt-0.5">{b.owner}</p>
                   </div>
                   <span
                     className={`text-xs font-mono font-semibold flex-shrink-0 ml-2 ${
-                      b.days_open > 14 ? "text-semantic-brick" : b.days_open > 7 ? "text-semantic-ochre" : "text-charcoal"
+                      b.days_open > 14 ? "text-semantic-brick" : b.days_open > 7 ? "text-semantic-ochre" : "text-ink"
                     }`}
                   >
                     {b.days_open}d
@@ -344,13 +344,13 @@ function BlockerHalfLifeDrillDown({ data }: { data: any }) {
 
         {/* Per-Person Speed */}
         <div>
-          <h4 className="text-sm font-semibold text-moss mb-3">Resolution Speed by Person</h4>
+          <h4 className="text-sm font-semibold text-accent mb-3">Resolution Speed by Person</h4>
           {per_person_speed.length === 0 ? (
-            <p className="text-sm text-warm-gray">No data</p>
+            <p className="text-sm text-subtle">No data</p>
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-xs text-warm-gray border-b border-warm-border">
+                <tr className="text-xs text-subtle border-b border-line">
                   <th className="text-left pb-2">Person</th>
                   <th className="text-right pb-2">Avg Days</th>
                   <th className="text-right pb-2">Resolved</th>
@@ -358,10 +358,10 @@ function BlockerHalfLifeDrillDown({ data }: { data: any }) {
               </thead>
               <tbody>
                 {per_person_speed.map((p: any) => (
-                  <tr key={p.user_id} className="border-b border-warm-border/50">
-                    <td className="py-1.5 text-charcoal">{p.name}</td>
-                    <td className="py-1.5 text-right font-mono text-charcoal">{p.avg_days}d</td>
-                    <td className="py-1.5 text-right font-mono text-warm-gray">{p.count}</td>
+                  <tr key={p.user_id} className="border-b border-line/50">
+                    <td className="py-1.5 text-ink">{p.name}</td>
+                    <td className="py-1.5 text-right font-mono text-ink">{p.avg_days}d</td>
+                    <td className="py-1.5 text-right font-mono text-subtle">{p.count}</td>
                   </tr>
                 ))}
               </tbody>
@@ -385,9 +385,9 @@ function StrategyConnectionDrillDown({ data }: { data: any }) {
     <div className="space-y-6">
       {/* Team Heatmap */}
       <div>
-        <h4 className="text-sm font-semibold text-moss mb-3">Team Connection Heatmap</h4>
+        <h4 className="text-sm font-semibold text-accent mb-3">Team Connection Heatmap</h4>
         {team_heatmap.length === 0 ? (
-          <p className="text-sm text-warm-gray">No pulse data in this window</p>
+          <p className="text-sm text-subtle">No pulse data in this window</p>
         ) : (
           <div className="space-y-2">
             {team_heatmap.map((u: any) => {
@@ -399,17 +399,17 @@ function StrategyConnectionDrillDown({ data }: { data: any }) {
                     : "bg-semantic-brick";
               return (
                 <div key={u.user_id} className="flex items-center gap-3">
-                  <span className="text-sm text-charcoal w-28 truncate">{u.name}</span>
-                  <div className="flex-1 h-5 bg-warm-border/30 rounded-md relative overflow-hidden">
+                  <span className="text-sm text-ink w-28 truncate">{u.name}</span>
+                  <div className="flex-1 h-5 bg-line/30 rounded-md relative overflow-hidden">
                     <div
                       className={`h-full rounded-md ${barColor} opacity-70`}
                       style={{ width: `${u.connection_rate}%` }}
                     />
                   </div>
-                  <span className="text-xs font-mono text-charcoal w-12 text-right">
+                  <span className="text-xs font-mono text-ink w-12 text-right">
                     {u.connection_rate}%
                   </span>
-                  <span className="text-xs text-warm-gray w-20 text-right">
+                  <span className="text-xs text-subtle w-20 text-right">
                     {u.linked_items}/{u.total_items}
                   </span>
                 </div>
@@ -422,7 +422,7 @@ function StrategyConnectionDrillDown({ data }: { data: any }) {
       {/* Daily Trend */}
       {daily_trend.length > 1 && (
         <div>
-          <h4 className="text-sm font-semibold text-moss mb-3">Daily Connection Trend</h4>
+          <h4 className="text-sm font-semibold text-accent mb-3">Daily Connection Trend</h4>
           <DailyTrendChart data={daily_trend} />
         </div>
       )}
@@ -501,16 +501,16 @@ function ExecutionCadenceDrillDown({ data }: { data: any }) {
     <div className="space-y-6">
       {/* Per-Cadence Breakdown */}
       <div>
-        <h4 className="text-sm font-semibold text-moss mb-3">Cadence Breakdown</h4>
+        <h4 className="text-sm font-semibold text-accent mb-3">Cadence Breakdown</h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {cadences.map((c) => {
             const barColor =
               c.value >= 75 ? "bg-semantic-green" : c.value >= 50 ? "bg-semantic-ochre" : "bg-semantic-brick";
             return (
-              <div key={c.key} className="bg-parchment rounded-lg p-3">
-                <p className="text-xs text-warm-gray mb-2">{c.label}</p>
-                <p className="text-2xl font-bold font-mono text-charcoal">{c.value}%</p>
-                <div className="mt-2 h-1.5 bg-warm-border/50 rounded-full overflow-hidden">
+              <div key={c.key} className="bg-canvas rounded-lg p-3">
+                <p className="text-xs text-subtle mb-2">{c.label}</p>
+                <p className="text-2xl font-bold font-mono text-ink">{c.value}%</p>
+                <div className="mt-2 h-1.5 bg-line/50 rounded-full overflow-hidden">
                   <div className={`h-full rounded-full ${barColor}`} style={{ width: `${c.value}%` }} />
                 </div>
               </div>
@@ -521,19 +521,19 @@ function ExecutionCadenceDrillDown({ data }: { data: any }) {
 
       {/* Missed Cadence Log */}
       <div>
-        <h4 className="text-sm font-semibold text-moss mb-3">Missed Commitments</h4>
+        <h4 className="text-sm font-semibold text-accent mb-3">Missed Commitments</h4>
         {missed_cadence_log.length === 0 ? (
-          <p className="text-sm text-warm-gray">No missed commitments in this window</p>
+          <p className="text-sm text-subtle">No missed commitments in this window</p>
         ) : (
           <div className="space-y-2">
             {missed_cadence_log.map((m: any) => (
               <div
                 key={m.id}
-                className="flex items-center justify-between bg-parchment rounded-lg px-3 py-2"
+                className="flex items-center justify-between bg-canvas rounded-lg px-3 py-2"
               >
                 <div className="min-w-0">
-                  <p className="text-sm text-charcoal truncate">{m.title}</p>
-                  <p className="text-xs text-warm-gray">{m.owner}</p>
+                  <p className="text-sm text-ink truncate">{m.title}</p>
+                  <p className="text-xs text-subtle">{m.owner}</p>
                 </div>
                 <span className="text-xs font-mono text-semantic-brick flex-shrink-0 ml-2">
                   due {m.due_date ? new Date(m.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "N/A"}
@@ -559,19 +559,19 @@ function CrossVentureDrillDown({ data }: { data: any }) {
     <div className="space-y-6">
       {/* Top Cross-Venture Collaborators */}
       <div>
-        <h4 className="text-sm font-semibold text-moss mb-3">Top Cross-Venture Collaborators</h4>
+        <h4 className="text-sm font-semibold text-accent mb-3">Top Cross-Venture Collaborators</h4>
         {top_collaborators.length === 0 ? (
-          <p className="text-sm text-warm-gray">No cross-venture collaboration detected</p>
+          <p className="text-sm text-subtle">No cross-venture collaboration detected</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {top_collaborators.map((c: any) => (
-              <div key={c.user_id} className="bg-parchment rounded-lg p-3 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-moss/20 flex items-center justify-center text-moss text-sm font-semibold">
+              <div key={c.user_id} className="bg-canvas rounded-lg p-3 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent text-sm font-semibold">
                   {c.name.charAt(0)}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-charcoal truncate">{c.name}</p>
-                  <p className="text-xs text-warm-gray">
+                  <p className="text-sm font-medium text-ink truncate">{c.name}</p>
+                  <p className="text-xs text-subtle">
                     {c.ventures_touched} ventures, {c.comment_count} comments
                   </p>
                 </div>
@@ -583,13 +583,13 @@ function CrossVentureDrillDown({ data }: { data: any }) {
 
       {/* All Commenters Table */}
       <div>
-        <h4 className="text-sm font-semibold text-moss mb-3">Cross-Venture Activity</h4>
+        <h4 className="text-sm font-semibold text-accent mb-3">Cross-Venture Activity</h4>
         {all_commenters.length === 0 ? (
-          <p className="text-sm text-warm-gray">No data</p>
+          <p className="text-sm text-subtle">No data</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-xs text-warm-gray border-b border-warm-border">
+              <tr className="text-xs text-subtle border-b border-line">
                 <th className="text-left pb-2">Person</th>
                 <th className="text-right pb-2">Ventures</th>
                 <th className="text-right pb-2">Comments</th>
@@ -597,10 +597,10 @@ function CrossVentureDrillDown({ data }: { data: any }) {
             </thead>
             <tbody>
               {all_commenters.map((c: any) => (
-                <tr key={c.user_id} className="border-b border-warm-border/50">
-                  <td className="py-1.5 text-charcoal">{c.name}</td>
-                  <td className="py-1.5 text-right font-mono text-charcoal">{c.ventures_touched}</td>
-                  <td className="py-1.5 text-right font-mono text-warm-gray">{c.comment_count}</td>
+                <tr key={c.user_id} className="border-b border-line/50">
+                  <td className="py-1.5 text-ink">{c.name}</td>
+                  <td className="py-1.5 text-right font-mono text-ink">{c.ventures_touched}</td>
+                  <td className="py-1.5 text-right font-mono text-subtle">{c.comment_count}</td>
                 </tr>
               ))}
             </tbody>
@@ -635,25 +635,25 @@ function KillCourageDrillDown({ data }: { data: any }) {
     <div className="space-y-6">
       {/* Summary Stats */}
       <div className="flex gap-4">
-        <div className="bg-parchment rounded-lg p-3 flex-1 text-center">
+        <div className="bg-canvas rounded-lg p-3 flex-1 text-center">
           <p className="text-2xl font-bold font-mono text-semantic-brick">{summary.killed_count}</p>
-          <p className="text-xs text-warm-gray">Killed</p>
+          <p className="text-xs text-subtle">Killed</p>
         </div>
-        <div className="bg-parchment rounded-lg p-3 flex-1 text-center">
+        <div className="bg-canvas rounded-lg p-3 flex-1 text-center">
           <p className="text-2xl font-bold font-mono text-semantic-green">{summary.completed_count}</p>
-          <p className="text-xs text-warm-gray">Completed</p>
+          <p className="text-xs text-subtle">Completed</p>
         </div>
-        <div className="bg-parchment rounded-lg p-3 flex-1 text-center">
+        <div className="bg-canvas rounded-lg p-3 flex-1 text-center">
           <p className="text-2xl font-bold font-mono text-semantic-ochre">{summary.limping_count}</p>
-          <p className="text-xs text-warm-gray">Limping</p>
+          <p className="text-xs text-subtle">Limping</p>
         </div>
       </div>
 
       {/* Timeline */}
       <div>
-        <h4 className="text-sm font-semibold text-moss mb-3">Decision Timeline</h4>
+        <h4 className="text-sm font-semibold text-accent mb-3">Decision Timeline</h4>
         {timeline.length === 0 ? (
-          <p className="text-sm text-warm-gray">No bet decisions in this period</p>
+          <p className="text-sm text-subtle">No bet decisions in this period</p>
         ) : (
           <div className="space-y-2">
             {timeline.map((t: any) => {
@@ -661,13 +661,13 @@ function KillCourageDrillDown({ data }: { data: any }) {
               return (
                 <div
                   key={t.id}
-                  className="flex items-center gap-3 bg-parchment rounded-lg px-3 py-2"
+                  className="flex items-center gap-3 bg-canvas rounded-lg px-3 py-2"
                 >
-                  <span className="text-xs font-mono text-warm-gray w-20 flex-shrink-0">
+                  <span className="text-xs font-mono text-subtle w-20 flex-shrink-0">
                     {new Date(t.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </span>
-                  <span className={`w-2 h-2 rounded-full ${healthDot[t.health_at_decision] ?? "bg-warm-gray"}`} />
-                  <p className="text-sm text-charcoal truncate flex-1">{t.title}</p>
+                  <span className={`w-2 h-2 rounded-full ${healthDot[t.health_at_decision] ?? "bg-faded"}`} />
+                  <p className="text-sm text-ink truncate flex-1">{t.title}</p>
                   <span
                     className={`text-xs font-medium px-2 py-0.5 rounded-full ${colors.bg} ${colors.text}`}
                   >
@@ -692,8 +692,8 @@ function KillCourageDrillDown({ data }: { data: any }) {
 function DrillDownLoading() {
   return (
     <div className="flex items-center justify-center py-8">
-      <span className="w-5 h-5 border-2 border-warm-border border-t-moss rounded-full animate-spin" />
-      <span className="ml-2 text-sm text-warm-gray">Loading drill-down data...</span>
+      <span className="w-5 h-5 border-2 border-line border-t-moss rounded-full animate-spin" />
+      <span className="ml-2 text-sm text-subtle">Loading drill-down data...</span>
     </div>
   );
 }
@@ -857,8 +857,8 @@ export function HealthView({
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-charcoal">Operating Health</h1>
-        <p className="text-sm text-warm-gray mt-1">
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] text-ink">Operating Health</h1>
+        <p className="text-sm text-subtle mt-1">
           Behavioral culture metrics derived from what your team does, not what they say.
         </p>
       </div>
@@ -866,7 +866,7 @@ export function HealthView({
       {/* Controls Row: Date Range + Venture Filter */}
       <div className="flex flex-wrap items-center gap-4">
         {/* Date Range Selector */}
-        <div className="flex items-center gap-1 bg-ivory border border-warm-border rounded-lg p-1">
+        <div className="flex items-center gap-1 bg-surface border border-line rounded-lg p-1">
           {(Object.keys(DATE_RANGE_CONFIG) as DateRangeOption[]).map((key) => (
             <button
               key={key}
@@ -876,8 +876,8 @@ export function HealthView({
               }}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                 dateRange === key
-                  ? "bg-moss text-white"
-                  : "text-charcoal hover:bg-parchment"
+                  ? "bg-accent text-white"
+                  : "text-ink hover:bg-canvas"
               }`}
             >
               {DATE_RANGE_CONFIG[key].label}
@@ -898,9 +898,9 @@ export function HealthView({
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleCustomDaysCommit();
               }}
-              className="w-20 px-2 py-1.5 text-xs font-mono border border-warm-border rounded-md bg-ivory text-charcoal focus:outline-none focus:ring-1 focus:ring-moss"
+              className="w-20 px-2 py-1.5 text-xs font-mono border border-line rounded-md bg-surface text-ink focus:outline-none focus:ring-1 focus:ring-accent-glow"
             />
-            <span className="text-xs text-warm-gray">days</span>
+            <span className="text-xs text-subtle">days</span>
           </div>
         )}
 
@@ -909,7 +909,7 @@ export function HealthView({
           <select
             value={selectedVentureId}
             onChange={(e) => handleVentureChange(e.target.value)}
-            className="px-3 py-1.5 text-xs font-medium border border-warm-border rounded-lg bg-ivory text-charcoal focus:outline-none focus:ring-1 focus:ring-moss cursor-pointer"
+            className="px-3 py-1.5 text-xs font-medium border border-line rounded-lg bg-surface text-ink focus:outline-none focus:ring-1 focus:ring-accent-glow cursor-pointer"
           >
             {ventures.map((v) => (
               <option key={v.id} value={v.id}>
@@ -921,15 +921,15 @@ export function HealthView({
 
         {/* Refresh indicator */}
         {refreshing && (
-          <span className="flex items-center gap-1.5 text-xs text-warm-gray">
-            <span className="w-3.5 h-3.5 border-2 border-warm-border border-t-moss rounded-full animate-spin" />
+          <span className="flex items-center gap-1.5 text-xs text-subtle">
+            <span className="w-3.5 h-3.5 border-2 border-line border-t-moss rounded-full animate-spin" />
             Refreshing...
           </span>
         )}
       </div>
 
       {/* Hero Score */}
-      <div className="bg-ivory border border-warm-border rounded-xl p-8">
+      <div className="bg-surface border border-line rounded-xl p-8">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-6">
             <div className="relative">
@@ -942,14 +942,14 @@ export function HealthView({
                       : "border-semantic-brick"
                 }`}
               >
-                <span className="text-4xl font-bold font-mono text-charcoal">
+                <span className="text-4xl font-bold font-mono text-ink">
                   {report.composite_score}
                 </span>
               </div>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-semibold text-charcoal">Composite Score</h2>
+                <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-ink">Composite Score</h2>
                 <span
                   className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${compositeColors.bg} ${compositeColors.text}`}
                 >
@@ -963,7 +963,7 @@ export function HealthView({
                     data={snapshots.map((s) => s.composite_score)}
                     status={report.composite_status as HealthStatus}
                   />
-                  <p className="text-xs text-warm-gray mt-1">Trailing {snapshots.length} weeks</p>
+                  <p className="text-xs text-subtle mt-1">Trailing {snapshots.length} weeks</p>
                 </div>
               )}
             </div>
@@ -971,13 +971,13 @@ export function HealthView({
         </div>
 
         {/* AI Interpretation */}
-        <div className="mt-6 border-t border-warm-border pt-5">
+        <div className="mt-6 border-t border-line pt-5">
           {interpretation ? (
             <div className="flex gap-3">
               <div className="w-1 bg-sage rounded-full flex-shrink-0" />
               <div>
                 <p className="text-xs font-medium text-sage mb-1">AI Interpretation</p>
-                <p className="text-sm text-charcoal leading-relaxed">{interpretation}</p>
+                <p className="text-sm text-ink leading-relaxed">{interpretation}</p>
               </div>
             </div>
           ) : (
@@ -1021,14 +1021,14 @@ export function HealthView({
 
         {/* Drill-Down Panel */}
         {expandedMetric && (
-          <div className="bg-ivory border border-warm-border rounded-xl p-6 animate-in slide-in-from-top-2 duration-200">
+          <div className="bg-surface border border-line rounded-xl p-6 animate-in slide-in-from-top-2 duration-200">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-moss">
+              <h3 className="text-sm font-semibold text-accent">
                 {report.metrics[expandedMetric].label} — Drill-Down
               </h3>
               <button
                 onClick={() => setExpandedMetric(null)}
-                className="text-warm-gray hover:text-charcoal transition-colors"
+                className="text-subtle hover:text-ink transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -1049,8 +1049,8 @@ export function HealthView({
 
       {/* Snapshot History */}
       {snapshots.length > 0 && (
-        <div className="bg-ivory border border-warm-border rounded-xl p-6">
-          <h3 className="text-sm font-semibold text-charcoal mb-4">Score History</h3>
+        <div className="bg-surface border border-line rounded-xl p-6">
+          <h3 className="text-sm font-semibold text-ink mb-4">Score History</h3>
           <div className="space-y-2">
             {snapshots
               .slice()
@@ -1060,19 +1060,19 @@ export function HealthView({
                 const colors = statusColors[s.composite_status as HealthStatus];
                 return (
                   <div key={i} className="flex items-center gap-4 text-sm">
-                    <span className="text-warm-gray w-24 flex-shrink-0 font-mono text-xs">
+                    <span className="text-subtle w-24 flex-shrink-0 font-mono text-xs">
                       {new Date(s.created_at).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
                       })}
                     </span>
-                    <div className="flex-1 h-2 bg-warm-border/50 rounded-full overflow-hidden">
+                    <div className="flex-1 h-2 bg-line/50 rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full ${colors.dot}`}
                         style={{ width: `${s.composite_score}%` }}
                       />
                     </div>
-                    <span className="font-mono text-xs text-charcoal w-8 text-right">
+                    <span className="font-mono text-xs text-ink w-8 text-right">
                       {s.composite_score}
                     </span>
                   </div>

@@ -41,7 +41,7 @@ export function MeetingModeHub({ children }: { children: React.ReactNode }) {
     <div>
       {/* Meeting type tabs */}
       <div className="max-w-3xl mx-auto mb-6">
-        <div className="flex gap-2 p-1 bg-parchment border border-warm-border rounded-xl">
+        <div className="flex gap-2 p-1 bg-canvas border border-line rounded-xl">
           {MEETING_TYPES.map((mt) => {
             const isActive = active === mt.key;
             return (
@@ -50,12 +50,12 @@ export function MeetingModeHub({ children }: { children: React.ReactNode }) {
                 onClick={() => router.push(mt.path)}
                 className={`flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
                   isActive
-                    ? "bg-moss text-white shadow-sm"
-                    : "text-warm-gray hover:text-charcoal hover:bg-ivory"
+                    ? "bg-accent text-white shadow-sm"
+                    : "text-subtle hover:text-ink hover:bg-surface"
                 }`}
               >
                 <div>{mt.label}</div>
-                <div className={`text-xs mt-0.5 ${isActive ? "text-white/70" : "text-warm-gray"}`}>
+                <div className={`text-xs mt-0.5 ${isActive ? "text-white/70" : "text-subtle"}`}>
                   {mt.description}
                 </div>
               </button>

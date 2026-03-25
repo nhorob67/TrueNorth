@@ -110,8 +110,8 @@ function CockpitSection({
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-charcoal">{title}</h2>
-          <span className="text-xs font-mono text-warm-gray">{count}</span>
+          <h2 className="text-sm font-semibold text-ink">{title}</h2>
+          <span className="text-xs font-mono text-subtle">{count}</span>
         </div>
       </CardHeader>
       <CardContent>{children}</CardContent>
@@ -177,13 +177,13 @@ export function CockpitView({
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Operator Cockpit</h1>
+      <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6">Operator Cockpit</h1>
 
       {/* Operating Health compact widget */}
       {healthScore !== null && healthScore !== undefined && (
-        <div className="mb-4 px-4 py-2.5 bg-ivory border border-warm-border rounded-xl inline-flex items-center gap-4 w-full">
+        <div className="mb-4 px-4 py-2.5 bg-surface border border-line rounded-xl inline-flex items-center gap-4 w-full">
           <div className="inline-flex items-center gap-2">
-            <span className="text-2xl font-mono font-bold text-charcoal">{healthScore}</span>
+            <span className="text-2xl font-mono font-bold text-ink">{healthScore}</span>
             <span
               className={`w-2.5 h-2.5 rounded-full ${
                 healthStatus === "green"
@@ -193,20 +193,20 @@ export function CockpitView({
                     : "bg-semantic-brick"
               }`}
             />
-            <span className="text-base text-warm-gray">
+            <span className="text-base text-subtle">
               {healthTrend === "improving" ? "↑" : healthTrend === "declining" ? "↓" : "→"}
             </span>
           </div>
-          <span className="text-sm text-warm-gray">Operating Health</span>
+          <span className="text-sm text-subtle">Operating Health</span>
           <Link
             href="/health"
-            className="text-xs text-moss hover:underline ml-auto"
+            className="text-xs text-accent hover:underline ml-auto"
           >
             View details
           </Link>
           <Link
             href="/narratives?type=weekly_team_update"
-            className="text-xs text-clay hover:underline font-medium"
+            className="text-xs text-accent hover:underline font-medium"
           >
             Generate this week&apos;s memo
           </Link>
@@ -218,7 +218,7 @@ export function CockpitView({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-semibold text-charcoal">AI Recommends</h2>
+              <h2 className="text-sm font-semibold text-ink">AI Recommends</h2>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-sage bg-sage/10 px-1.5 py-0.5 rounded">
                 AI
               </span>
@@ -238,11 +238,11 @@ export function CockpitView({
             <div className="space-y-2">
               <div className="flex items-start gap-2">
                 <span
-                  className={`text-xs font-semibold uppercase mt-0.5 ${urgencyColor[recommendation.urgency] ?? "text-warm-gray"}`}
+                  className={`text-xs font-semibold uppercase mt-0.5 ${urgencyColor[recommendation.urgency] ?? "text-subtle"}`}
                 >
                   {recommendation.urgency}
                 </span>
-                <p className="text-sm font-medium text-charcoal">
+                <p className="text-sm font-medium text-ink">
                   {recommendation.entityType && recommendation.entityId ? (
                     <Link
                       href={ENTITY_LINK[recommendation.entityType]?.(recommendation.entityId) ?? "#"}
@@ -255,10 +255,10 @@ export function CockpitView({
                   )}
                 </p>
               </div>
-              <p className="text-xs text-warm-gray">{recommendation.reasoning}</p>
+              <p className="text-xs text-subtle">{recommendation.reasoning}</p>
             </div>
           ) : (
-            <p className="text-sm text-warm-gray">
+            <p className="text-sm text-subtle">
               No AI recommendation available.{" "}
               <button
                 onClick={refreshAdvice}
@@ -275,14 +275,14 @@ export function CockpitView({
         {/* Drifting KPIs + Stale Artifacts */}
         <CockpitSection title="What is drifting" count={driftCount}>
           {driftCount === 0 ? (
-            <p className="text-sm text-warm-gray">All systems healthy</p>
+            <p className="text-sm text-subtle">All systems healthy</p>
           ) : (
             <div className="space-y-2">
               {driftingKpis.map((kpi) => (
                 <div key={kpi.id} className="flex items-center justify-between">
                   <span className="text-sm">{kpi.name}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-warm-gray">
+                    <span className="text-xs font-mono text-subtle">
                       {kpi.current_value ?? "—"} / {kpi.target ?? "—"}
                     </span>
                     <Badge status={kpi.health_status} />
@@ -290,7 +290,7 @@ export function CockpitView({
                 </div>
               ))}
               {driftingKpis.length > 0 && staleArtifacts.length > 0 && (
-                <hr className="border-warm-border" />
+                <hr className="border-line" />
               )}
               {staleArtifacts.map((artifact) => {
                 const href = ARTIFACT_LINK_MAP[artifact.artifact_type] ?? "#";
@@ -305,7 +305,7 @@ export function CockpitView({
                     className="flex items-center justify-between group"
                   >
                     <span className="text-sm group-hover:underline">
-                      <span className="text-xs font-mono text-warm-gray mr-1">Artifact:</span>
+                      <span className="text-xs font-mono text-subtle mr-1">Artifact:</span>
                       {artifact.name}
                     </span>
                     <span className="text-xs font-mono text-semantic-brick">
@@ -326,13 +326,13 @@ export function CockpitView({
           count={openDecisions.length}
         >
           {openDecisions.length === 0 ? (
-            <p className="text-sm text-warm-gray">No pending decisions</p>
+            <p className="text-sm text-subtle">No pending decisions</p>
           ) : (
             <div className="space-y-2">
               {openDecisions.map((d) => (
                 <div key={d.id} className="text-sm">
                   <p className="font-medium">{d.title}</p>
-                  <p className="text-xs text-warm-gray">
+                  <p className="text-xs text-subtle">
                     Opened {new Date(d.created_at).toLocaleDateString()}
                   </p>
                 </div>
@@ -344,7 +344,7 @@ export function CockpitView({
         {/* At-Risk Bets */}
         <CockpitSection title="Bets at risk" count={atRiskBets.length + stalledBets.length}>
           {atRiskBets.length === 0 && stalledBets.length === 0 ? (
-            <p className="text-sm text-warm-gray">All bets on track</p>
+            <p className="text-sm text-subtle">All bets on track</p>
           ) : (
             <div className="space-y-2">
               {atRiskBets.map((bet) => (
@@ -354,7 +354,7 @@ export function CockpitView({
                 </div>
               ))}
               {stalledBets.length > 0 && atRiskBets.length > 0 && (
-                <hr className="border-warm-border" />
+                <hr className="border-line" />
               )}
               {stalledBets.map((bet) => (
                 <div key={bet.betId}>
@@ -376,13 +376,13 @@ export function CockpitView({
         {/* Open Blockers */}
         <CockpitSection title="Who is blocked" count={openBlockers.length}>
           {openBlockers.length === 0 ? (
-            <p className="text-sm text-warm-gray">No open blockers</p>
+            <p className="text-sm text-subtle">No open blockers</p>
           ) : (
             <div className="space-y-2">
               {openBlockers.map((b) => (
                 <div key={b.id}>
                   <p className="text-sm">{b.description}</p>
-                  <p className="text-xs text-warm-gray">
+                  <p className="text-xs text-subtle">
                     Severity: {b.severity} — opened{" "}
                     {new Date(b.created_at).toLocaleDateString()}
                   </p>
@@ -398,13 +398,13 @@ export function CockpitView({
           count={upcomingMoves.length}
         >
           {upcomingMoves.length === 0 ? (
-            <p className="text-sm text-warm-gray">No upcoming milestones</p>
+            <p className="text-sm text-subtle">No upcoming milestones</p>
           ) : (
             <div className="space-y-2">
               {upcomingMoves.map((m) => (
                 <div key={m.id}>
                   <p className="text-sm font-medium">{m.title}</p>
-                  <p className="text-xs text-warm-gray">
+                  <p className="text-xs text-subtle">
                     Due {new Date(m.due_date).toLocaleDateString()}
                     {m.bets && ` — ${m.bets.outcome}`}
                   </p>
@@ -420,14 +420,14 @@ export function CockpitView({
           count={pendingCommitments.length}
         >
           {pendingCommitments.length === 0 ? (
-            <p className="text-sm text-warm-gray">No pending commitments</p>
+            <p className="text-sm text-subtle">No pending commitments</p>
           ) : (
             <div className="space-y-2">
               {pendingCommitments.map((c) => (
                 <div key={c.id}>
                   <p className="text-sm">{c.description}</p>
                   {c.due_date && (
-                    <p className="text-xs text-warm-gray">
+                    <p className="text-xs text-subtle">
                       Due {new Date(c.due_date).toLocaleDateString()}
                     </p>
                   )}
@@ -443,7 +443,7 @@ export function CockpitView({
           count={todayPulses.length}
         >
           {todayPulses.length === 0 ? (
-            <p className="text-sm text-warm-gray">No pulses submitted today</p>
+            <p className="text-sm text-subtle">No pulses submitted today</p>
           ) : (
             <div className="space-y-1">
               {todayPulses.map((p) => (
@@ -459,13 +459,13 @@ export function CockpitView({
         {/* Blocked Moves */}
         <CockpitSection title="Blocked moves" count={blockedMoves.length}>
           {blockedMoves.length === 0 ? (
-            <p className="text-sm text-warm-gray">No blocked moves</p>
+            <p className="text-sm text-subtle">No blocked moves</p>
           ) : (
             <div className="space-y-2">
               {blockedMoves.map((m) => (
                 <div key={m.id}>
                   <p className="text-sm font-medium">{m.title}</p>
-                  <p className="text-xs text-warm-gray">{m.bet_outcome}</p>
+                  <p className="text-xs text-subtle">{m.bet_outcome}</p>
                   <p className="text-xs text-semantic-brick">
                     Blocker ({m.blocker_severity}): {m.blocker_description}
                   </p>
@@ -495,7 +495,7 @@ export function CockpitView({
                 >
                   {cadenceReport.overall_score}%
                 </span>
-                <span className="text-xs text-warm-gray">overall compliance</span>
+                <span className="text-xs text-subtle">overall compliance</span>
               </div>
 
               {/* Individual cadence types */}
@@ -528,8 +528,8 @@ export function CockpitView({
 
               {/* Next cadence event */}
               {nextCadenceEvent && (
-                <div className="pt-2 border-t border-warm-border">
-                  <p className="text-xs text-warm-gray">Next up</p>
+                <div className="pt-2 border-t border-line">
+                  <p className="text-xs text-subtle">Next up</p>
                   <p className="text-sm">{nextCadenceEvent}</p>
                 </div>
               )}
@@ -539,7 +539,7 @@ export function CockpitView({
               {nextCadenceEvent ? (
                 <p className="text-sm">{nextCadenceEvent}</p>
               ) : (
-                <p className="text-sm text-warm-gray">No cadence data available</p>
+                <p className="text-sm text-subtle">No cadence data available</p>
               )}
             </div>
           )}

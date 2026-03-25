@@ -217,11 +217,11 @@ function PulseForm({
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">
+          <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em]">
             {existingPulse ? "Update Today's Pulse" : "Submit Your Pulse"}
           </h2>
           {pulseStreak > 0 && (
-            <span className="text-sm text-moss font-medium">
+            <span className="text-sm text-accent font-medium">
               🔥 {pulseStreak} day streak
             </span>
           )}
@@ -256,7 +256,7 @@ function PulseForm({
             <button
               type="button"
               onClick={() => setShowMoveAutoSuggest(!showMoveAutoSuggest)}
-              className="text-xs text-clay-text hover:text-clay-text/80"
+              className="text-xs text-accent hover:text-accent/80"
             >
               {showMoveAutoSuggest ? "Hide" : "Link a Move you shipped"}
             </button>
@@ -292,7 +292,7 @@ function PulseForm({
                       setFocus((f) => f ? `${f}\n[${bet.outcome}]` : `[${bet.outcome}]`);
                       addLinkedEntity("bet", bet.id, bet.outcome);
                     }}
-                    className="text-xs px-2 py-0.5 rounded bg-moss/10 text-moss hover:bg-moss/20"
+                    className="text-xs px-2 py-0.5 rounded bg-accent/10 text-accent hover:bg-accent/20"
                   >
                     {bet.outcome.substring(0, 40)}
                   </button>
@@ -309,7 +309,7 @@ function PulseForm({
 
           {/* Blockers field with @mention */}
           <div className="space-y-1">
-            <label className="block text-sm font-medium text-charcoal">
+            <label className="block text-sm font-medium text-ink">
               Blockers
             </label>
             <MentionInput
@@ -335,10 +335,10 @@ function PulseForm({
               {linkedEntities.map((e) => (
                 <span
                   key={e.id}
-                  className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-moss/10 text-moss"
+                  className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-accent/10 text-accent"
                 >
                   {e.type}: {e.label.substring(0, 30)}
-                  <button type="button" onClick={() => removeLinkedEntity(e.id)} className="text-moss/50 hover:text-moss">
+                  <button type="button" onClick={() => removeLinkedEntity(e.id)} className="text-accent/50 hover:text-accent">
                     ×
                   </button>
                 </span>
@@ -354,8 +354,8 @@ function PulseForm({
           )}
 
           {offlineSaved && (
-            <div className="flex items-center gap-2 rounded-md border border-moss/30 bg-moss/10 px-3 py-2 text-sm text-moss">
-              <span className="inline-block h-2 w-2 rounded-full bg-moss" />
+            <div className="flex items-center gap-2 rounded-md border border-accent/30 bg-accent/10 px-3 py-2 text-sm text-accent">
+              <span className="inline-block h-2 w-2 rounded-full bg-accent" />
               Pulse saved offline. It will sync automatically when you are back online.
             </div>
           )}
@@ -384,24 +384,24 @@ function PulseCard({ pulse }: { pulse: Pulse }) {
     <Card>
       <CardContent className="py-4">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-8 h-8 rounded-full bg-moss/20 flex items-center justify-center text-sm font-medium text-moss">
+          <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-sm font-medium text-accent">
             {pulse.user_profiles?.full_name?.charAt(0) ?? "?"}
           </div>
           <div>
             <p className="text-sm font-medium">
               {pulse.user_profiles?.full_name ?? "Unknown"}
             </p>
-            <p className="text-xs text-warm-gray">{pulse.date}</p>
+            <p className="text-xs text-subtle">{pulse.date}</p>
           </div>
         </div>
 
         <div className="space-y-2">
           {items.map((item: PulseItem, i: number) => (
             <div key={i}>
-              <span className="text-xs font-semibold text-warm-gray uppercase">
+              <span className="text-xs font-semibold text-subtle uppercase">
                 {item.type}
               </span>
-              <p className="text-sm text-charcoal whitespace-pre-wrap">
+              <p className="text-sm text-ink whitespace-pre-wrap">
                 {item.text}
               </p>
             </div>
@@ -475,9 +475,9 @@ export function PulseView({
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Daily Pulse</h1>
+        <h1 className="font-display text-[28px] font-bold tracking-[-0.03em]">Daily Pulse</h1>
         {syncing && (
-          <span className="text-xs text-moss animate-pulse">
+          <span className="text-xs text-accent animate-pulse">
             Syncing offline pulses...
           </span>
         )}
@@ -501,9 +501,9 @@ export function PulseView({
         </div>
 
         <div>
-          <h2 className="text-lg font-semibold mb-3">Team Feed</h2>
+          <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] mb-3">Team Feed</h2>
           {teamPulses.length === 0 ? (
-            <p className="text-sm text-warm-gray">No pulses submitted today yet.</p>
+            <p className="text-sm text-subtle">No pulses submitted today yet.</p>
           ) : (
             <div className="space-y-4">
               {teamPulses.map((pulse) => (

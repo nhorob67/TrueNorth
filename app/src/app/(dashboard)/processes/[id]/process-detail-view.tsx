@@ -92,20 +92,20 @@ function AutomationBar({ level }: { level: AutomationLevel }) {
           <div
             key={al.level}
             className={`flex-1 h-3 rounded ${
-              al.level <= level ? "bg-moss" : "bg-warm-border"
+              al.level <= level ? "bg-accent" : "bg-line"
             }`}
             title={`L${al.level}: ${al.label}`}
           />
         ))}
       </div>
-      <div className="flex justify-between text-xs text-warm-gray">
+      <div className="flex justify-between text-xs text-subtle">
         {AUTOMATION_LEVELS.map((al) => (
-          <span key={al.level} className={al.level <= level ? "text-moss font-medium" : ""}>
+          <span key={al.level} className={al.level <= level ? "text-accent font-medium" : ""}>
             L{al.level}
           </span>
         ))}
       </div>
-      <p className="text-sm text-charcoal">
+      <p className="text-sm text-ink">
         <span className="font-medium">L{level} — {AUTOMATION_LEVELS[level].label}:</span>{" "}
         {AUTOMATION_LEVELS[level].description}
       </p>
@@ -121,33 +121,33 @@ function VersionHistory({ versions }: { versions: VersionData[] }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   if (versions.length === 0) {
-    return <p className="text-sm text-warm-gray">No version history yet.</p>;
+    return <p className="text-sm text-subtle">No version history yet.</p>;
   }
 
   return (
     <div className="space-y-2">
       {versions.map((v) => (
-        <div key={v.id} className="border border-warm-border rounded-lg">
+        <div key={v.id} className="border border-line rounded-lg">
           <button
             onClick={() => setExpandedId(expandedId === v.id ? null : v.id)}
-            className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-parchment/50 transition-colors"
+            className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-canvas/50 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-charcoal">v{v.version}</span>
-              <span className="text-xs text-warm-gray">{v.changed_by_name}</span>
+              <span className="text-sm font-medium text-ink">v{v.version}</span>
+              <span className="text-xs text-subtle">{v.changed_by_name}</span>
             </div>
-            <span className="text-xs text-warm-gray">
+            <span className="text-xs text-subtle">
               {new Date(v.created_at).toLocaleDateString()}
             </span>
           </button>
           {expandedId === v.id && (
-            <div className="px-4 pb-3 border-t border-warm-border pt-3 space-y-2">
-              <p className="text-sm font-medium text-charcoal">{v.name}</p>
+            <div className="px-4 pb-3 border-t border-line pt-3 space-y-2">
+              <p className="text-sm font-medium text-ink">{v.name}</p>
               {v.description && (
-                <p className="text-sm text-warm-gray">{v.description}</p>
+                <p className="text-sm text-subtle">{v.description}</p>
               )}
               {v.trigger_conditions && (
-                <p className="text-xs text-warm-gray italic">
+                <p className="text-xs text-subtle italic">
                   Trigger: {v.trigger_conditions}
                 </p>
               )}
@@ -256,19 +256,19 @@ function EditForm({
       />
 
       <div className="space-y-1">
-        <label className="block text-sm font-medium text-charcoal">
+        <label className="block text-sm font-medium text-ink">
           Description
         </label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
-          className="block w-full rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm text-charcoal placeholder:text-warm-gray focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+          className="block w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink placeholder:text-subtle focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
         />
       </div>
 
       <div className="space-y-1">
-        <label className="block text-sm font-medium text-charcoal">
+        <label className="block text-sm font-medium text-ink">
           Trigger Conditions
         </label>
         <textarea
@@ -276,13 +276,13 @@ function EditForm({
           onChange={(e) => setTriggerConditions(e.target.value)}
           rows={2}
           placeholder="When is this process used?"
-          className="block w-full rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm text-charcoal placeholder:text-warm-gray focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+          className="block w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink placeholder:text-subtle focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
         />
       </div>
 
       {/* Automation level selector */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-charcoal">
+        <label className="block text-sm font-medium text-ink">
           Automation Level
         </label>
         <div className="grid grid-cols-5 gap-2">
@@ -293,8 +293,8 @@ function EditForm({
               onClick={() => setAutomationLevel(al.level)}
               className={`flex flex-col items-center gap-1 rounded-lg border p-3 text-xs transition-colors ${
                 automationLevel === al.level
-                  ? "border-moss bg-moss/10 text-moss"
-                  : "border-warm-border bg-ivory text-charcoal hover:bg-parchment"
+                  ? "border-accent bg-accent/10 text-accent"
+                  : "border-line bg-surface text-ink hover:bg-canvas"
               }`}
             >
               <span className="font-semibold">L{al.level}</span>
@@ -306,7 +306,7 @@ function EditForm({
 
       {/* KPI Linker */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-charcoal">
+        <label className="block text-sm font-medium text-ink">
           Linked KPIs
         </label>
         <Input
@@ -314,11 +314,11 @@ function EditForm({
           value={kpiSearch}
           onChange={(e) => setKpiSearch(e.target.value)}
         />
-        <div className="max-h-32 overflow-y-auto border border-warm-border rounded-lg">
+        <div className="max-h-32 overflow-y-auto border border-line rounded-lg">
           {filteredKpis.map((k) => (
             <label
               key={k.id}
-              className="flex items-center gap-2 px-3 py-2 hover:bg-parchment cursor-pointer text-sm"
+              className="flex items-center gap-2 px-3 py-2 hover:bg-canvas cursor-pointer text-sm"
             >
               <input
                 type="checkbox"
@@ -330,20 +330,20 @@ function EditForm({
                     setSelectedKpiIds(selectedKpiIds.filter((x) => x !== k.id));
                   }
                 }}
-                className="rounded border-warm-border text-moss focus:ring-moss"
+                className="rounded border-line text-accent focus:ring-accent-glow"
               />
               {k.name}
             </label>
           ))}
           {filteredKpis.length === 0 && (
-            <p className="px-3 py-2 text-xs text-warm-gray">No KPIs found</p>
+            <p className="px-3 py-2 text-xs text-subtle">No KPIs found</p>
           )}
         </div>
       </div>
 
       {/* Bet Linker */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-charcoal">
+        <label className="block text-sm font-medium text-ink">
           Linked Bets
         </label>
         <Input
@@ -351,11 +351,11 @@ function EditForm({
           value={betSearch}
           onChange={(e) => setBetSearch(e.target.value)}
         />
-        <div className="max-h-32 overflow-y-auto border border-warm-border rounded-lg">
+        <div className="max-h-32 overflow-y-auto border border-line rounded-lg">
           {filteredBets.map((b) => (
             <label
               key={b.id}
-              className="flex items-center gap-2 px-3 py-2 hover:bg-parchment cursor-pointer text-sm"
+              className="flex items-center gap-2 px-3 py-2 hover:bg-canvas cursor-pointer text-sm"
             >
               <input
                 type="checkbox"
@@ -367,13 +367,13 @@ function EditForm({
                     setSelectedBetIds(selectedBetIds.filter((x) => x !== b.id));
                   }
                 }}
-                className="rounded border-warm-border text-moss focus:ring-moss"
+                className="rounded border-line text-accent focus:ring-accent-glow"
               />
               {b.outcome}
             </label>
           ))}
           {filteredBets.length === 0 && (
-            <p className="px-3 py-2 text-xs text-warm-gray">No Bets found</p>
+            <p className="px-3 py-2 text-xs text-subtle">No Bets found</p>
           )}
         </div>
       </div>
@@ -591,16 +591,16 @@ export function ProcessDetailView({
           <div className="flex items-center gap-2">
             <button
               onClick={() => router.push("/processes")}
-              className="text-sm text-warm-gray hover:text-charcoal"
+              className="text-sm text-subtle hover:text-ink"
             >
               &larr; Processes
             </button>
           </div>
-          <h1 className="text-2xl font-bold text-charcoal">
+          <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] text-ink">
             {currentProcess.name}
           </h1>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-warm-gray">
+            <span className="text-sm text-subtle">
               Owner: {currentProcess.owner_name}
             </span>
             <Badge
@@ -615,7 +615,7 @@ export function ProcessDetailView({
             <Badge status={auto.badge} dot={false}>
               L{currentProcess.automation_level} {auto.label}
             </Badge>
-            <span className="text-xs text-warm-gray">
+            <span className="text-xs text-subtle">
               v{currentProcess.version}
             </span>
           </div>
@@ -666,12 +666,12 @@ export function ProcessDetailView({
             {currentProcess.description && (
               <Card>
                 <CardHeader>
-                  <h3 className="text-sm font-semibold text-moss">
+                  <h3 className="text-sm font-semibold text-accent">
                     Description
                   </h3>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-charcoal whitespace-pre-wrap">
+                  <p className="text-sm text-ink whitespace-pre-wrap">
                     {currentProcess.description}
                   </p>
                 </CardContent>
@@ -682,12 +682,12 @@ export function ProcessDetailView({
             {currentProcess.trigger_conditions && (
               <Card>
                 <CardHeader>
-                  <h3 className="text-sm font-semibold text-moss">
+                  <h3 className="text-sm font-semibold text-accent">
                     Trigger Conditions
                   </h3>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-charcoal whitespace-pre-wrap">
+                  <p className="text-sm text-ink whitespace-pre-wrap">
                     {currentProcess.trigger_conditions}
                   </p>
                 </CardContent>
@@ -697,7 +697,7 @@ export function ProcessDetailView({
             {/* Automation Level */}
             <Card>
               <CardHeader>
-                <h3 className="text-sm font-semibold text-moss">
+                <h3 className="text-sm font-semibold text-accent">
                   Automation Level
                 </h3>
               </CardHeader>
@@ -709,13 +709,13 @@ export function ProcessDetailView({
             {/* Linked KPIs */}
             <Card>
               <CardHeader>
-                <h3 className="text-sm font-semibold text-moss">
+                <h3 className="text-sm font-semibold text-accent">
                   Linked KPIs ({linkedKpis.length})
                 </h3>
               </CardHeader>
               <CardContent>
                 {linkedKpis.length === 0 ? (
-                  <p className="text-sm text-warm-gray">No linked KPIs</p>
+                  <p className="text-sm text-subtle">No linked KPIs</p>
                 ) : (
                   <div className="space-y-2">
                     {linkedKpis.map((k) => (
@@ -723,7 +723,7 @@ export function ProcessDetailView({
                         key={k.id}
                         className="flex items-center justify-between"
                       >
-                        <span className="text-sm text-charcoal">{k.name}</span>
+                        <span className="text-sm text-ink">{k.name}</span>
                         <Badge status={healthToBadge(k.health_status)}>
                           {k.health_status}
                         </Badge>
@@ -737,13 +737,13 @@ export function ProcessDetailView({
             {/* Linked Bets */}
             <Card>
               <CardHeader>
-                <h3 className="text-sm font-semibold text-moss">
+                <h3 className="text-sm font-semibold text-accent">
                   Linked Bets ({linkedBets.length})
                 </h3>
               </CardHeader>
               <CardContent>
                 {linkedBets.length === 0 ? (
-                  <p className="text-sm text-warm-gray">No linked Bets</p>
+                  <p className="text-sm text-subtle">No linked Bets</p>
                 ) : (
                   <div className="space-y-2">
                     {linkedBets.map((b) => (
@@ -751,7 +751,7 @@ export function ProcessDetailView({
                         key={b.id}
                         className="flex items-center justify-between"
                       >
-                        <span className="text-sm text-charcoal">
+                        <span className="text-sm text-ink">
                           {b.outcome}
                         </span>
                         <Badge status={healthToBadge(b.health_status)}>
@@ -771,7 +771,7 @@ export function ProcessDetailView({
             {(linkedKpis.length > 0 || linkedBets.length > 0) && (
               <Card>
                 <CardHeader>
-                  <h3 className="text-sm font-semibold text-moss">
+                  <h3 className="text-sm font-semibold text-accent">
                     Impact Analysis
                   </h3>
                 </CardHeader>
@@ -779,7 +779,7 @@ export function ProcessDetailView({
                   {linkedKpis.filter((k) => k.health_status === "red" || k.health_status === "yellow").length > 0 && (
                     <div className="text-xs p-2 bg-semantic-ochre/5 border-l-2 border-semantic-ochre rounded">
                       <span className="font-medium text-semantic-ochre">Warning:</span>{" "}
-                      <span className="text-charcoal">
+                      <span className="text-ink">
                         Changing this process may affect{" "}
                         {linkedKpis.filter((k) => k.health_status === "red").length > 0 && (
                           <span className="text-semantic-brick font-medium">
@@ -796,7 +796,7 @@ export function ProcessDetailView({
                       </span>
                     </div>
                   )}
-                  <div className="text-xs text-warm-gray">
+                  <div className="text-xs text-subtle">
                     {linkedKpis.length} linked KPI{linkedKpis.length !== 1 ? "s" : ""} · {linkedBets.length} linked bet{linkedBets.length !== 1 ? "s" : ""}
                   </div>
                 </CardContent>
@@ -822,7 +822,7 @@ export function ProcessDetailView({
               </CardHeader>
               <CardContent>
                 {!aiSuggestions && !aiLoading && (
-                  <p className="text-xs text-warm-gray">
+                  <p className="text-xs text-subtle">
                     Get AI-powered improvement suggestions based on this process, its linked KPIs, and automation level.
                   </p>
                 )}
@@ -833,21 +833,21 @@ export function ProcessDetailView({
                         key={i}
                         className="border-l-2 border-sage pl-2.5 space-y-0.5"
                       >
-                        <p className="text-xs font-medium text-charcoal">
+                        <p className="text-xs font-medium text-ink">
                           {s.title}
                         </p>
-                        <p className="text-[10px] text-warm-gray">{s.why}</p>
+                        <p className="text-[10px] text-subtle">{s.why}</p>
                         <p className="text-[10px] text-sage-text">
                           Next: {s.nextStep}
                         </p>
                       </div>
                     ))}
                     {aiAutomationAdvice && (
-                      <div className="mt-3 pt-3 border-t border-warm-border">
-                        <p className="text-xs font-medium text-charcoal mb-0.5">
+                      <div className="mt-3 pt-3 border-t border-line">
+                        <p className="text-xs font-medium text-ink mb-0.5">
                           Automation Advice
                         </p>
-                        <p className="text-[10px] text-warm-gray">
+                        <p className="text-[10px] text-subtle">
                           {aiAutomationAdvice}
                         </p>
                       </div>
@@ -860,7 +860,7 @@ export function ProcessDetailView({
             {/* Version History */}
             <Card>
               <CardHeader>
-                <h3 className="text-sm font-semibold text-moss">
+                <h3 className="text-sm font-semibold text-accent">
                   Version History
                 </h3>
               </CardHeader>

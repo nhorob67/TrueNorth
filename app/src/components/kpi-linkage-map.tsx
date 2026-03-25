@@ -85,27 +85,27 @@ export function KpiLinkageMap({ kpis }: { kpis: KpiNode[] }) {
   const allKpiMap = new Map(kpis.map((k) => [k.id, k]));
 
   return (
-    <div className="border border-warm-border rounded-lg bg-ivory p-4">
+    <div className="border border-line rounded-lg bg-surface p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-semibold text-warm-gray uppercase">
+        <h3 className="text-xs font-semibold text-subtle uppercase">
           KPI Linkage Map
         </h3>
         {selectedId && (
           <button
             onClick={() => setSelectedId(null)}
-            className="text-xs text-clay-text hover:text-clay"
+            className="text-xs text-accent hover:text-accent"
           >
             Clear selection
           </button>
         )}
       </div>
 
-      <div className="flex items-center gap-4 mb-2 text-[10px] text-warm-gray">
+      <div className="flex items-center gap-4 mb-2 text-[10px] text-subtle">
         <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full bg-warm-border" /> Tier 1 (Lagging)
+          <span className="w-2 h-2 rounded-full bg-line" /> Tier 1 (Lagging)
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded bg-warm-border" /> Tier 2 (Leading)
+          <span className="w-2 h-2 rounded bg-line" /> Tier 2 (Leading)
         </span>
         <span>Click a lagging KPI to highlight its drivers</span>
       </div>

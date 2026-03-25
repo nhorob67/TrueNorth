@@ -109,12 +109,12 @@ export function NewProcessView({
       <div className="flex items-center gap-2 mb-6">
         <button
           onClick={() => router.push("/processes")}
-          className="text-sm text-warm-gray hover:text-charcoal"
+          className="text-sm text-subtle hover:text-ink"
         >
           &larr; Processes
         </button>
       </div>
-      <h1 className="text-2xl font-bold mb-6 text-charcoal">
+      <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6 text-ink">
         Create New Process
       </h1>
 
@@ -131,7 +131,7 @@ export function NewProcessView({
             />
 
             <div className="space-y-1">
-              <label className="block text-sm font-medium text-charcoal">
+              <label className="block text-sm font-medium text-ink">
                 Description
               </label>
               <textarea
@@ -139,12 +139,12 @@ export function NewProcessView({
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
                 placeholder="Describe this process..."
-                className="block w-full rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm text-charcoal placeholder:text-warm-gray focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+                className="block w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink placeholder:text-subtle focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="block text-sm font-medium text-charcoal">
+              <label className="block text-sm font-medium text-ink">
                 Trigger Conditions
               </label>
               <textarea
@@ -152,13 +152,13 @@ export function NewProcessView({
                 onChange={(e) => setTriggerConditions(e.target.value)}
                 rows={2}
                 placeholder="When is this process triggered?"
-                className="block w-full rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm text-charcoal placeholder:text-warm-gray focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+                className="block w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink placeholder:text-subtle focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
               />
             </div>
 
             {/* Automation level selector */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-charcoal">
+              <label className="block text-sm font-medium text-ink">
                 Automation Level
               </label>
               <div className="grid grid-cols-5 gap-2">
@@ -169,8 +169,8 @@ export function NewProcessView({
                     onClick={() => setAutomationLevel(al.level)}
                     className={`flex flex-col items-center gap-1 rounded-lg border p-3 text-xs transition-colors ${
                       automationLevel === al.level
-                        ? "border-moss bg-moss/10 text-moss"
-                        : "border-warm-border bg-ivory text-charcoal hover:bg-parchment"
+                        ? "border-accent bg-accent/10 text-accent"
+                        : "border-line bg-surface text-ink hover:bg-canvas"
                     }`}
                   >
                     <span className="font-semibold">L{al.level}</span>
@@ -178,14 +178,14 @@ export function NewProcessView({
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-warm-gray">
+              <p className="text-xs text-subtle">
                 {AUTOMATION_LEVELS[automationLevel].description}
               </p>
             </div>
 
             {/* KPI Linker */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-charcoal">
+              <label className="block text-sm font-medium text-ink">
                 Link KPIs
               </label>
               <Input
@@ -193,11 +193,11 @@ export function NewProcessView({
                 value={kpiSearch}
                 onChange={(e) => setKpiSearch(e.target.value)}
               />
-              <div className="max-h-32 overflow-y-auto border border-warm-border rounded-lg">
+              <div className="max-h-32 overflow-y-auto border border-line rounded-lg">
                 {filteredKpis.map((k) => (
                   <label
                     key={k.id}
-                    className="flex items-center gap-2 px-3 py-2 hover:bg-parchment cursor-pointer text-sm"
+                    className="flex items-center gap-2 px-3 py-2 hover:bg-canvas cursor-pointer text-sm"
                   >
                     <input
                       type="checkbox"
@@ -211,13 +211,13 @@ export function NewProcessView({
                           );
                         }
                       }}
-                      className="rounded border-warm-border text-moss focus:ring-moss"
+                      className="rounded border-line text-accent focus:ring-accent-glow"
                     />
                     {k.name}
                   </label>
                 ))}
                 {filteredKpis.length === 0 && (
-                  <p className="px-3 py-2 text-xs text-warm-gray">
+                  <p className="px-3 py-2 text-xs text-subtle">
                     No KPIs available
                   </p>
                 )}
@@ -226,7 +226,7 @@ export function NewProcessView({
 
             {/* Bet Linker */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-charcoal">
+              <label className="block text-sm font-medium text-ink">
                 Link Bets
               </label>
               <Input
@@ -234,11 +234,11 @@ export function NewProcessView({
                 value={betSearch}
                 onChange={(e) => setBetSearch(e.target.value)}
               />
-              <div className="max-h-32 overflow-y-auto border border-warm-border rounded-lg">
+              <div className="max-h-32 overflow-y-auto border border-line rounded-lg">
                 {filteredBets.map((b) => (
                   <label
                     key={b.id}
-                    className="flex items-center gap-2 px-3 py-2 hover:bg-parchment cursor-pointer text-sm"
+                    className="flex items-center gap-2 px-3 py-2 hover:bg-canvas cursor-pointer text-sm"
                   >
                     <input
                       type="checkbox"
@@ -252,13 +252,13 @@ export function NewProcessView({
                           );
                         }
                       }}
-                      className="rounded border-warm-border text-moss focus:ring-moss"
+                      className="rounded border-line text-accent focus:ring-accent-glow"
                     />
                     {b.outcome}
                   </label>
                 ))}
                 {filteredBets.length === 0 && (
-                  <p className="px-3 py-2 text-xs text-warm-gray">
+                  <p className="px-3 py-2 text-xs text-subtle">
                     No Bets available
                   </p>
                 )}

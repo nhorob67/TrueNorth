@@ -82,7 +82,7 @@ export default function NewKpiPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Add KPI</h1>
+      <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6">Add KPI</h1>
 
       <Card>
         <form onSubmit={handleSubmit}>
@@ -92,11 +92,11 @@ export default function NewKpiPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label htmlFor="frequency" className="block text-sm font-medium text-charcoal">Frequency</label>
+                <label htmlFor="frequency" className="block text-sm font-medium text-ink">Frequency</label>
                 <select
                   id="frequency"
                   name="frequency"
-                  className="block w-full rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm"
+                  className="block w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm"
                   defaultValue="weekly"
                 >
                   <option value="daily">Daily</option>
@@ -106,11 +106,11 @@ export default function NewKpiPage() {
                 </select>
               </div>
               <div className="space-y-1">
-                <label htmlFor="tier" className="block text-sm font-medium text-charcoal">Tier</label>
+                <label htmlFor="tier" className="block text-sm font-medium text-ink">Tier</label>
                 <select
                   id="tier"
                   name="tier"
-                  className="block w-full rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm"
+                  className="block w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm"
                   defaultValue="tier2"
                 >
                   <option value="tier1">Tier 1 (Lagging)</option>
@@ -122,11 +122,11 @@ export default function NewKpiPage() {
             <div className="grid grid-cols-2 gap-4">
               <Input id="unit" name="unit" label="Unit" placeholder="e.g., $, %, users" />
               <div className="space-y-1">
-                <label htmlFor="directionality" className="block text-sm font-medium text-charcoal">Direction</label>
+                <label htmlFor="directionality" className="block text-sm font-medium text-ink">Direction</label>
                 <select
                   id="directionality"
                   name="directionality"
-                  className="block w-full rounded-lg border border-warm-border bg-ivory px-3 py-2 text-sm"
+                  className="block w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm"
                   defaultValue="up_is_good"
                 >
                   <option value="up_is_good">Up is good</option>

@@ -20,8 +20,8 @@ export default async function CronSettingsPage() {
   if (!membership || membership.role !== "admin") {
     return (
       <div className="p-8">
-        <h2 className="text-xl font-semibold text-charcoal">Access Denied</h2>
-        <p className="mt-2 text-warm-gray">
+        <h2 className="font-display text-[22px] font-bold tracking-[-0.02em] text-ink">Access Denied</h2>
+        <p className="mt-2 text-subtle">
           Only administrators can manage cron jobs.
         </p>
       </div>

@@ -56,34 +56,49 @@ Every dashboard page follows the same pattern:
 ### Multi-Tenant Model
 `Organization → Venture → Entities`. Every table has `organization_id`; venture-scoped tables also have `venture_id`. RLS enforces isolation. Single-venture orgs never see multi-venture UI (controlled by `isSingleVenture` flag).
 
-## Design System
+## Design System — Warm Carbon
 
-All colors defined as CSS custom properties in `globals.css` `@theme` block and used via Tailwind classes:
+"Warm Carbon" design with dark/light mode. All colors in `globals.css` `@theme` block, dark overrides via `[data-theme="dark"]`. Theme switching via `next-themes`.
 
-| Token | Hex | Usage |
-|-------|-----|-------|
-| `moss` | `#5F6F52` | Primary: sidebar, headers, active states |
-| `parchment` | `#F4EFE6` | Page background |
-| `ivory` | `#FDFAF5` | Card surfaces |
-| `charcoal` | `#2F2B28` | Primary text (never use pure black) |
-| `warm-gray` | `#7A756E` | Secondary text |
-| `warm-border` | `#D9D3C7` | Borders, dividers |
-| `clay` | `#B85C38` | Primary CTA buttons, active actions |
-| `brass` | `#B69A45` | Premium emphasis (Vision Board, milestones) |
-| `sage` | `#8B9E82` | AI-generated content indicators |
-| `semantic-green` | `#6B8C54` | Health: on track |
-| `semantic-ochre` | `#C49B2D` | Health: caution |
-| `semantic-brick` | `#A04230` | Health: critical |
+### Color Tokens (semantic, mode-adaptive)
 
-**Typography:** Inter (sans), JetBrains Mono (data/code). H3 headings use moss color. No pure white surfaces except the editor canvas.
+| Token | Light | Dark | Usage |
+|-------|-------|------|-------|
+| `canvas` | `#F5F1EC` | `#131110` | Page background |
+| `surface` | `#FFFFFF` | `#1A1816` | Cards, elevated containers |
+| `well` | `#EAE5DE` | `#221F1C` | Inputs, nested surfaces |
+| `hovered` | `#E2DCD4` | `#2A2622` | Hover states |
+| `ink` | `#2A2420` | `#E8E2DA` | Primary text |
+| `subtle` | `#6E6358` | `#9A9088` | Secondary text |
+| `faded` | `#A69B90` | `#5A534C` | Muted text, placeholders |
+| `accent` | `#B74E28` | `#CC5E34` | Primary accent |
+| `accent-warm` | `#CC5E34` | `#E07A4F` | Hover accents |
+| `cta` | `#B74E28` | `#CC5E34` | Primary button bg |
+| `line` | warm brown | warm white | Default borders |
+
+### Sidebar Tokens (always dark, both modes)
+
+`sidebar`, `sidebar-hover`, `sidebar-active`, `sidebar-text`, `sidebar-text-hover`, `sidebar-text-active`, `sidebar-label`, `sidebar-divider`, `sidebar-bar`
+
+### Supplementary Colors
+
+| Token | Usage |
+|-------|-------|
+| `brass` / `brass-text` | Premium emphasis (Vision Board) |
+| `sage` / `sage-text` | AI-generated content indicators |
+| `semantic-green/ochre/brick` | Health status (unchanged) |
+
+**Typography:** Bricolage Grotesque (`font-display` — headings), Sora (`font-sans` — body/UI), IBM Plex Mono (`font-mono` — labels/badges/breadcrumbs). Section labels use `font-mono text-[10px] uppercase tracking-[0.10em]`.
 
 ## UI Components (`components/ui/`)
 
-- `Card` — accepts optional `borderColor` prop for status left-borders
-- `Badge` — `status` prop: `"green" | "yellow" | "red" | "neutral"`, auto-styled with dot
-- `Button` — variants: `primary` (clay), `secondary` (ivory), `tertiary` (ghost), `destructive` (brick). Sizes: `sm`, `md`, `lg`
-- `Input` — optional `label` and `error` props
+- `Card` — accepts optional `borderColor` prop for status left-borders, `rounded-[10px]`
+- `Badge` — `status` prop: `"green" | "yellow" | "red" | "neutral"`, `font-mono`, `rounded-[4px]`
+- `Button` — variants: `primary` (cta), `secondary` (surface), `tertiary` (ghost), `destructive` (brick). Sizes: `sm`, `md`, `lg`
+- `Input` / `Select` / `Textarea` — `bg-well`, `rounded-[8px]`, accent focus ring
 - `EmptyState` / `LoadingSpinner` / `ErrorState` — consistent empty/loading/error patterns
+- `Dialog` — `font-display` title, `bg-surface` panel
+- `Toggle` — `bg-accent` when active
 
 ## Conventions
 

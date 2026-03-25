@@ -55,15 +55,15 @@ function CommentItem({
     >
       <div className="flex items-start gap-2">
         {/* Avatar placeholder */}
-        <div className="w-6 h-6 rounded-full bg-moss/20 flex items-center justify-center text-xs font-semibold text-moss flex-shrink-0 mt-0.5">
+        <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center text-xs font-semibold text-accent flex-shrink-0 mt-0.5">
           {authorName.charAt(0).toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-charcoal">
+            <span className="text-sm font-medium text-ink">
               {authorName}
             </span>
-            <span className="text-xs text-warm-gray">
+            <span className="text-xs text-subtle">
               {new Date(comment.created_at).toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -77,7 +77,7 @@ function CommentItem({
               </span>
             )}
           </div>
-          <p className="text-sm text-charcoal mt-0.5 whitespace-pre-wrap">
+          <p className="text-sm text-ink mt-0.5 whitespace-pre-wrap">
             {renderBodyWithMentions(comment.body)}
           </p>
           {/* Actions */}
@@ -85,7 +85,7 @@ function CommentItem({
             <button
               type="button"
               onClick={() => onReply(comment.id)}
-              className="text-xs text-warm-gray hover:text-clay-text transition-colors"
+              className="text-xs text-subtle hover:text-accent transition-colors"
             >
               Reply
             </button>
@@ -93,7 +93,7 @@ function CommentItem({
               <button
                 type="button"
                 onClick={() => onResolve(comment.id, !isResolved)}
-                className="text-xs text-warm-gray hover:text-clay-text transition-colors"
+                className="text-xs text-subtle hover:text-accent transition-colors"
               >
                 {isResolved ? "Unresolve" : "Resolve"}
               </button>
@@ -104,7 +104,7 @@ function CommentItem({
 
       {/* Replies (single-level threading) */}
       {replies.length > 0 && (
-        <div className="ml-8 mt-2 space-y-2 border-l-2 border-warm-border pl-3">
+        <div className="ml-8 mt-2 space-y-2 border-l-2 border-line pl-3">
           {replies.map((reply) => (
             <ReplyItem key={reply.id} reply={reply} />
           ))}
@@ -121,15 +121,15 @@ function ReplyItem({ reply }: { reply: Comment }) {
 
   return (
     <div className="flex items-start gap-2">
-      <div className="w-5 h-5 rounded-full bg-warm-gray/20 flex items-center justify-center text-[10px] font-semibold text-warm-gray flex-shrink-0 mt-0.5">
+      <div className="w-5 h-5 rounded-full bg-faded/20 flex items-center justify-center text-[10px] font-semibold text-subtle flex-shrink-0 mt-0.5">
         {authorName.charAt(0).toUpperCase()}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-charcoal">
+          <span className="text-xs font-medium text-ink">
             {authorName}
           </span>
-          <span className="text-xs text-warm-gray">
+          <span className="text-xs text-subtle">
             {new Date(reply.created_at).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
@@ -138,7 +138,7 @@ function ReplyItem({ reply }: { reply: Comment }) {
             })}
           </span>
         </div>
-        <p className="text-xs text-charcoal mt-0.5 whitespace-pre-wrap">
+        <p className="text-xs text-ink mt-0.5 whitespace-pre-wrap">
           {renderBodyWithMentions(reply.body)}
         </p>
       </div>
@@ -155,7 +155,7 @@ function renderBodyWithMentions(body: string): React.ReactNode {
   const parts = body.split(/(@\w[\w\s]*?)(?=\s|$)/g);
   return parts.map((part, i) =>
     part.startsWith("@") ? (
-      <span key={i} className="text-clay-text font-medium">
+      <span key={i} className="text-accent font-medium">
         {part}
       </span>
     ) : (
@@ -342,7 +342,7 @@ export function Comments({
         <button
           type="button"
           onClick={() => setShowResolvedToggle(!showResolvedToggle)}
-          className="text-xs text-warm-gray hover:text-charcoal transition-colors"
+          className="text-xs text-subtle hover:text-ink transition-colors"
         >
           {showResolvedToggle ? "Hide" : "Show"} {resolvedCount} resolved
         </button>

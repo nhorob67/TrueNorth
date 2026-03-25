@@ -231,7 +231,7 @@ export function TrueNorthEditor({
   }, [editor, markdownMode, markdownText]);
 
   return (
-    <div className={`truenorth-editor border border-warm-border rounded-lg overflow-hidden ${className}`}>
+    <div className={`truenorth-editor border border-line rounded-lg overflow-hidden ${className}`}>
       {editable && (
         <EditorToolbar
           editor={editor}
@@ -241,12 +241,12 @@ export function TrueNorthEditor({
           onCommentCreate={onCommentCreate}
         />
       )}
-      <div className="truenorth-editor-canvas bg-white">
+      <div className="truenorth-editor-canvas bg-surface">
         {markdownMode ? (
           <textarea
             value={markdownText}
             onChange={(e) => setMarkdownText(e.target.value)}
-            className="w-full min-h-[400px] p-6 font-mono text-sm text-charcoal bg-white border-none outline-none resize-y"
+            className="w-full min-h-[400px] p-6 font-mono text-sm text-ink bg-surface border-none outline-none resize-y"
             placeholder="Write or edit Markdown here..."
           />
         ) : (

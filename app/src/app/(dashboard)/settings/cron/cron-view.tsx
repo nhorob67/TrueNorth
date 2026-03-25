@@ -91,14 +91,14 @@ function FormatTemplateEditor({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label className="block text-sm font-medium text-charcoal">
+        <label className="block text-sm font-medium text-ink">
           Format Template (Handlebars)
         </label>
         <div className="flex gap-2">
           {!value && (
             <button
               type="button"
-              className="text-xs text-moss hover:underline"
+              className="text-xs text-accent hover:underline"
               onClick={() => onChange(DEFAULT_FORMAT_TEMPLATE)}
             >
               Use default template
@@ -106,7 +106,7 @@ function FormatTemplateEditor({
           )}
           <button
             type="button"
-            className="text-xs text-moss hover:underline"
+            className="text-xs text-accent hover:underline"
             onClick={() => setShowPreview(!showPreview)}
           >
             {showPreview ? "Hide preview" : "Show preview"}
@@ -118,17 +118,17 @@ function FormatTemplateEditor({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={`{{title}}\n\n{{#each sections}}\n**{{heading}}**\n{{#each items}}\n{{status_emoji}} **{{label}}**: {{value}}\n{{/each}}\n{{/each}}`}
-        className="block w-full rounded-lg border border-warm-border bg-white px-3 py-2 text-sm font-mono min-h-[120px] focus:border-moss focus:outline-none focus:ring-2 focus:ring-moss/20"
+        className="block w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm font-mono min-h-[120px] focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
       />
 
-      <p className="text-xs text-warm-gray">
+      <p className="text-xs text-subtle">
         Variables: {"{{title}}"}, {"{{heading}}"}, {"{{label}}"}, {"{{value}}"}, {"{{status_emoji}}"}. Loops: {"{{#each sections}}"}, {"{{#each items}}"}.
       </p>
 
       {showPreview && value && (
-        <div className="p-3 rounded-lg bg-parchment border border-warm-border">
-          <p className="text-xs font-medium text-warm-gray mb-1">Live Preview (mock data):</p>
-          <pre className="text-sm text-charcoal whitespace-pre-wrap font-sans">
+        <div className="p-3 rounded-lg bg-canvas border border-line">
+          <p className="text-xs font-medium text-subtle mb-1">Live Preview (mock data):</p>
+          <pre className="text-sm text-ink whitespace-pre-wrap font-sans">
             {preview}
           </pre>
         </div>
@@ -245,9 +245,9 @@ function CronJobForm({
   }
 
   return (
-    <Card className="border-warm-border bg-ivory">
+    <Card className="border-line bg-surface">
       <CardHeader>
-        <h3 className="text-lg font-semibold text-charcoal">
+        <h3 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-ink">
           {editId ? "Edit Cron Job" : "New Cron Job"}
         </h3>
       </CardHeader>
@@ -269,11 +269,11 @@ function CronJobForm({
           />
 
           <div>
-            <label className="block text-sm font-medium text-charcoal mb-1">
+            <label className="block text-sm font-medium text-ink mb-1">
               Schedule
             </label>
             <select
-              className="w-full rounded-lg border border-warm-border bg-white px-3 py-2 text-sm text-charcoal"
+              className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink"
               value={
                 SCHEDULE_PRESETS.some((p) => p.value === form.schedule)
                   ? form.schedule
@@ -308,12 +308,12 @@ function CronJobForm({
 
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="block text-sm font-medium text-charcoal">
+              <label className="block text-sm font-medium text-ink">
                 Query Template{useComposed ? "s (comma-separated)" : ""}
               </label>
               <button
                 type="button"
-                className="text-xs text-moss hover:underline"
+                className="text-xs text-accent hover:underline"
                 onClick={() => setUseComposed(!useComposed)}
               >
                 {useComposed ? "Single template" : "Compose multiple"}
@@ -329,7 +329,7 @@ function CronJobForm({
                   }
                   placeholder="kpi_scoreboard,blocker_report"
                 />
-                <p className="text-xs text-warm-gray">
+                <p className="text-xs text-subtle">
                   Comma-separated template keys. Results are merged into a single broadcast.
                 </p>
                 <div className="flex flex-wrap gap-1">
@@ -337,7 +337,7 @@ function CronJobForm({
                     <button
                       key={t.value}
                       type="button"
-                      className="text-xs px-2 py-0.5 rounded border border-warm-border hover:bg-parchment text-warm-gray"
+                      className="text-xs px-2 py-0.5 rounded border border-line hover:bg-canvas text-subtle"
                       onClick={() => {
                         const current = form.query_template
                           .split(",")
@@ -358,7 +358,7 @@ function CronJobForm({
               </div>
             ) : (
               <select
-                className="w-full rounded-lg border border-warm-border bg-white px-3 py-2 text-sm text-charcoal"
+                className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink"
                 value={form.query_template}
                 onChange={(e) =>
                   setForm({ ...form, query_template: e.target.value })
@@ -375,11 +375,11 @@ function CronJobForm({
 
           {ventures.length > 1 && (
             <div>
-              <label className="block text-sm font-medium text-charcoal mb-1">
+              <label className="block text-sm font-medium text-ink mb-1">
                 Venture (optional, leave blank for org-wide)
               </label>
               <select
-                className="w-full rounded-lg border border-warm-border bg-white px-3 py-2 text-sm text-charcoal"
+                className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink"
                 value={form.venture_id}
                 onChange={(e) =>
                   setForm({ ...form, venture_id: e.target.value })
@@ -405,25 +405,25 @@ function CronJobForm({
           />
 
           {/* Conditional Logic Section */}
-          <div className="space-y-3 p-3 rounded-lg border border-warm-border bg-parchment">
-            <p className="text-sm font-medium text-charcoal">Conditions</p>
+          <div className="space-y-3 p-3 rounded-lg border border-line bg-canvas">
+            <p className="text-sm font-medium text-ink">Conditions</p>
 
-            <label className="flex items-center gap-2 text-sm text-charcoal">
+            <label className="flex items-center gap-2 text-sm text-ink">
               <input
                 type="checkbox"
                 checked={form.only_if_data}
                 onChange={(e) => setForm({ ...form, only_if_data: e.target.checked })}
-                className="rounded border-warm-border"
+                className="rounded border-line"
               />
               Only send if data is present
             </label>
 
             <div>
-              <label className="block text-xs font-medium text-warm-gray mb-1">
+              <label className="block text-xs font-medium text-subtle mb-1">
                 Day Filter
               </label>
               <select
-                className="w-full rounded-lg border border-warm-border bg-white px-3 py-2 text-sm text-charcoal"
+                className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink"
                 value={form.day_filter}
                 onChange={(e) => setForm({ ...form, day_filter: e.target.value })}
               >
@@ -442,12 +442,12 @@ function CronJobForm({
             onChange={(val) => setForm({ ...form, handlebars_template: val })}
           />
 
-          <label className="flex items-center gap-2 text-sm text-charcoal">
+          <label className="flex items-center gap-2 text-sm text-ink">
             <input
               type="checkbox"
               checked={form.enabled}
               onChange={(e) => setForm({ ...form, enabled: e.target.checked })}
-              className="rounded border-warm-border"
+              className="rounded border-line"
             />
             Enabled
           </label>
@@ -477,7 +477,7 @@ function CronJobForm({
 function ExecutionHistory({ executions }: { executions: CronExecution[] }) {
   if (executions.length === 0) {
     return (
-      <p className="text-sm text-warm-gray italic">No executions yet</p>
+      <p className="text-sm text-subtle italic">No executions yet</p>
     );
   }
 
@@ -486,7 +486,7 @@ function ExecutionHistory({ executions }: { executions: CronExecution[] }) {
       {executions.map((ex) => (
         <div
           key={ex.id}
-          className="flex items-center justify-between text-sm border-b border-warm-border pb-1"
+          className="flex items-center justify-between text-sm border-b border-line pb-1"
         >
           <div className="flex items-center gap-2">
             <Badge
@@ -500,9 +500,9 @@ function ExecutionHistory({ executions }: { executions: CronExecution[] }) {
             >
               {ex.status}
             </Badge>
-            <span className="text-warm-gray">{formatTime(ex.started_at)}</span>
+            <span className="text-subtle">{formatTime(ex.started_at)}</span>
           </div>
-          <span className="text-warm-gray">
+          <span className="text-subtle">
             {ex.records_processed} record{ex.records_processed !== 1 ? "s" : ""}
           </span>
         </div>
@@ -532,19 +532,19 @@ function TestResult({ result }: { result: TemplateResult }) {
   };
 
   return (
-    <div className="mt-3 p-3 rounded-lg bg-parchment border border-warm-border text-sm">
-      <p className="font-semibold text-charcoal mb-2">{result.title}</p>
+    <div className="mt-3 p-3 rounded-lg bg-canvas border border-line text-sm">
+      <p className="font-semibold text-ink mb-2">{result.title}</p>
       {!result.hasData && (
-        <p className="text-warm-gray italic">No data to display</p>
+        <p className="text-subtle italic">No data to display</p>
       )}
       {result.sections.map((section, si) => (
         <div key={si} className="mb-2">
-          <p className="font-medium text-charcoal">{section.heading}</p>
+          <p className="font-medium text-ink">{section.heading}</p>
           <ul className="ml-4 space-y-0.5">
             {section.items.map((item, ii) => (
-              <li key={ii} className="text-warm-gray">
+              <li key={ii} className="text-subtle">
                 {item.status ? statusEmoji[item.status] + " " : ""}
-                <span className="font-medium text-charcoal">
+                <span className="font-medium text-ink">
                   {item.label}
                 </span>
                 : {item.value}
@@ -686,8 +686,8 @@ export function CronView({ cronJobs, executions, orgId, ventures }: CronViewProp
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-charcoal">Cron Broadcasts</h2>
-          <p className="text-warm-gray text-sm mt-1">
+          <h2 className="font-display text-[28px] font-bold tracking-[-0.03em] text-ink">Cron Broadcasts</h2>
+          <p className="text-subtle text-sm mt-1">
             Schedule automated data broadcasts to Discord
           </p>
         </div>
@@ -705,13 +705,13 @@ export function CronView({ cronJobs, executions, orgId, ventures }: CronViewProp
       </div>
 
       {cronJobs.length === 0 && !showForm && (
-        <Card className="border-warm-border bg-parchment">
+        <Card className="border-line bg-canvas">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="font-semibold text-charcoal">
+              <p className="font-semibold text-ink">
                 Get started with 5 pre-configured broadcast jobs
               </p>
-              <p className="text-sm text-warm-gray mt-0.5">
+              <p className="text-sm text-subtle mt-0.5">
                 Morning Scoreboard, Weekly Priorities, Daily Recap, Blocker Nag,
                 and Cockpit Daily — all created as disabled so you can configure
                 webhooks first.
@@ -757,12 +757,12 @@ export function CronView({ cronJobs, executions, orgId, ventures }: CronViewProp
             const isComposed = job.query_template.includes(",");
 
             return (
-              <Card key={job.id} className="border-warm-border bg-ivory">
+              <Card key={job.id} className="border-line bg-surface">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-charcoal">
+                        <h3 className="font-semibold text-ink">
                           {job.name}
                         </h3>
                         <Badge status={job.enabled ? "green" : "neutral"}>
@@ -786,21 +786,21 @@ export function CronView({ cronJobs, executions, orgId, ventures }: CronViewProp
                           <Badge status="neutral">Conditional</Badge>
                         )}
                       </div>
-                      <p className="text-sm text-warm-gray">
+                      <p className="text-sm text-subtle">
                         {describeSchedule(job.schedule)} &middot;{" "}
                         {describeTemplate(job.query_template)}
                       </p>
                       {job.description && (
-                        <p className="text-sm text-warm-gray mt-1">
+                        <p className="text-sm text-subtle mt-1">
                           {job.description}
                         </p>
                       )}
-                      <p className="text-xs text-warm-gray mt-1">
+                      <p className="text-xs text-subtle mt-1">
                         Last run: {formatTime(job.last_run_at)}
                         {job.discord_webhook_url && " | Discord webhook configured"}
                       </p>
                       {hasConditions && (
-                        <p className="text-xs text-warm-gray mt-0.5">
+                        <p className="text-xs text-subtle mt-0.5">
                           Conditions:{" "}
                           {formatConfig.only_if_data ? "skip if empty" : ""}
                           {formatConfig.only_if_data && formatConfig.day_filter ? " + " : ""}
@@ -850,7 +850,7 @@ export function CronView({ cronJobs, executions, orgId, ventures }: CronViewProp
 
                   {/* Expandable execution history */}
                   <button
-                    className="mt-3 text-sm text-moss hover:underline"
+                    className="mt-3 text-sm text-accent hover:underline"
                     onClick={() =>
                       setExpandedJob(isExpanded ? null : job.id)
                     }
