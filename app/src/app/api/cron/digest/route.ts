@@ -3,15 +3,9 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { sendNotification } from "@/lib/notifications";
 import { getQuietHoursConfig } from "@/lib/quiet-hours";
 import { sendDiscordDigest, getOrgDiscordWebhook } from "@/lib/discord-notify";
+import { verifyCronSecret } from "@/lib/cron/verify-secret";
 
 export const dynamic = "force-dynamic";
-
-function verifyCronSecret(request: Request): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return false;
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${secret}`;
-}
 
 /** Default digest delivery hour (8 AM in user's timezone) */
 const DEFAULT_DIGEST_HOUR = 8;

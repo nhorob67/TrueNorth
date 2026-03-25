@@ -114,14 +114,6 @@ Every dashboard page follows the same pattern:
 - `TrueNorth-PRD.md` — full product requirements (design language, feature specs, AI agent definitions, data model)
 - `BUILDPLAN.md` — phased implementation checklist tracking what's built vs. remaining
 
-## Test Credentials (Production)
-
-```
-URL:      https://true-north-bay.vercel.app
-Email:    test@truenorth.dev
-Password: TrueNorth-Test-2026!
-```
-
 ## Environment Variables
 
 ```

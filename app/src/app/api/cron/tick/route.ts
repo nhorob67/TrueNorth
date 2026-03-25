@@ -2,15 +2,9 @@ import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { executeCronJob } from "@/lib/cron/engine";
 import { shouldRunNow } from "@/lib/cron/schedule";
+import { verifyCronSecret } from "@/lib/cron/verify-secret";
 
 export const dynamic = "force-dynamic";
-
-function verifyCronSecret(request: Request): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return false;
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${secret}`;
-}
 
 /**
  * GET /api/cron/tick
@@ -32,8 +26,9 @@ export async function GET(request: Request) {
       .eq("enabled", true);
 
     if (error) {
+      console.error("Failed to fetch cron jobs:", error.message);
       return NextResponse.json(
-        { error: "Failed to fetch jobs", details: error.message },
+        { error: "Failed to fetch jobs" },
         { status: 500 }
       );
     }
@@ -54,7 +49,7 @@ export async function GET(request: Request) {
       results,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Internal error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("Cron tick error:", err instanceof Error ? err.message : err);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

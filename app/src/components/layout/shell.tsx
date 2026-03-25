@@ -4,14 +4,21 @@ import { useState, useEffect, useCallback } from "react";
 import { Sidebar } from "./sidebar";
 import { InstallPrompt } from "@/components/install-prompt";
 import { QuickTodoModal } from "@/components/quick-todo-modal";
+import { CommandPalette } from "@/components/command-palette";
+import { TodoSlideOver } from "@/components/todo-slide-over";
 import { useOptionalUserContext } from "@/hooks/use-user-context";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [quickTodoOpen, setQuickTodoOpen] = useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [todoSlideOverOpen, setTodoSlideOverOpen] = useState(false);
   const ctx = useOptionalUserContext();
 
   const closeSidebar = useCallback(() => setSidebarOpen(false), []);
+  const closeQuickTodo = useCallback(() => setQuickTodoOpen(false), []);
+  const closeCommandPalette = useCallback(() => setCommandPaletteOpen(false), []);
+  const closeTodoSlideOver = useCallback(() => setTodoSlideOverOpen(false), []);
 
   useEffect(() => {
     if (!sidebarOpen) return;
@@ -24,9 +31,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.key === "t") {
+      const meta = e.metaKey || e.ctrlKey;
+
+      // Cmd+T — Quick todo creation
+      if (meta && !e.shiftKey && e.key === "t") {
         e.preventDefault();
         if (ctx) setQuickTodoOpen(true);
+        return;
+      }
+
+      // Cmd+K — Command palette
+      if (meta && e.key === "k") {
+        e.preventDefault();
+        setCommandPaletteOpen((prev) => !prev);
+        return;
+      }
+
+      // Cmd+Shift+T — Todos slide-over
+      if (meta && e.shiftKey && e.key === "T") {
+        e.preventDefault();
+        if (ctx) setTodoSlideOverOpen((prev) => !prev);
+        return;
       }
     }
     document.addEventListener("keydown", handleKeyDown);
@@ -74,7 +99,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <InstallPrompt />
       <QuickTodoModal
         open={quickTodoOpen}
-        onClose={() => setQuickTodoOpen(false)}
+        onClose={closeQuickTodo}
+      />
+      <CommandPalette
+        open={commandPaletteOpen}
+        onClose={closeCommandPalette}
+      />
+      <TodoSlideOver
+        open={todoSlideOverOpen}
+        onClose={closeTodoSlideOver}
       />
     </div>
   );

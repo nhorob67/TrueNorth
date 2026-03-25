@@ -94,6 +94,14 @@ export async function POST(request: Request) {
       );
     }
 
+    // 5 MB file size limit
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: "File exceeds 5 MB limit" },
+        { status: 413 }
+      );
+    }
+
     if (!kpiId || !validateUuid(kpiId)) {
       return NextResponse.json(
         { error: "kpi_id must be a valid UUID" },
@@ -153,8 +161,9 @@ export async function POST(request: Request) {
       .insert(entries);
 
     if (insertError) {
+      console.error("Failed to insert KPI entries:", insertError.message);
       return NextResponse.json(
-        { error: "Failed to insert entries", details: insertError.message },
+        { error: "Failed to insert entries" },
         { status: 500 }
       );
     }
@@ -173,7 +182,7 @@ export async function POST(request: Request) {
       imported: rows.length,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Internal error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("CSV import error:", err instanceof Error ? err.message : err);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

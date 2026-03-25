@@ -2,15 +2,9 @@ import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { executeCronJob, executeTemplateAdHoc } from "@/lib/cron/engine";
 import { validateUuid, sanitizeText } from "@/lib/validation";
+import { verifyCronSecret } from "@/lib/cron/verify-secret";
 
 export const dynamic = "force-dynamic";
-
-function verifyCronSecret(request: Request): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return false;
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${secret}`;
-}
 
 export async function POST(request: Request) {
   if (!verifyCronSecret(request)) {

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { checkAndTriggerFilterGuardian } from "@/lib/ai/filter-guardian-trigger";
+import { verifyCronSecret } from "@/lib/cron/verify-secret";
 
 export const dynamic = "force-dynamic";
 
@@ -11,13 +12,6 @@ export const dynamic = "force-dynamic";
 // has expired, advances them to filter_review, and runs
 // AI evaluation against strategic filters.
 // ============================================================
-
-function verifyCronSecret(request: Request): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return false;
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${secret}`;
-}
 
 export async function GET(request: Request) {
   if (!verifyCronSecret(request)) {

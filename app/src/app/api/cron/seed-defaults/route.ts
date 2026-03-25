@@ -85,7 +85,8 @@ export async function POST() {
   const { error } = await supabase.from("cron_jobs").insert(rows);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Failed to seed default cron jobs:", error.message);
+    return NextResponse.json({ error: "Failed to seed defaults" }, { status: 500 });
   }
 
   return NextResponse.json({ success: true, count: rows.length });

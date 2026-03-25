@@ -199,13 +199,13 @@ export function CockpitView({
           </div>
           <span className="text-sm text-subtle">Operating Health</span>
           <Link
-            href="/health"
+            href="/reviews/health"
             className="text-xs text-accent hover:underline ml-auto"
           >
             View details
           </Link>
           <Link
-            href="/narratives?type=weekly_team_update"
+            href="/reviews/narratives?type=weekly_team_update"
             className="text-xs text-accent hover:underline font-medium"
           >
             Generate this week&apos;s memo

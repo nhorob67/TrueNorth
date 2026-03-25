@@ -104,8 +104,9 @@ export async function POST(request: Request) {
     });
 
     if (insertError) {
+      console.error("Webhook KPI insert error:", insertError.message);
       return NextResponse.json(
-        { error: "Failed to insert entry", details: insertError.message },
+        { error: "Failed to insert entry" },
         { status: 500 }
       );
     }

@@ -2,15 +2,9 @@ import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { checkStaleness } from "@/lib/staleness";
 import { sendNotification } from "@/lib/notifications";
+import { verifyCronSecret } from "@/lib/cron/verify-secret";
 
 export const dynamic = "force-dynamic";
-
-function verifyCronSecret(request: Request): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return false;
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${secret}`;
-}
 
 /**
  * GET /api/cron/staleness

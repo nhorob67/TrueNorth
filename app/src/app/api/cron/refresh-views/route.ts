@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     if (error) {
       console.error("refresh_kpi_materialized_view error:", error.message);
       return NextResponse.json(
-        { error: "Failed to refresh materialized view", details: error.message },
+        { error: "Failed to refresh materialized view" },
         { status: 500 }
       );
     }
@@ -39,8 +39,7 @@ export async function GET(request: Request) {
       at: new Date().toISOString(),
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Internal error";
-    console.error("refresh-views cron error:", message);
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("refresh-views cron error:", err instanceof Error ? err.message : err);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

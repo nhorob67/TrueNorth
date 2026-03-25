@@ -69,7 +69,8 @@ export async function PUT(
     .eq("id", documentId);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Failed to update document:", error.message);
+    return NextResponse.json({ error: "Failed to update document" }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });

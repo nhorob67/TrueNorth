@@ -5,15 +5,9 @@ import {
   sendDiscordNotification,
   getOrgDiscordWebhook,
 } from "@/lib/discord-notify";
+import { verifyCronSecret } from "@/lib/cron/verify-secret";
 
 export const dynamic = "force-dynamic";
-
-function verifyCronSecret(request: Request): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return false;
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${secret}`;
-}
 
 /**
  * GET /api/cron/signal-watch

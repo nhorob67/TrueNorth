@@ -6,15 +6,9 @@ import {
 } from "@/lib/operating-health";
 import { interpretHealthReport } from "@/lib/ai/health-interpreter";
 import { sendNotification } from "@/lib/notifications";
+import { verifyCronSecret } from "@/lib/cron/verify-secret";
 
 export const dynamic = "force-dynamic";
-
-function verifyCronSecret(request: Request): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return false;
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${secret}`;
-}
 
 /**
  * GET /api/cron/operating-health
@@ -37,8 +31,9 @@ export async function GET(request: Request) {
       .select("id");
 
     if (error) {
+      console.error("Failed to fetch organizations:", error.message);
       return NextResponse.json(
-        { error: "Failed to fetch organizations", details: error.message },
+        { error: "Failed to fetch organizations" },
         { status: 500 }
       );
     }
@@ -193,7 +188,7 @@ export async function GET(request: Request) {
       results,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Internal error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("Operating health cron error:", err instanceof Error ? err.message : err);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }
