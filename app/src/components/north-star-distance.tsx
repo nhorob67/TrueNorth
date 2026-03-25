@@ -63,7 +63,7 @@ export function NorthStarDistance() {
   const offset = circumference - (data.progress / 100) * circumference;
 
   return (
-    <div className="px-4 py-3 mb-2">
+    <div className="px-[18px] py-3 mb-4 border-b border-sidebar-divider">
       <div className="flex items-center gap-2.5">
         {/* Progress arc */}
         <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
@@ -105,7 +105,7 @@ export function NorthStarDistance() {
 
         {/* BHAG text + progress */}
         <div className="flex-1 min-w-0">
-          <p className="font-mono text-[10px] font-semibold text-sidebar-label uppercase tracking-[0.10em] leading-tight">
+          <p className="font-mono text-[9px] font-semibold text-sidebar-label uppercase tracking-[0.1em] leading-tight">
             North Star
           </p>
           <p className="text-xs text-sidebar-text-hover leading-tight truncate">
@@ -113,8 +113,8 @@ export function NorthStarDistance() {
               ? data.bhag.slice(0, 40) + "..."
               : data.bhag}
           </p>
-          <p className="text-[10px] text-sidebar-label mt-0.5">
-            {data.progress}% ({data.greenCount}/{data.totalCount} KPIs green)
+          <p className="font-mono text-[10px] text-sidebar-text-active mt-0.5">
+            {data.greenCount}/{data.totalCount} KPIs on track
           </p>
         </div>
       </div>

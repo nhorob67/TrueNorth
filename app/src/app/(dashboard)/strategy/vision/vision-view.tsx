@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useUserContext } from "@/hooks/use-user-context";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/loading";
@@ -62,27 +62,27 @@ function BhagSection({
   onChange: (val: string) => void;
 }) {
   return (
-    <Card>
-      <CardHeader className="bg-accent/5">
-        <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-accent">
-          Big Hairy Audacious Goal
-        </h2>
-      </CardHeader>
-      <CardContent>
-        {editing ? (
-          <textarea
-            value={bhag}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-full min-h-[80px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
-            placeholder="What is the bold, long-term vision for this venture?"
-          />
-        ) : (
-          <p className="text-lg font-medium text-ink leading-relaxed">
-            {bhag || "No BHAG defined yet."}
-          </p>
-        )}
-      </CardContent>
-    </Card>
+    <div>
+      <h2 className="font-mono text-[11px] font-semibold tracking-[0.08em] uppercase text-accent mb-2">
+        Big Hairy Audacious Goal
+      </h2>
+      <Card>
+        <CardContent>
+          {editing ? (
+            <textarea
+              value={bhag}
+              onChange={(e) => onChange(e.target.value)}
+              className="w-full min-h-[80px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
+              placeholder="What is the bold, long-term vision for this venture?"
+            />
+          ) : (
+            <p className="text-lg font-medium text-ink leading-relaxed">
+              {bhag || "No BHAG defined yet."}
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
@@ -117,70 +117,72 @@ function StrategicFiltersSection({
   }
 
   return (
-    <Card>
-      <CardHeader className="bg-accent/5">
-        <div className="flex items-center justify-between">
-          <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-accent">Strategic Filters</h2>
-          {editing && (
-            <Button variant="tertiary" size="sm" onClick={addFilter}>
-              + Add Filter
-            </Button>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent>
-        {filters.length === 0 && !editing && (
-          <p className="text-sm text-subtle">
-            No strategic filters defined. These are used to evaluate new ideas.
-          </p>
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="font-mono text-[11px] font-semibold tracking-[0.08em] uppercase text-accent">
+          Strategic Filters
+        </h2>
+        {editing && (
+          <Button variant="tertiary" size="sm" onClick={addFilter}>
+            + Add Filter
+          </Button>
         )}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filters.map((filter) => (
-            <div
-              key={filter.id}
-              className="p-4 rounded-lg border border-line bg-canvas"
-            >
-              {editing ? (
-                <div className="space-y-2">
-                  <Input
-                    value={filter.name}
-                    onChange={(e) =>
-                      updateFilter(filter.id, "name", e.target.value)
-                    }
-                    placeholder="Filter name"
-                  />
-                  <textarea
-                    value={filter.description}
-                    onChange={(e) =>
-                      updateFilter(filter.id, "description", e.target.value)
-                    }
-                    placeholder="What does this filter evaluate?"
-                    className="w-full min-h-[60px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
-                  />
-                  <Button
-                    variant="tertiary"
-                    size="sm"
-                    onClick={() => removeFilter(filter.id)}
-                    className="text-semantic-brick"
-                  >
-                    Remove
-                  </Button>
-                </div>
-              ) : (
-                <>
-                  <h3 className="text-sm font-semibold text-ink">
-                    {filter.name}
-                  </h3>
-                  <p className="text-sm text-subtle mt-1">
-                    {filter.description}
-                  </p>
-                </>
-              )}
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+      <Card>
+        <CardContent>
+          {filters.length === 0 && !editing && (
+            <p className="text-sm text-subtle">
+              No strategic filters defined. These are used to evaluate new ideas.
+            </p>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
+            {filters.map((filter) => (
+              <div
+                key={filter.id}
+                className={editing ? "p-4 rounded-lg border border-line bg-canvas" : "py-[18px] px-5 rounded-lg border border-line bg-surface"}
+              >
+                {editing ? (
+                  <div className="space-y-2">
+                    <Input
+                      value={filter.name}
+                      onChange={(e) =>
+                        updateFilter(filter.id, "name", e.target.value)
+                      }
+                      placeholder="Filter name"
+                    />
+                    <textarea
+                      value={filter.description}
+                      onChange={(e) =>
+                        updateFilter(filter.id, "description", e.target.value)
+                      }
+                      placeholder="What does this filter evaluate?"
+                      className="w-full min-h-[60px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
+                    />
+                    <Button
+                      variant="tertiary"
+                      size="sm"
+                      onClick={() => removeFilter(filter.id)}
+                      className="text-semantic-brick"
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <h3 className="text-[14px] font-semibold text-ink mb-1.5">
+                      {filter.name}
+                    </h3>
+                    <p className="text-[13px] text-subtle leading-relaxed">
+                      {filter.description}
+                    </p>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
@@ -230,20 +232,19 @@ function AnnualOutcomesSection({
   }
 
   return (
-    <Card>
-      <CardHeader className="bg-accent/5">
-        <div className="flex items-center justify-between">
-          <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-accent">
-            Annual Outcomes ({outcomes.length}/3)
-          </h2>
-          {editing && outcomes.length < 3 && (
-            <Button variant="tertiary" size="sm" onClick={addOutcome}>
-              + Add Outcome
-            </Button>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent>
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="font-mono text-[11px] font-semibold tracking-[0.08em] uppercase text-accent">
+          Annual Outcomes ({outcomes.length}/3)
+        </h2>
+        {editing && outcomes.length < 3 && (
+          <Button variant="tertiary" size="sm" onClick={addOutcome}>
+            + Add Outcome
+          </Button>
+        )}
+      </div>
+      <Card>
+        <CardContent>
         {outcomes.length === 0 && !editing && (
           <p className="text-sm text-subtle">
             No annual outcomes defined yet.
@@ -315,7 +316,7 @@ function AnnualOutcomesSection({
                 </div>
               ) : (
                 <>
-                  <p className="text-xs font-semibold text-subtle uppercase mb-1">
+                  <p className="font-mono text-[10px] font-semibold tracking-[0.08em] uppercase text-faded mb-1">
                     Outcome {idx + 1}
                   </p>
                   <p className="text-sm font-medium text-ink">
@@ -324,22 +325,22 @@ function AnnualOutcomesSection({
                   {Object.entries(outcome.constraints).some(([, v]) => v) && (
                     <div className="flex flex-wrap gap-2 mt-2">
                       {outcome.constraints.team_size && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-accent/10 text-accent">
+                        <span className="font-mono text-[10px] font-medium tracking-[0.03em] px-2 py-[3px] rounded bg-accent-dim text-accent">
                           Team: {outcome.constraints.team_size}
                         </span>
                       )}
                       {outcome.constraints.budget_cap && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-accent/10 text-accent">
+                        <span className="font-mono text-[10px] font-medium tracking-[0.03em] px-2 py-[3px] rounded bg-accent-dim text-accent">
                           Budget: {outcome.constraints.budget_cap}
                         </span>
                       )}
                       {outcome.constraints.timeline && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-accent/10 text-accent">
+                        <span className="font-mono text-[10px] font-medium tracking-[0.03em] px-2 py-[3px] rounded bg-accent-dim text-accent">
                           Timeline: {outcome.constraints.timeline}
                         </span>
                       )}
                       {outcome.constraints.complexity && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-accent/10 text-accent">
+                        <span className="font-mono text-[10px] font-medium tracking-[0.03em] px-2 py-[3px] rounded bg-accent-dim text-accent">
                           Complexity: {outcome.constraints.complexity}
                         </span>
                       )}
@@ -351,7 +352,8 @@ function AnnualOutcomesSection({
           ))}
         </div>
       </CardContent>
-    </Card>
+      </Card>
+    </div>
   );
 }
 
@@ -381,70 +383,70 @@ function NotDoingSection({
   }
 
   return (
-    <Card>
-      <CardHeader className="bg-brass/10 border-b border-brass/20">
-        <h2 className="font-display text-[18px] font-semibold tracking-[-0.02em] text-brass-text">
-          Not Doing List
-        </h2>
-        <p className="text-xs text-subtle mt-0.5">
-          Sacred commitments to what this venture will NOT pursue.
-        </p>
-      </CardHeader>
-      <CardContent>
-        {items.length === 0 && !editing && (
-          <p className="text-sm text-subtle">
-            No items on the Not Doing list yet.
-          </p>
-        )}
-        <ul className="space-y-2">
-          {items.map((item, idx) => (
-            <li
-              key={idx}
-              className="flex items-center gap-3 py-2 border-b border-line last:border-0"
-            >
-              <span className="text-semantic-brick font-bold text-lg leading-none">
-                &times;
-              </span>
-              <span className="text-sm text-ink flex-1">{item}</span>
-              {editing && (
-                <Button
-                  variant="tertiary"
-                  size="sm"
-                  onClick={() => removeItem(idx)}
-                  className="text-semantic-brick"
-                >
-                  Remove
-                </Button>
-              )}
-            </li>
-          ))}
-        </ul>
-        {editing && (
-          <div className="flex gap-2 mt-3">
-            <Input
-              value={newItem}
-              onChange={(e) => setNewItem(e.target.value)}
-              placeholder="We will NOT..."
-              className="flex-1"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  addItem();
-                }
-              }}
-            />
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={addItem}
-              disabled={!newItem.trim()}
-            >
-              Add
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <div>
+      <h2 className="font-mono text-[11px] font-semibold tracking-[0.08em] uppercase text-accent mb-2">
+        Not Doing List
+      </h2>
+      <p className="text-[13px] text-faded mb-3">
+        Sacred commitments to what this venture will NOT pursue.
+      </p>
+      <Card>
+        <CardContent>
+          {items.length === 0 && !editing && (
+            <p className="text-sm text-subtle">
+              No items on the Not Doing list yet.
+            </p>
+          )}
+          <ul className="space-y-0">
+            {items.map((item, idx) => (
+              <li
+                key={idx}
+                className="flex items-center gap-2.5 py-2.5 border-b border-line last:border-0"
+              >
+                <span className="text-faded text-[14px] leading-none">
+                  &times;
+                </span>
+                <span className="text-[14px] text-subtle leading-relaxed flex-1">{item}</span>
+                {editing && (
+                  <Button
+                    variant="tertiary"
+                    size="sm"
+                    onClick={() => removeItem(idx)}
+                    className="text-semantic-brick"
+                  >
+                    Remove
+                  </Button>
+                )}
+              </li>
+            ))}
+          </ul>
+          {editing && (
+            <div className="flex gap-2 mt-3">
+              <Input
+                value={newItem}
+                onChange={(e) => setNewItem(e.target.value)}
+                placeholder="We will NOT..."
+                className="flex-1"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addItem();
+                  }
+                }}
+              />
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={addItem}
+                disabled={!newItem.trim()}
+              >
+                Add
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
@@ -456,34 +458,30 @@ function VersionHistory({ snapshots }: { snapshots: Snapshot[] }) {
   if (snapshots.length === 0) return null;
 
   return (
-    <Card>
-      <CardHeader>
-        <h2 className="text-sm font-semibold text-subtle uppercase">
-          Version History
-        </h2>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-1">
-          {snapshots.map((snap) => (
-            <div
-              key={snap.id}
-              className="flex items-center gap-3 py-1.5 text-xs text-subtle"
-            >
-              <span className="w-2 h-2 rounded-full bg-accent/30" />
-              <span>
-                {new Date(snap.created_at).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}
-              </span>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="border-t border-line pt-5">
+      <h2 className="font-mono text-[10px] font-semibold tracking-[0.08em] uppercase text-faded mb-3">
+        Version History
+      </h2>
+      <div className="space-y-1">
+        {snapshots.map((snap) => (
+          <div
+            key={snap.id}
+            className="flex items-center gap-3 py-1.5 text-xs text-faded"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-faded/50" />
+            <span>
+              {new Date(snap.created_at).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+              })}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -640,7 +638,12 @@ export function VisionBoardView({
                 Unlock for Editing
               </Button>
             ) : (
-              <Button size="sm" onClick={() => setEditing(true)}>
+              <Button
+                variant="tertiary"
+                size="sm"
+                onClick={() => setEditing(true)}
+                className="border border-accent !rounded-[7px] hover:!bg-accent hover:!text-white"
+              >
                 Edit Vision
               </Button>
             )}
@@ -654,24 +657,34 @@ export function VisionBoardView({
         </div>
       )}
 
-      <div className="space-y-6">
-        <BhagSection bhag={bhag} editing={editing} onChange={setBhag} />
-        <StrategicFiltersSection
-          filters={filters}
-          editing={editing}
-          onChange={setFilters}
-        />
-        <AnnualOutcomesSection
-          outcomes={outcomes}
-          editing={editing}
-          onChange={setOutcomes}
-        />
-        <NotDoingSection
-          items={notDoing}
-          editing={editing}
-          onChange={setNotDoing}
-        />
-        <VersionHistory snapshots={snapshots} />
+      <div>
+        <div className="mt-9">
+          <BhagSection bhag={bhag} editing={editing} onChange={setBhag} />
+        </div>
+        <div className="mt-8">
+          <StrategicFiltersSection
+            filters={filters}
+            editing={editing}
+            onChange={setFilters}
+          />
+        </div>
+        <div className="mt-11">
+          <AnnualOutcomesSection
+            outcomes={outcomes}
+            editing={editing}
+            onChange={setOutcomes}
+          />
+        </div>
+        <div className="mt-11">
+          <NotDoingSection
+            items={notDoing}
+            editing={editing}
+            onChange={setNotDoing}
+          />
+        </div>
+        <div className="mt-[52px]">
+          <VersionHistory snapshots={snapshots} />
+        </div>
       </div>
     </div>
   );
