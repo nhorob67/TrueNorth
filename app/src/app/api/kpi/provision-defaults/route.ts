@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { provisionDefaultKpis } from "@/lib/kpi-templates";
 
 export const dynamic = "force-dynamic";
@@ -12,16 +13,17 @@ export const dynamic = "force-dynamic";
  */
 export async function POST() {
   try {
-    const supabase = await createClient();
+    // Auth check via user client
+    const userSupabase = await createClient();
     const {
       data: { user },
-    } = await supabase.auth.getUser();
+    } = await userSupabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Look up org + venture for this user
-    const { data: orgMembership } = await supabase
+    const { data: orgMembership } = await userSupabase
       .from("organization_memberships")
       .select("organization_id")
       .eq("user_id", user.id)
@@ -35,7 +37,7 @@ export async function POST() {
       );
     }
 
-    const { data: venture } = await supabase
+    const { data: venture } = await userSupabase
       .from("ventures")
       .select("id")
       .eq("organization_id", orgMembership.organization_id)
@@ -50,8 +52,11 @@ export async function POST() {
       );
     }
 
+    // Use service client for writes (bypasses RLS)
+    const serviceSupabase = createServiceClient();
+
     const result = await provisionDefaultKpis(
-      supabase,
+      serviceSupabase,
       venture.id,
       orgMembership.organization_id,
       user.id
