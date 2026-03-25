@@ -70,7 +70,7 @@ function Sparkline({ data, status }: { data: number[]; status: HealthStatus }) {
     })
     .join(" ");
 
-  const color = status === "green" ? "#6B8C54" : status === "yellow" ? "#C49B2D" : "#A04230";
+  const color = status === "green" ? "var(--color-semantic-green)" : status === "yellow" ? "var(--color-semantic-ochre)" : "var(--color-semantic-brick)";
 
   return (
     <svg width={width} height={height} className="flex-shrink-0">
@@ -461,12 +461,12 @@ function DailyTrendChart({ data }: { data: Array<{ date: string; rate: number }>
         y1={padding.top + chartH / 2}
         x2={width - padding.right}
         y2={padding.top + chartH / 2}
-        stroke="#D9D3C7"
+        stroke="var(--color-chart-line)"
         strokeWidth={0.5}
         strokeDasharray="4,4"
       />
       {/* Line */}
-      <polyline points={points} fill="none" stroke="#5F6F52" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points={points} fill="none" stroke="var(--color-semantic-green)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
       {/* X-axis labels (first and last) */}
       {data.length > 0 && (
         <>

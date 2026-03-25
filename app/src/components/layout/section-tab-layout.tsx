@@ -16,8 +16,8 @@ export function SectionTabLayout({
 
   return (
     <div>
-      <div className="sticky top-0 z-10 bg-canvas pb-4">
-        <div className="flex gap-1 p-1 bg-surface border border-line rounded-xl overflow-x-auto">
+      <div className="sticky top-0 z-10 bg-canvas">
+        <div className="flex items-center border-b border-line overflow-x-auto">
           {tabs.map((tab) => {
             const isActive =
               pathname === tab.href || pathname.startsWith(tab.href + "/");
@@ -25,10 +25,10 @@ export function SectionTabLayout({
               <Link
                 key={tab.href}
                 href={tab.href}
-                className={`flex-shrink-0 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                className={`relative flex-shrink-0 px-4 pt-[10px] pb-[12px] text-[13px] transition-[color] duration-150 ease-in-out ${
                   isActive
-                    ? "bg-accent text-white shadow-sm"
-                    : "text-subtle hover:text-ink hover:bg-surface"
+                    ? "text-ink font-semibold tab-active"
+                    : "text-faded font-normal hover:text-subtle"
                 }`}
               >
                 {tab.label}

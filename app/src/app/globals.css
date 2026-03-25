@@ -16,6 +16,7 @@
   --color-ink: #2A2420;
   --color-subtle: #6E6358;
   --color-faded: #A69B90;
+  --color-warm-gray: #A69B90;
 
   /* Accent & Interactive */
   --color-accent: #B74E28;
@@ -27,6 +28,9 @@
   --color-line: rgba(90,70,50,0.10);
   --color-line-strong: rgba(90,70,50,0.16);
   --color-line-focus: rgba(183,78,40,0.45);
+
+  /* Chart */
+  --color-chart-line: #D9D3C7;
 
   /* AI guidance */
   --color-ai-line: rgba(183,78,40,0.14);
@@ -97,6 +101,7 @@
   --color-ink: #E8E2DA;
   --color-subtle: #9A9088;
   --color-faded: #5A534C;
+  --color-warm-gray: #7A7168;
 
   /* Accent */
   --color-accent: #CC5E34;
@@ -106,8 +111,11 @@
 
   /* Borders */
   --color-line: rgba(255,220,180,0.06);
-  --color-line-strong: rgba(255,220,180,0.06);
+  --color-line-strong: rgba(255,220,180,0.12);
   --color-line-focus: rgba(204,94,52,0.45);
+
+  /* Chart */
+  --color-chart-line: rgba(255,220,180,0.15);
 
   /* AI guidance */
   --color-ai-line: rgba(204,94,52,0.15);
@@ -117,6 +125,13 @@
   --color-cta: #CC5E34;
   --color-cta-hover: #E07A4F;
   --color-cta-text: #FFFFFF;
+
+  /* Semantic palette (lighter for dark backgrounds) */
+  --color-semantic-green: #7EA466;
+  --color-semantic-green-text: #9BC283;
+  --color-semantic-ochre: #D4AD42;
+  --color-semantic-ochre-text: #E0C35A;
+  --color-semantic-brick: #C05A48;
 
 }
 
@@ -449,4 +464,34 @@ body {
 
 .animate-slide-in-right {
   animation: slide-in-right 0.2s ease-out;
+}
+
+/* ============================================================
+   Sub-Nav Tab Underline Indicator
+   ============================================================ */
+
+.tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 16px;
+  right: 16px;
+  height: 2px;
+  background: var(--color-accent);
+  border-radius: 2px 2px 0 0;
+}
+
+/* ============================================================
+   Sidebar Active Left Bar
+   ============================================================ */
+
+.sidebar-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 2.5px;
+  background: #CC5E34;
+  border-radius: 0 2px 2px 0;
 }

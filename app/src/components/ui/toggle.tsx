@@ -39,7 +39,7 @@ export function Toggle({ checked, onChange, label, description, disabled = false
         }`}
       >
         <span
-          className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-sm ring-0 transition-transform ${
+          className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-surface shadow-sm ring-0 transition-transform ${
             checked ? "translate-x-6" : "translate-x-1"
           }`}
         />

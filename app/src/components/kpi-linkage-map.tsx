@@ -22,9 +22,9 @@ interface KpiNode {
 }
 
 const healthColors: Record<string, string> = {
-  green: "#6B8C54",
-  yellow: "#C49B2D",
-  red: "#A04230",
+  green: "var(--color-semantic-green)",
+  yellow: "var(--color-semantic-ochre)",
+  red: "var(--color-semantic-brick)",
 };
 
 const PADDING = 40;
@@ -134,7 +134,7 @@ export function KpiLinkageMap({ kpis }: { kpis: KpiNode[] }) {
               stroke={
                 isHighlighted
                   ? healthColors[allKpiMap.get(edge.to)?.health_status ?? "green"]
-                  : "#D9D3C7"
+                  : "var(--color-chart-line)"
               }
               strokeWidth={isHighlighted ? 2.5 : 1}
               strokeOpacity={dimmed ? 0.15 : isHighlighted ? 1 : 0.5}
@@ -162,7 +162,7 @@ export function KpiLinkageMap({ kpis }: { kpis: KpiNode[] }) {
                 r={NODE_R}
                 fill={healthColors[kpi.health_status]}
                 fillOpacity={dimmed ? 0.2 : 1}
-                stroke={isSelected ? "#2F2B28" : "none"}
+                stroke={isSelected ? "var(--color-ink)" : "none"}
                 strokeWidth={isSelected ? 2 : 0}
               />
               <text
@@ -198,7 +198,7 @@ export function KpiLinkageMap({ kpis }: { kpis: KpiNode[] }) {
                 rx={6}
                 fill={healthColors[kpi.health_status]}
                 fillOpacity={dimmed ? 0.15 : 1}
-                stroke={isHighlighted ? "#2F2B28" : "none"}
+                stroke={isHighlighted ? "var(--color-ink)" : "none"}
                 strokeWidth={isHighlighted ? 2 : 0}
               />
               <text

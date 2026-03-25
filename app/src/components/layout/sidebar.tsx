@@ -105,13 +105,13 @@ export function Sidebar() {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-colors ${
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 ease-in-out ${
                   isActive
-                    ? "bg-sidebar-active text-sidebar-text-active border-l-[2.5px] border-sidebar-bar"
+                    ? "relative text-sidebar-text-active bg-transparent sidebar-active"
                     : "text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover"
                 }`}
               >
-                {iconMap[item.icon]}
+                <span className={isActive ? "opacity-100" : "opacity-40"}>{iconMap[item.icon]}</span>
                 {item.name}
               </Link>
             );
@@ -125,25 +125,25 @@ export function Sidebar() {
         {/* Activity feed link */}
         <Link
           href="/activity"
-          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-colors ${
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 ease-in-out ${
             pathname.startsWith("/activity")
-              ? "bg-sidebar-active text-sidebar-text-active border-l-[2.5px] border-sidebar-bar"
+              ? "relative text-sidebar-text-active bg-transparent sidebar-active"
               : "text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover"
           }`}
         >
-          {iconMap.chat}
+          <span className={pathname.startsWith("/activity") ? "opacity-100" : "opacity-40"}>{iconMap.chat}</span>
           Activity
         </Link>
 
         <Link
           href="/profile"
-          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-colors ${
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 ease-in-out ${
             pathname.startsWith("/profile")
-              ? "bg-sidebar-active text-sidebar-text-active border-l-[2.5px] border-sidebar-bar"
+              ? "relative text-sidebar-text-active bg-transparent sidebar-active"
               : "text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover"
           }`}
         >
-          {iconMap.user}
+          <span className={pathname.startsWith("/profile") ? "opacity-100" : "opacity-40"}>{iconMap.user}</span>
           {userCtx?.fullName || "Profile"}
         </Link>
 
