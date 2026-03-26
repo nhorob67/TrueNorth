@@ -86,21 +86,43 @@ export async function GET(request: Request) {
       }
 
       // Insert kpi_entry
-      await supabase.from("kpi_entries").insert({
+      const { error: entryError } = await supabase.from("kpi_entries").insert({
         kpi_id: integration.kpi_id,
         value: syncResult.value,
         recorded_at: new Date().toISOString(),
         source: integration.integration_type,
       });
 
+      if (entryError) {
+        results.push({
+          integration_id: integration.id,
+          kpi_id: integration.kpi_id,
+          type: integration.integration_type,
+          status: "error",
+          error: `Failed to insert kpi_entry: ${entryError.message}`,
+        });
+        continue;
+      }
+
       // Update the KPI current_value
-      await supabase
+      const { error: updateError } = await supabase
         .from("kpis")
         .update({ current_value: syncResult.value })
         .eq("id", integration.kpi_id);
 
+      if (updateError) {
+        results.push({
+          integration_id: integration.id,
+          kpi_id: integration.kpi_id,
+          type: integration.integration_type,
+          status: "error",
+          error: `Failed to update current_value: ${updateError.message}`,
+        });
+        continue;
+      }
+
       // Update integration sync status
-      await supabase
+      const { error: syncStatusError } = await supabase
         .from("kpi_integrations")
         .update({
           last_sync_at: new Date().toISOString(),
@@ -108,6 +130,10 @@ export async function GET(request: Request) {
           last_sync_error: null,
         })
         .eq("id", integration.id);
+
+      if (syncStatusError) {
+        console.error("Failed to update sync status:", syncStatusError.message);
+      }
 
       results.push({
         integration_id: integration.id,

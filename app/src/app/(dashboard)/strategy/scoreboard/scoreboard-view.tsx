@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   DndContext,
   closestCenter,
@@ -92,9 +93,9 @@ function Sparkline({ entries }: { entries: KpiEntry[] }) {
   );
 }
 
-function KpiTile({ kpi }: { kpi: Kpi }) {
-  return (
-    <Card borderColor={healthColors[kpi.health_status]}>
+function KpiTile({ kpi, linked = true }: { kpi: Kpi; linked?: boolean }) {
+  const card = (
+    <Card borderColor={healthColors[kpi.health_status]} className={linked ? "hover:border-accent/30 transition-colors" : ""}>
       <CardContent className="py-4">
         <div className="flex items-start justify-between">
           <div>
@@ -117,7 +118,7 @@ function KpiTile({ kpi }: { kpi: Kpi }) {
             )}
           </div>
           <div className="flex flex-col items-end gap-2">
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1" onClick={(e) => e.preventDefault()}>
               <AddToTodoButton
                 entityId={kpi.id}
                 entityType="kpi"
@@ -132,6 +133,14 @@ function KpiTile({ kpi }: { kpi: Kpi }) {
         </div>
       </CardContent>
     </Card>
+  );
+
+  if (!linked) return card;
+
+  return (
+    <Link href={`/strategy/scoreboard/${kpi.id}`}>
+      {card}
+    </Link>
   );
 }
 
@@ -167,7 +176,7 @@ function SortableKpiTile({ kpi, reordering }: { kpi: Kpi; reordering: boolean })
             <span className="text-[10px] font-mono uppercase tracking-wider">Drag to reorder</span>
           </div>
         )}
-        <KpiTile kpi={kpi} />
+        <KpiTile kpi={kpi} linked={!reordering} />
       </div>
     </div>
   );

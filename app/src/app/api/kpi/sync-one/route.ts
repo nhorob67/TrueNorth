@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { createServiceClient } from "@/lib/supabase/service";
 import { syncKpiIntegration } from "@/lib/kpi-integrations/sync";
 import type { KpiIntegration } from "@/types/database";
 
@@ -23,10 +22,10 @@ function revalidateKpiPaths(kpiId: string) {
  */
 export async function POST(request: Request) {
   try {
-    const userSupabase = await createClient();
+    const supabase = await createClient();
     const {
       data: { user },
-    } = await userSupabase.auth.getUser();
+    } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -42,7 +41,7 @@ export async function POST(request: Request) {
     }
 
     // Verify user has access to this integration's KPI via RLS
-    const { data: integration, error: fetchError } = await userSupabase
+    const { data: integration, error: fetchError } = await supabase
       .from("kpi_integrations")
       .select("*")
       .eq("id", integration_id)
@@ -55,13 +54,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // Use service client for the actual sync (to bypass RLS for writes)
-    const serviceSupabase = createServiceClient();
     const typedIntegration = integration as KpiIntegration;
-    const result = await syncKpiIntegration(serviceSupabase, typedIntegration);
+    const result = await syncKpiIntegration(supabase, typedIntegration);
 
     if (result.error) {
-      await serviceSupabase
+      await supabase
         .from("kpi_integrations")
         .update({
           last_sync_at: new Date().toISOString(),
@@ -77,7 +74,7 @@ export async function POST(request: Request) {
     }
 
     if (result.value === null) {
-      await serviceSupabase
+      await supabase
         .from("kpi_integrations")
         .update({
           last_sync_at: new Date().toISOString(),
@@ -92,19 +89,34 @@ export async function POST(request: Request) {
       });
     }
 
-    await serviceSupabase.from("kpi_entries").insert({
+    // Write synced data — use authenticated client (RLS allows org members)
+    const { error: entryError } = await supabase.from("kpi_entries").insert({
       kpi_id: typedIntegration.kpi_id,
       value: result.value,
       recorded_at: new Date().toISOString(),
       source: typedIntegration.integration_type,
     });
 
-    await serviceSupabase
+    if (entryError) {
+      return NextResponse.json(
+        { status: "error", error: `Failed to insert kpi_entry: ${entryError.message}` },
+        { status: 500 }
+      );
+    }
+
+    const { error: updateError } = await supabase
       .from("kpis")
       .update({ current_value: result.value })
       .eq("id", typedIntegration.kpi_id);
 
-    await serviceSupabase
+    if (updateError) {
+      return NextResponse.json(
+        { status: "error", error: `Failed to update kpi current_value: ${updateError.message}` },
+        { status: 500 }
+      );
+    }
+
+    const { error: syncStatusError } = await supabase
       .from("kpi_integrations")
       .update({
         last_sync_at: new Date().toISOString(),
@@ -112,6 +124,10 @@ export async function POST(request: Request) {
         last_sync_error: null,
       })
       .eq("id", integration_id);
+
+    if (syncStatusError) {
+      console.error("Failed to update integration sync status:", syncStatusError.message);
+    }
 
     revalidateKpiPaths(typedIntegration.kpi_id);
 
