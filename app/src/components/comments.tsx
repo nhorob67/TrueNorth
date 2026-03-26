@@ -63,7 +63,7 @@ function CommentItem({
             <span className="text-sm font-medium text-ink">
               {authorName}
             </span>
-            <span className="text-xs text-subtle">
+            <span className="text-xs text-subtle" suppressHydrationWarning>
               {new Date(comment.created_at).toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -129,7 +129,7 @@ function ReplyItem({ reply }: { reply: Comment }) {
           <span className="text-xs font-medium text-ink">
             {authorName}
           </span>
-          <span className="text-xs text-subtle">
+          <span className="text-xs text-subtle" suppressHydrationWarning>
             {new Date(reply.created_at).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",

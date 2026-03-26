@@ -45,6 +45,7 @@ export interface CollaborationState {
   ydoc: Y.Doc;
   provider: SupabaseProvider | null;
   awareness: Awareness;
+  isReady: boolean;
   isSynced: boolean;
   collaborators: Array<{
     id: string;
@@ -62,6 +63,7 @@ export function useCollaboration(
   const providerRef = useRef<SupabaseProvider | null>(null);
   const idbRef = useRef<IndexeddbPersistence | null>(null);
 
+  const [isReady, setIsReady] = useState(false);
   const [isSynced, setIsSynced] = useState(false);
   const [collaborators, setCollaborators] = useState<
     Array<{ id: string; name: string; color: string }>
@@ -88,6 +90,9 @@ export function useCollaboration(
     // IndexedDB persistence for offline support
     const idb = new IndexeddbPersistence(`truenorth-collab-${documentId}`, ydoc);
     idbRef.current = idb;
+
+    // Mark as ready once IndexedDB has loaded (or immediately if empty)
+    idb.once("synced", () => setIsReady(true));
 
     // Supabase Realtime provider
     const provider = new SupabaseProvider({
@@ -125,6 +130,7 @@ export function useCollaboration(
       idb.destroy();
       providerRef.current = null;
       idbRef.current = null;
+      setIsReady(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [documentId, user.id, user.name]);
@@ -133,6 +139,7 @@ export function useCollaboration(
     ydoc,
     provider: providerRef.current,
     awareness,
+    isReady,
     isSynced,
     collaborators,
   };

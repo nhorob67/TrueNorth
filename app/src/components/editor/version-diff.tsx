@@ -120,7 +120,7 @@ export function VersionDiff({
       <div className="flex items-center justify-between px-3 py-2 bg-canvas border-b border-line">
         <div className="flex items-center gap-3">
           <h4 className="text-xs font-semibold text-ink">Version Diff</h4>
-          <span className="text-xs text-subtle">
+          <span className="text-xs text-subtle" suppressHydrationWarning>
             {new Date(oldVersion.created_at).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",

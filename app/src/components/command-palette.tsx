@@ -113,6 +113,7 @@ export function CommandPalette({ open, onClose, onOpenQuickTodo, onOpenQuickIdea
       ...(onOpenQuickIdea
         ? [{ label: "New Idea", action: onOpenQuickIdea, keywords: ["submission"] } as CreateItem]
         : [{ label: "New Idea", href: "/execution/ideas", keywords: ["submission"] } as CreateItem]),
+      { label: "New Newsletter Idea", href: "/execution/content/inbox", keywords: ["newsletter", "submission", "discord"] },
       { label: "New Content Piece", href: "/execution/content", keywords: ["writing", "draft"] },
       { label: "New Funnel", href: "/execution/funnels", keywords: ["acquisition"] },
     ],

@@ -193,7 +193,7 @@ function VersionHistory({
           >
             <div className="flex items-center gap-2 text-xs text-subtle">
               <span className="w-1.5 h-1.5 rounded-full bg-accent/30" />
-              <span>
+              <span suppressHydrationWarning>
                 {new Date(v.created_at).toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
@@ -334,7 +334,7 @@ export function ContentEditorView({
   const userCtx = useUserContext();
 
   // Real-time collaboration
-  const { ydoc, awareness, isSynced, collaborators } = useCollaboration(
+  const { ydoc, awareness, isReady, isSynced, collaborators } = useCollaboration(
     piece.id,
     { id: userCtx.userId, name: userCtx.fullName || "Anonymous" }
   );
@@ -545,8 +545,8 @@ export function ContentEditorView({
             onChange={handleEditorChange}
             onCommentCreate={handleCommentCreate}
             placeholder="Start writing your content... Use the toolbar for formatting, or type / for quick actions."
-            ydoc={ydoc}
-            awareness={awareness}
+            ydoc={isReady ? ydoc : undefined}
+            awareness={isReady ? awareness : undefined}
           />
 
           {/* Version Diff (shown below editor when a version is selected) */}
@@ -613,7 +613,7 @@ export function ContentEditorView({
                 <label className="text-xs font-medium text-subtle">
                   Created
                 </label>
-                <p className="text-xs text-subtle">
+                <p className="text-xs text-subtle" suppressHydrationWarning>
                   {new Date(piece.created_at).toLocaleDateString("en-US", {
                     month: "long",
                     day: "numeric",
