@@ -491,9 +491,12 @@ export interface Kpi {
   action_playbook: Record<string, string>;
   formula_description: string | null;
   template_slug: string | null;
+  icon: string | null;
   created_at: string;
   updated_at: string;
 }
+
+export type KpiIconKey = "dollar-sign" | "comment" | "envelope" | "rectangle-ad";
 
 export interface KpiEntry {
   id: string;

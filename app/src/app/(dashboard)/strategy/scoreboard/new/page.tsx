@@ -6,12 +6,14 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { KPI_ICONS } from "@/lib/kpi-icons";
 
 export default function NewKpiPage() {
   const router = useRouter();
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -69,6 +71,7 @@ export default function NewKpiPage() {
       directionality: form.get("directionality") as string,
       target: form.get("target") ? Number(form.get("target")) : null,
       owner_id: user.id,
+      icon: selectedIcon,
       threshold_logic: thresholdLogic,
     });
 
@@ -89,6 +92,29 @@ export default function NewKpiPage() {
           <CardContent className="space-y-4 pt-6">
             <Input id="name" name="name" label="KPI Name" required placeholder="e.g., Monthly Recurring Revenue" />
             <Input id="description" name="description" label="Description" placeholder="What does this KPI measure?" />
+
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-ink">Icon (optional)</label>
+              <div className="flex gap-2">
+                {KPI_ICONS.map((icon) => (
+                  <button
+                    key={icon.key}
+                    type="button"
+                    onClick={() => setSelectedIcon(selectedIcon === icon.key ? null : icon.key)}
+                    className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-colors ${
+                      selectedIcon === icon.key
+                        ? "border-accent bg-accent/10 text-accent"
+                        : "border-line bg-well text-subtle hover:text-ink hover:border-ink/20"
+                    }`}
+                    title={icon.label}
+                  >
+                    <svg className="w-4 h-4" viewBox={icon.viewBox} fill="currentColor">
+                      <path d={icon.path} />
+                    </svg>
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">

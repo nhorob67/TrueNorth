@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { KpiIconBadge } from "@/lib/kpi-icons";
 
 interface KpiEntry {
   id: string;
@@ -29,6 +30,7 @@ interface Kpi {
   threshold_logic: Record<string, number>;
   action_playbook: Record<string, string>;
   formula_description: string | null;
+  icon: string | null;
 }
 
 function DataEntryForm({ kpiId, onAdded }: { kpiId: string; onAdded: () => void }) {
@@ -108,6 +110,7 @@ export function KpiDetailView({
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-3">
+                <KpiIconBadge iconKey={kpi.icon} healthStatus={kpi.health_status} />
                 <h1 className="font-display text-[22px] font-bold tracking-[-0.02em]">{kpi.name}</h1>
                 <Button
                   variant="tertiary"

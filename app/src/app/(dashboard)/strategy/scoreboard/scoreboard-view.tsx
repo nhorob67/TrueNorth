@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ui/loading";
 import { AddToTodoButton } from "@/components/add-to-todo-button";
 import { KpiLinkageMap } from "@/components/kpi-linkage-map";
 import { KPI_TEMPLATES } from "@/lib/kpi-templates";
+import { KpiIconBadge } from "@/lib/kpi-icons";
 
 interface KpiEntry {
   value: number;
@@ -26,6 +27,7 @@ interface Kpi {
   health_status: "green" | "yellow" | "red";
   frequency: string;
   owner_id: string;
+  icon: string | null;
   kpi_entries: KpiEntry[];
   linked_driver_kpis: string[];
 }
@@ -80,7 +82,10 @@ function KpiTile({ kpi }: { kpi: Kpi }) {
       <CardContent className="py-4">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-sm font-medium text-ink">{kpi.name}</p>
+            <div className="flex items-center gap-2">
+              <KpiIconBadge iconKey={kpi.icon} healthStatus={kpi.health_status} />
+              <p className="text-sm font-medium text-ink">{kpi.name}</p>
+            </div>
             <div className="mt-1 flex items-baseline gap-2">
               <span className="text-2xl font-mono font-bold">
                 {kpi.current_value ?? "—"}

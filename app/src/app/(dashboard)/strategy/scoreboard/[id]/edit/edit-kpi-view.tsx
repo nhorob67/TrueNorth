@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { KPI_ICONS } from "@/lib/kpi-icons";
 
 interface Kpi {
   id: string;
@@ -20,6 +21,7 @@ interface Kpi {
   action_playbook: Record<string, string>;
   formula_description: string | null;
   lifecycle_status: string;
+  icon: string | null;
 }
 
 export function EditKpiView({ kpi }: { kpi: Kpi }) {
@@ -27,6 +29,7 @@ export function EditKpiView({ kpi }: { kpi: Kpi }) {
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedIcon, setSelectedIcon] = useState<string | null>(kpi.icon);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -59,6 +62,7 @@ export function EditKpiView({ kpi }: { kpi: Kpi }) {
         target: form.get("target") ? Number(form.get("target")) : null,
         formula_description: (form.get("formula_description") as string) || null,
         lifecycle_status: form.get("lifecycle_status") as string,
+        icon: selectedIcon,
         threshold_logic: thresholdLogic,
         action_playbook: actionPlaybook,
       })
@@ -102,6 +106,29 @@ export function EditKpiView({ kpi }: { kpi: Kpi }) {
               label="Description"
               defaultValue={kpi.description ?? ""}
             />
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-ink">Icon (optional)</label>
+              <div className="flex gap-2">
+                {KPI_ICONS.map((icon) => (
+                  <button
+                    key={icon.key}
+                    type="button"
+                    onClick={() => setSelectedIcon(selectedIcon === icon.key ? null : icon.key)}
+                    className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-colors ${
+                      selectedIcon === icon.key
+                        ? "border-accent bg-accent/10 text-accent"
+                        : "border-line bg-well text-subtle hover:text-ink hover:border-ink/20"
+                    }`}
+                    title={icon.label}
+                  >
+                    <svg className="w-4 h-4" viewBox={icon.viewBox} fill="currentColor">
+                      <path d={icon.path} />
+                    </svg>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <Input
               id="formula_description"
               name="formula_description"
