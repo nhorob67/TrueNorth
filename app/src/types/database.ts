@@ -557,6 +557,7 @@ export interface Kpi {
   formula_description: string | null;
   template_slug: string | null;
   icon: string | null;
+  display_order: number;
   created_at: string;
   updated_at: string;
 }

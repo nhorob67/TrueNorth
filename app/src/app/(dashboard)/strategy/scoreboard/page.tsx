@@ -8,6 +8,7 @@ export default async function ScoreboardPage() {
     .from("kpis")
     .select("*, kpi_entries(value, recorded_at)")
     .eq("lifecycle_status", "active")
+    .order("display_order")
     .order("tier", { ascending: true })
     .order("name");
 

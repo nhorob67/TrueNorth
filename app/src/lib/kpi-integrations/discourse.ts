@@ -25,11 +25,11 @@ interface DiscourseConfig {
 interface DiscourseAboutResponse {
   about: {
     stats: {
-      user_count: number;
+      users_count: number;
       active_users_7_days: number;
       active_users_30_days: number;
-      topic_count: number;
-      post_count: number;
+      topics_count: number;
+      posts_count: number;
       topics_7_days: number;
       posts_7_days: number;
       likes_7_days: number;
@@ -237,7 +237,7 @@ export async function fetchDiscourseMetric(config: DiscourseConfig): Promise<num
 
   switch (metric) {
     case "user_count":
-      return stats.user_count;
+      return stats.users_count;
     case "active_users_7_days":
       return stats.active_users_7_days;
     case "active_users_30_days":

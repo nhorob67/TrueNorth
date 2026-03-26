@@ -18,6 +18,7 @@ interface HomeProps {
     target: number | null;
     health_status: string;
     icon: string | null;
+    display_order: number;
   }>;
   atRiskBets: Array<{
     id: string;

@@ -2,6 +2,22 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -119,10 +135,98 @@ function KpiTile({ kpi }: { kpi: Kpi }) {
   );
 }
 
-export function ScoreboardView({ kpis }: { kpis: Kpi[] }) {
+function SortableKpiTile({ kpi, reordering }: { kpi: Kpi; reordering: boolean }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: kpi.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...(reordering ? listeners : {})}>
+      <div className={reordering ? "cursor-grab active:cursor-grabbing" : ""}>
+        {reordering && (
+          <div className="flex items-center gap-1 mb-1 text-subtle">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+              <circle cx="5" cy="3" r="1.5" />
+              <circle cx="11" cy="3" r="1.5" />
+              <circle cx="5" cy="8" r="1.5" />
+              <circle cx="11" cy="8" r="1.5" />
+              <circle cx="5" cy="13" r="1.5" />
+              <circle cx="11" cy="13" r="1.5" />
+            </svg>
+            <span className="text-[10px] font-mono uppercase tracking-wider">Drag to reorder</span>
+          </div>
+        )}
+        <KpiTile kpi={kpi} />
+      </div>
+    </div>
+  );
+}
+
+export function ScoreboardView({ kpis: initialKpis }: { kpis: Kpi[] }) {
   const [filter, setFilter] = useState<"all" | "red" | "yellow">("all");
   const [seeding, setSeeding] = useState(false);
+  const [reordering, setReordering] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [kpis, setKpis] = useState(initialKpis);
   const router = useRouter();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    setKpis((prev) => {
+      const oldIndex = prev.findIndex((k) => k.id === active.id);
+      const newIndex = prev.findIndex((k) => k.id === over.id);
+      if (oldIndex === -1 || newIndex === -1) return prev;
+      const updated = [...prev];
+      const [moved] = updated.splice(oldIndex, 1);
+      updated.splice(newIndex, 0, moved);
+      return updated;
+    });
+  }
+
+  async function saveOrder() {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/kpi/reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderedIds: kpis.map((k) => k.id) }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(`Failed to save order: ${data.error}`);
+        return;
+      }
+      setReordering(false);
+      router.refresh();
+    } catch (err) {
+      alert(`Failed: ${err instanceof Error ? err.message : "Unknown error"}`);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function cancelReorder() {
+    setKpis(initialKpis);
+    setReordering(false);
+  }
 
   async function handleSeedDefaults() {
     setSeeding(true);
@@ -300,20 +404,40 @@ export function ScoreboardView({ kpis }: { kpis: Kpi[] }) {
               </button>
             ))}
           </div>
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={handleSeedDefaults}
-            disabled={seeding}
-          >
-            {seeding ? "Seeding..." : "Seed Default KPIs"}
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => (window.location.href = "/strategy/scoreboard/new")}
-          >
-            Add KPI
-          </Button>
+          {reordering ? (
+            <>
+              <Button size="sm" variant="secondary" onClick={cancelReorder}>
+                Cancel
+              </Button>
+              <Button size="sm" onClick={saveOrder} disabled={saving}>
+                {saving ? "Saving..." : "Save Order"}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setReordering(true)}
+              >
+                Reorder
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleSeedDefaults}
+                disabled={seeding}
+              >
+                {seeding ? "Seeding..." : "Seed Default KPIs"}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => (window.location.href = "/strategy/scoreboard/new")}
+              >
+                Add KPI
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -328,30 +452,49 @@ export function ScoreboardView({ kpis }: { kpis: Kpi[] }) {
         }))}
       />
 
-      {filterKpis(tier1).length > 0 && (
-        <section className="mb-8 mt-6">
-          <h2 className="text-sm font-semibold text-subtle uppercase tracking-wider mb-3">
-            Tier 1 — Lagging Indicators
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filterKpis(tier1).map((kpi) => (
-              <KpiTile key={kpi.id} kpi={kpi} />
-            ))}
-          </div>
-        </section>
-      )}
+      {reordering ? (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <section className="mb-8 mt-6">
+            <h2 className="text-sm font-semibold text-subtle uppercase tracking-wider mb-3">
+              All KPIs — Drag to Reorder
+            </h2>
+            <SortableContext items={kpis.map((k) => k.id)} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {kpis.map((kpi) => (
+                  <SortableKpiTile key={kpi.id} kpi={kpi} reordering />
+                ))}
+              </div>
+            </SortableContext>
+          </section>
+        </DndContext>
+      ) : (
+        <>
+          {filterKpis(tier1).length > 0 && (
+            <section className="mb-8 mt-6">
+              <h2 className="text-sm font-semibold text-subtle uppercase tracking-wider mb-3">
+                Tier 1 — Lagging Indicators
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filterKpis(tier1).map((kpi) => (
+                  <KpiTile key={kpi.id} kpi={kpi} />
+                ))}
+              </div>
+            </section>
+          )}
 
-      {filterKpis(tier2).length > 0 && (
-        <section>
-          <h2 className="text-sm font-semibold text-subtle uppercase tracking-wider mb-3">
-            Tier 2 — Leading Indicators
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filterKpis(tier2).map((kpi) => (
-              <KpiTile key={kpi.id} kpi={kpi} />
-            ))}
-          </div>
-        </section>
+          {filterKpis(tier2).length > 0 && (
+            <section>
+              <h2 className="text-sm font-semibold text-subtle uppercase tracking-wider mb-3">
+                Tier 2 — Leading Indicators
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filterKpis(tier2).map((kpi) => (
+                  <KpiTile key={kpi.id} kpi={kpi} />
+                ))}
+              </div>
+            </section>
+          )}
+        </>
       )}
     </div>
   );

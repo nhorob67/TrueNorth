@@ -26,8 +26,9 @@ export default async function HomePage() {
     // All active KPIs for scoreboard snapshot
     supabase
       .from("kpis")
-      .select("id, name, unit, tier, current_value, target, health_status, icon")
+      .select("id, name, unit, tier, current_value, target, health_status, icon, display_order")
       .eq("lifecycle_status", "active")
+      .order("display_order")
       .order("tier")
       .order("name"),
     // At-risk bets
