@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/client";
 import { isOverdue, timeAgo, formatKpiValue, PRIORITY_COLOR, healthBadgeStatus } from "@/lib/format";
+import { KpiIconBadge } from "@/lib/kpi-icons";
 
 interface HomeProps {
   kpis: Array<{
@@ -16,6 +17,7 @@ interface HomeProps {
     current_value: number | null;
     target: number | null;
     health_status: string;
+    icon: string | null;
   }>;
   atRiskBets: Array<{
     id: string;
@@ -106,7 +108,10 @@ export function HomeView({
               <Card className="hover:border-accent/30 transition-colors cursor-pointer">
                 <CardContent className="py-3 px-4">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-subtle truncate mr-2">{kpi.name}</span>
+                    <div className="flex items-center gap-1.5 truncate mr-2">
+                      <KpiIconBadge iconKey={kpi.icon} healthStatus={kpi.health_status as "green" | "yellow" | "red"} />
+                      <span className="text-xs text-subtle truncate">{kpi.name}</span>
+                    </div>
                     <Badge status={healthBadgeStatus(kpi.health_status)} />
                   </div>
                   <div className="text-lg font-semibold font-mono">

@@ -26,7 +26,7 @@ export default async function HomePage() {
     // All active KPIs for scoreboard snapshot
     supabase
       .from("kpis")
-      .select("id, name, unit, tier, current_value, target, health_status")
+      .select("id, name, unit, tier, current_value, target, health_status, icon")
       .eq("lifecycle_status", "active")
       .order("tier")
       .order("name"),
