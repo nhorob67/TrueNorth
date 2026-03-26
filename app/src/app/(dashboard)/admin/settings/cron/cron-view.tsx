@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/loading";
 import { previewFormatTemplate, DEFAULT_FORMAT_TEMPLATE } from "@/lib/cron/format";
-import { DEFAULT_SYSTEM_PROMPTS } from "@/lib/cron/llm-composer";
+import { DEFAULT_SYSTEM_PROMPTS } from "@/lib/cron/system-prompts";
 import type {
   CronJob,
   CronExecution,
