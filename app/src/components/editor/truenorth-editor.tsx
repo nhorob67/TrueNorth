@@ -10,7 +10,6 @@ import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { Image } from "@tiptap/extension-image";
-import { Link } from "@tiptap/extension-link";
 import { HorizontalRule } from "@tiptap/extension-horizontal-rule";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
@@ -77,6 +76,12 @@ export function TrueNorthEditor({
             class: "truenorth-code-block",
           },
         },
+        link: {
+          openOnClick: false,
+          HTMLAttributes: {
+            class: "truenorth-link",
+          },
+        },
         // When collaborative, disable StarterKit's built-in history
         // since Yjs manages undo/redo via its own UndoManager
         ...(isCollaborative ? { history: false } : {}),
@@ -86,12 +91,6 @@ export function TrueNorthEditor({
       }),
       Typography,
       HorizontalRule,
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          class: "truenorth-link",
-        },
-      }),
       Image.configure({
         HTMLAttributes: {
           class: "truenorth-image",
