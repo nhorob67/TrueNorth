@@ -68,28 +68,42 @@ export async function POST(request: Request) {
       });
     }
 
-    if (result.value !== null) {
-      await serviceSupabase.from("kpi_entries").insert({
-        kpi_id: typedIntegration.kpi_id,
-        value: result.value,
-        recorded_at: new Date().toISOString(),
-        source: typedIntegration.integration_type,
-      });
-
-      await serviceSupabase
-        .from("kpis")
-        .update({ current_value: result.value })
-        .eq("id", typedIntegration.kpi_id);
-
+    if (result.value === null) {
       await serviceSupabase
         .from("kpi_integrations")
         .update({
           last_sync_at: new Date().toISOString(),
-          last_sync_status: "success",
+          last_sync_status: "no_data",
           last_sync_error: null,
         })
         .eq("id", integration_id);
+
+      return NextResponse.json({
+        status: "no_data",
+        value: null,
+      });
     }
+
+    await serviceSupabase.from("kpi_entries").insert({
+      kpi_id: typedIntegration.kpi_id,
+      value: result.value,
+      recorded_at: new Date().toISOString(),
+      source: typedIntegration.integration_type,
+    });
+
+    await serviceSupabase
+      .from("kpis")
+      .update({ current_value: result.value })
+      .eq("id", typedIntegration.kpi_id);
+
+    await serviceSupabase
+      .from("kpi_integrations")
+      .update({
+        last_sync_at: new Date().toISOString(),
+        last_sync_status: "success",
+        last_sync_error: null,
+      })
+      .eq("id", integration_id);
 
     return NextResponse.json({
       status: "success",

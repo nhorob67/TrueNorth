@@ -107,13 +107,17 @@ function IntegrationRow({
   async function handleSyncNow() {
     setSyncing(true);
     try {
-      await fetch("/api/kpi/sync-one", {
+      const res = await fetch("/api/kpi/sync-one", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ integration_id: integration.id }),
       });
-    } catch {
-      // Sync error handled server-side
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        console.error("Sync failed:", res.status, body);
+      }
+    } catch (err) {
+      console.error("Sync request failed:", err);
     }
     setSyncing(false);
     onRefresh();
