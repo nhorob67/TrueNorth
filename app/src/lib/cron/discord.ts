@@ -76,3 +76,29 @@ export async function postToDiscordWebhook(
     statusText: response.statusText,
   };
 }
+
+/**
+ * Post a plain-text message to a Discord webhook.
+ * Used by external source cron jobs where the LLM composes
+ * a natural message instead of structured embed fields.
+ */
+export async function postTextToDiscordWebhook(
+  webhookUrl: string,
+  text: string,
+  username?: string
+): Promise<{ ok: boolean; status: number; statusText: string }> {
+  const response = await fetch(webhookUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      content: text,
+      username: username ?? "TrueNorth",
+    }),
+  });
+
+  return {
+    ok: response.ok,
+    status: response.status,
+    statusText: response.statusText,
+  };
+}

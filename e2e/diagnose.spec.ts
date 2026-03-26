@@ -13,10 +13,10 @@ async function login(page: Page) {
 }
 
 const failingRoutes = [
-  "/launch", "/portfolio", "/vision", "/scoreboard",
-  "/ideas", "/content", "/funnels", "/pulse",
-  "/sync", "/ops", "/processes", "/health",
-  "/narratives", "/activity", "/todos", "/profile",
+  "/strategy/launch", "/strategy/portfolio", "/strategy/vision", "/strategy/scoreboard",
+  "/execution/ideas", "/execution/content", "/execution/funnels", "/reviews/pulse",
+  "/reviews/sync", "/reviews/operations", "/library/processes", "/reviews/health",
+  "/reviews/narratives", "/activity", "/todos", "/profile",
 ];
 
 test("diagnose failing routes via direct navigation", async ({ page }) => {

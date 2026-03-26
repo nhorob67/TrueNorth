@@ -12,7 +12,14 @@ async function login(page: Page) {
   await page.waitForLoadState("networkidle");
 }
 
-const errorRoutes = ["/vision", "/pulse", "/sync", "/health", "/narratives", "/profile"];
+const errorRoutes = [
+  "/strategy/vision",
+  "/reviews/pulse",
+  "/reviews/sync",
+  "/reviews/health",
+  "/reviews/narratives",
+  "/profile",
+];
 
 test("capture error messages from error boundary pages", async ({ page }) => {
   await login(page);

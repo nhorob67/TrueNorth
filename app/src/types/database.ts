@@ -326,6 +326,30 @@ export interface ContentVersion {
 }
 
 // ============================================================
+// Newsletter Submissions (Discord Inbox)
+// ============================================================
+
+export type NewsletterSubmissionStatus = "pending" | "accepted" | "parked" | "dismissed";
+
+export interface NewsletterSubmission {
+  id: string;
+  organization_id: string;
+  venture_id: string;
+  title: string;
+  body: string;
+  submitter_discord_id: string;
+  submitter_discord_name: string;
+  discord_message_id: string;
+  discord_channel_id: string;
+  status: NewsletterSubmissionStatus;
+  triaged_by: string | null;
+  triaged_at: string | null;
+  content_piece_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ============================================================
 // Funnel Registry (Pillar 7)
 // ============================================================
 
@@ -366,9 +390,12 @@ export interface Todo {
   organization_id: string;
   user_id: string;
   title: string;
+  description: string | null;
   completed: boolean;
   due_date: string | null;
   priority: TodoPriority;
+  labels: string[];
+  position: number | null;
   linked_entity_id: string | null;
   linked_entity_type: EntityType | null;
   visibility: TodoVisibility;
@@ -376,9 +403,35 @@ export interface Todo {
   updated_at: string;
 }
 
+export interface TodoChecklistItem {
+  id: string;
+  todo_id: string;
+  title: string;
+  completed: boolean;
+  position: number;
+  created_at: string;
+}
+
 // ============================================================
 // Cron Broadcast Engine
 // ============================================================
+
+export type CronJobType = "template" | "external_source";
+
+export interface KitSubscribersConfig {
+  source_type: "kit_subscribers";
+  api_key_env: string;
+}
+
+export interface DiscourseUnrepliedConfig {
+  source_type: "discourse_unreplied";
+  api_key_env: string;
+  api_username_env: string;
+  base_url: string;
+  exclude_usernames: string[];
+}
+
+export type ExternalSourceConfig = KitSubscribersConfig | DiscourseUnrepliedConfig;
 
 export interface CronJob {
   id: string;
@@ -392,11 +445,23 @@ export interface CronJob {
   discord_channel_id: string | null;
   discord_webhook_url: string | null;
   enabled: boolean;
+  job_type: CronJobType;
+  external_config: ExternalSourceConfig | null;
+  system_prompt: string | null;
   last_run_at: string | null;
   last_run_status: string | null;
   last_run_result: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface KitSubscriberHistory {
+  id: string;
+  organization_id: string;
+  cron_job_id: string;
+  subscriber_count: number;
+  recorded_at: string;
+  created_at: string;
 }
 
 export interface CronExecution {

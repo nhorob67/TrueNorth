@@ -19,6 +19,7 @@ import { summarizeThread, type ThreadSummary } from "./summarize.js";
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN!;
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID!;
+const NEWSLETTER_CHANNEL_ID = process.env.NEWSLETTER_CHANNEL_ID;
 
 // ---------------------------------------------------------------------------
 // Command definitions
@@ -100,6 +101,10 @@ const commands = [
           { name: "Retrospective", value: "retrospective" }
         )
     ),
+  new SlashCommandBuilder()
+    .setName("newsletter-idea")
+    .setDescription("Submit a newsletter topic idea")
+    .addStringOption((opt) => opt.setName("idea").setDescription("Your newsletter idea").setRequired(true)),
 ];
 
 // ---------------------------------------------------------------------------
@@ -678,6 +683,51 @@ async function handleIdea(interaction: ChatInputCommandInteraction) {
         .setColor(MOSS)
         .setTitle("\u{1F4A1} Idea Submitted")
         .setDescription(`**${truncate(name)}**\n\n14-day cooling period started.\n\n[Open Ideas](${APP_URL}/ideas)`)
+        .setFooter({ text: `ID: ${data.id}` }),
+    ],
+  });
+}
+
+async function handleNewsletterIdea(interaction: ChatInputCommandInteraction) {
+  await interaction.deferReply();
+
+  const idea = interaction.options.getString("idea", true);
+  const orgId = await getOrgId();
+
+  const { data: venture, error: ventureError } = await supabase
+    .from("ventures")
+    .select("id")
+    .eq("organization_id", orgId)
+    .limit(1)
+    .single();
+
+  if (ventureError) throw new Error(`Failed to find venture: ${ventureError.message}`);
+
+  const title = idea.split("\n")[0].slice(0, 100);
+
+  const { data, error } = await supabase
+    .from("newsletter_submissions")
+    .insert({
+      organization_id: orgId,
+      venture_id: venture.id,
+      title,
+      body: idea,
+      submitter_discord_id: interaction.user.id,
+      submitter_discord_name: interaction.user.displayName ?? interaction.user.username,
+      discord_message_id: interaction.id,
+      discord_channel_id: interaction.channelId,
+    })
+    .select("id")
+    .single();
+
+  if (error) throw new Error(`Failed to submit newsletter idea: ${error.message}`);
+
+  await interaction.editReply({
+    embeds: [
+      new EmbedBuilder()
+        .setColor(MOSS)
+        .setTitle("\u{1F4EC} Newsletter Idea Submitted")
+        .setDescription(`**${truncate(title, 80)}**\n\nYour idea is now in the inbox for triage.\n\n[Open Inbox](${APP_URL}/execution/content/inbox)`)
         .setFooter({ text: `ID: ${data.id}` }),
     ],
   });
@@ -1347,6 +1397,9 @@ client.on("interactionCreate", async (interaction) => {
       case "memo":
         await handleMemo(interaction);
         break;
+      case "newsletter-idea":
+        await handleNewsletterIdea(interaction);
+        break;
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : "An unexpected error occurred";
@@ -1362,5 +1415,62 @@ client.on("interactionCreate", async (interaction) => {
     }
   }
 });
+
+// ---------------------------------------------------------------------------
+// Newsletter channel listener — captures messages as newsletter submissions
+// ---------------------------------------------------------------------------
+
+if (NEWSLETTER_CHANNEL_ID) {
+  client.on("messageCreate", async (message) => {
+    if (message.channel.id !== NEWSLETTER_CHANNEL_ID) return;
+    if (message.author.bot) return;
+    if (!message.content || message.content.trim().length < 10) return;
+
+    try {
+      const orgId = await getOrgId();
+
+      const { data: venture } = await supabase
+        .from("ventures")
+        .select("id")
+        .eq("organization_id", orgId)
+        .limit(1)
+        .single();
+
+      if (!venture) {
+        console.error("Newsletter listener: no venture found");
+        return;
+      }
+
+      const content = message.content.trim();
+      const title = content.split("\n")[0].slice(0, 100);
+
+      const { error } = await supabase
+        .from("newsletter_submissions")
+        .insert({
+          organization_id: orgId,
+          venture_id: venture.id,
+          title,
+          body: content,
+          submitter_discord_id: message.author.id,
+          submitter_discord_name: message.author.displayName ?? message.author.username,
+          discord_message_id: message.id,
+          discord_channel_id: message.channel.id,
+        });
+
+      if (error) {
+        // Unique constraint violation = already captured, silently ignore
+        if (error.code === "23505") return;
+        console.error("Newsletter listener insert error:", error.message);
+        return;
+      }
+
+      await message.react("\u2705"); // ✅
+    } catch (err) {
+      console.error("Newsletter listener error:", err);
+    }
+  });
+
+  console.log(`Newsletter listener enabled for channel ${NEWSLETTER_CHANNEL_ID}`);
+}
 
 registerCommands().then(() => client.login(DISCORD_TOKEN));

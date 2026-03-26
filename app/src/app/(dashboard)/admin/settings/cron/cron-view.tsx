@@ -9,7 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/loading";
 import { previewFormatTemplate, DEFAULT_FORMAT_TEMPLATE } from "@/lib/cron/format";
-import type { CronJob, CronExecution } from "@/types/database";
+import { DEFAULT_SYSTEM_PROMPTS } from "@/lib/cron/llm-composer";
+import type {
+  CronJob,
+  CronExecution,
+  CronJobType,
+  ExternalSourceConfig,
+  KitSubscribersConfig,
+  DiscourseUnrepliedConfig,
+} from "@/types/database";
 
 // Template options (mirrors TEMPLATE_REGISTRY keys)
 const TEMPLATE_OPTIONS = [
@@ -53,6 +61,11 @@ const DAY_FILTER_OPTIONS = [
   { value: "", label: "No filter" },
   { value: "weekday", label: "Weekdays only (Mon-Fri)" },
   { value: "month_start", label: "1st of month only" },
+];
+
+const EXTERNAL_SOURCE_OPTIONS = [
+  { value: "kit_subscribers", label: "Kit Newsletter Subscribers" },
+  { value: "discourse_unreplied", label: "Discourse Unreplied Posts" },
 ];
 
 interface CronViewProps {
@@ -138,6 +151,52 @@ function FormatTemplateEditor({
 }
 
 // ============================================================
+// System Prompt Editor
+// ============================================================
+
+function SystemPromptEditor({
+  value,
+  onChange,
+  sourceType,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  sourceType: string;
+}) {
+  const defaultPrompt = DEFAULT_SYSTEM_PROMPTS[sourceType] ?? "";
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <label className="block text-sm font-medium text-ink">
+          System Prompt (LLM persona)
+        </label>
+        {value !== defaultPrompt && (
+          <button
+            type="button"
+            className="text-xs text-accent hover:underline"
+            onClick={() => onChange(defaultPrompt)}
+          >
+            Reset to default
+          </button>
+        )}
+      </div>
+
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Describe the persona and communication style for the LLM..."
+        className="block w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm min-h-[120px] focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
+      />
+
+      <p className="text-xs text-subtle">
+        {value.length} characters &middot; This prompt guides the LLM when composing Discord messages from the source data.
+      </p>
+    </div>
+  );
+}
+
+// ============================================================
 // Create / Edit Form
 // ============================================================
 
@@ -153,8 +212,18 @@ interface JobFormData {
   // Conditional logic
   only_if_data: boolean;
   day_filter: string;
-  // Format template
+  // Format template (template jobs only)
   handlebars_template: string;
+  // Job type
+  job_type: CronJobType;
+  // External source config
+  source_type: string;
+  kit_api_key_env: string;
+  discourse_api_key_env: string;
+  discourse_api_username_env: string;
+  discourse_base_url: string;
+  discourse_exclude_usernames: string;
+  system_prompt: string;
 }
 
 const EMPTY_FORM: JobFormData = {
@@ -169,7 +238,40 @@ const EMPTY_FORM: JobFormData = {
   only_if_data: false,
   day_filter: "",
   handlebars_template: "",
+  job_type: "template",
+  source_type: "kit_subscribers",
+  kit_api_key_env: "KIT_API_KEY",
+  discourse_api_key_env: "DISCOURSE_API_KEY",
+  discourse_api_username_env: "DISCOURSE_API_USERNAME",
+  discourse_base_url: "",
+  discourse_exclude_usernames: "",
+  system_prompt: DEFAULT_SYSTEM_PROMPTS.kit_subscribers ?? "",
 };
+
+function buildExternalConfig(form: JobFormData): ExternalSourceConfig | null {
+  if (form.job_type !== "external_source") return null;
+
+  switch (form.source_type) {
+    case "kit_subscribers":
+      return {
+        source_type: "kit_subscribers",
+        api_key_env: form.kit_api_key_env || "KIT_API_KEY",
+      } satisfies KitSubscribersConfig;
+    case "discourse_unreplied":
+      return {
+        source_type: "discourse_unreplied",
+        api_key_env: form.discourse_api_key_env || "DISCOURSE_API_KEY",
+        api_username_env: form.discourse_api_username_env || "DISCOURSE_API_USERNAME",
+        base_url: form.discourse_base_url,
+        exclude_usernames: form.discourse_exclude_usernames
+          .split(",")
+          .map((u) => u.trim())
+          .filter(Boolean),
+      } satisfies DiscourseUnrepliedConfig;
+    default:
+      return null;
+  }
+}
 
 function CronJobForm({
   initial,
@@ -191,9 +293,48 @@ function CronJobForm({
   const [useComposed, setUseComposed] = useState(
     initial.query_template.includes(",")
   );
+  const [testMessage, setTestMessage] = useState<string | null>(null);
+  const [testing, setTesting] = useState(false);
 
   const isCustom = form.schedule === "custom";
   const effectiveSchedule = isCustom ? form.customSchedule : form.schedule;
+  const isExternal = form.job_type === "external_source";
+
+  // Auto-fill system prompt when source type changes
+  function handleSourceTypeChange(newSourceType: string) {
+    const defaultPrompt = DEFAULT_SYSTEM_PROMPTS[newSourceType] ?? "";
+    setForm({
+      ...form,
+      source_type: newSourceType,
+      system_prompt: defaultPrompt,
+    });
+  }
+
+  async function handleTestFireExternal() {
+    setTesting(true);
+    setTestMessage(null);
+    try {
+      const res = await fetch("/api/cron/test-fire", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          externalConfig: buildExternalConfig(form),
+          systemPrompt: form.system_prompt,
+          jobId: editId ?? "adhoc",
+        }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        setTestMessage(`Error: ${data.error}`);
+      } else {
+        setTestMessage(data.message);
+      }
+    } catch (err) {
+      setTestMessage(`Error: ${err instanceof Error ? err.message : "Unknown error"}`);
+    } finally {
+      setTesting(false);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -207,38 +348,44 @@ function CronJobForm({
     const formatTemplate: Record<string, unknown> = {};
     if (form.only_if_data) formatTemplate.only_if_data = true;
     if (form.day_filter) formatTemplate.day_filter = form.day_filter;
-    if (form.handlebars_template.trim()) {
+    if (!isExternal && form.handlebars_template.trim()) {
       formatTemplate.handlebars_template = form.handlebars_template;
     }
 
-    const payload = {
+    const payload: Record<string, unknown> = {
       organization_id: orgId,
       venture_id: form.venture_id || null,
       name: form.name.trim(),
       description: form.description.trim() || null,
       schedule: effectiveSchedule,
-      query_template: form.query_template,
+      query_template: isExternal ? form.source_type : form.query_template,
       discord_webhook_url: form.discord_webhook_url.trim() || null,
       enabled: form.enabled,
       format_template: Object.keys(formatTemplate).length > 0 ? formatTemplate : null,
+      job_type: form.job_type,
+      external_config: buildExternalConfig(form),
+      system_prompt: isExternal ? form.system_prompt || null : null,
       updated_at: new Date().toISOString(),
     };
 
+    let saveError: string | null = null;
     if (editId) {
       const { error: err } = await supabase
         .from("cron_jobs")
         .update(payload)
         .eq("id", editId);
-      if (err) setError(err.message);
+      if (err) saveError = err.message;
     } else {
       const { error: err } = await supabase
         .from("cron_jobs")
         .insert(payload);
-      if (err) setError(err.message);
+      if (err) saveError = err.message;
     }
 
     setSaving(false);
-    if (!error) {
+    if (saveError) {
+      setError(saveError);
+    } else {
       onClose();
       router.refresh();
     }
@@ -253,11 +400,47 @@ function CronJobForm({
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Job Type Toggle */}
+          <div>
+            <label className="block text-sm font-medium text-ink mb-2">
+              Job Type
+            </label>
+            <div className="flex rounded-lg border border-line overflow-hidden">
+              <button
+                type="button"
+                className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+                  !isExternal
+                    ? "bg-accent text-white"
+                    : "bg-surface text-subtle hover:bg-canvas"
+                }`}
+                onClick={() => setForm({ ...form, job_type: "template" })}
+              >
+                Database Template
+              </button>
+              <button
+                type="button"
+                className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+                  isExternal
+                    ? "bg-accent text-white"
+                    : "bg-surface text-subtle hover:bg-canvas"
+                }`}
+                onClick={() => setForm({ ...form, job_type: "external_source" })}
+              >
+                External Source
+              </button>
+            </div>
+            <p className="text-xs text-subtle mt-1">
+              {isExternal
+                ? "Fetches data from an external API, composes a message via LLM, and posts to Discord."
+                : "Queries internal database templates and broadcasts structured data to Discord."}
+            </p>
+          </div>
+
           <Input
             label="Name"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            placeholder="Morning KPI broadcast"
+            placeholder={isExternal ? "Newsletter subscriber report" : "Morning KPI broadcast"}
             required
           />
 
@@ -265,7 +448,7 @@ function CronJobForm({
             label="Description (optional)"
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
-            placeholder="Posts KPI scoreboard to Discord every morning"
+            placeholder={isExternal ? "Reports daily subscriber count changes" : "Posts KPI scoreboard to Discord every morning"}
           />
 
           <div>
@@ -306,72 +489,167 @@ function CronJobForm({
             )}
           </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-sm font-medium text-ink">
-                Query Template{useComposed ? "s (comma-separated)" : ""}
-              </label>
-              <button
-                type="button"
-                className="text-xs text-accent hover:underline"
-                onClick={() => setUseComposed(!useComposed)}
-              >
-                {useComposed ? "Single template" : "Compose multiple"}
-              </button>
-            </div>
+          {/* Template-specific fields */}
+          {!isExternal && (
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium text-ink">
+                  Query Template{useComposed ? "s (comma-separated)" : ""}
+                </label>
+                <button
+                  type="button"
+                  className="text-xs text-accent hover:underline"
+                  onClick={() => setUseComposed(!useComposed)}
+                >
+                  {useComposed ? "Single template" : "Compose multiple"}
+                </button>
+              </div>
 
-            {useComposed ? (
-              <div className="space-y-2">
-                <Input
+              {useComposed ? (
+                <div className="space-y-2">
+                  <Input
+                    value={form.query_template}
+                    onChange={(e) =>
+                      setForm({ ...form, query_template: e.target.value })
+                    }
+                    placeholder="kpi_scoreboard,blocker_report"
+                  />
+                  <p className="text-xs text-subtle">
+                    Comma-separated template keys. Results are merged into a single broadcast.
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {TEMPLATE_OPTIONS.map((t) => (
+                      <button
+                        key={t.value}
+                        type="button"
+                        className="text-xs px-2 py-0.5 rounded border border-line hover:bg-canvas text-subtle"
+                        onClick={() => {
+                          const current = form.query_template
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter(Boolean);
+                          if (!current.includes(t.value)) {
+                            setForm({
+                              ...form,
+                              query_template: [...current, t.value].join(","),
+                            });
+                          }
+                        }}
+                      >
+                        + {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <select
+                  className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink"
                   value={form.query_template}
                   onChange={(e) =>
                     setForm({ ...form, query_template: e.target.value })
                   }
-                  placeholder="kpi_scoreboard,blocker_report"
-                />
-                <p className="text-xs text-subtle">
-                  Comma-separated template keys. Results are merged into a single broadcast.
-                </p>
-                <div className="flex flex-wrap gap-1">
+                >
                   {TEMPLATE_OPTIONS.map((t) => (
-                    <button
-                      key={t.value}
-                      type="button"
-                      className="text-xs px-2 py-0.5 rounded border border-line hover:bg-canvas text-subtle"
-                      onClick={() => {
-                        const current = form.query_template
-                          .split(",")
-                          .map((s) => s.trim())
-                          .filter(Boolean);
-                        if (!current.includes(t.value)) {
-                          setForm({
-                            ...form,
-                            query_template: [...current, t.value].join(","),
-                          });
-                        }
-                      }}
-                    >
-                      + {t.label}
-                    </button>
+                    <option key={t.value} value={t.value}>
+                      {t.label}
+                    </option>
                   ))}
-                </div>
+                </select>
+              )}
+            </div>
+          )}
+
+          {/* External Source fields */}
+          {isExternal && (
+            <div className="space-y-4 p-4 rounded-lg border border-line bg-canvas">
+              <p className="font-mono text-[10px] uppercase tracking-[0.10em] text-subtle">
+                External Source Configuration
+              </p>
+
+              <div>
+                <label className="block text-sm font-medium text-ink mb-1">
+                  Source Type
+                </label>
+                <select
+                  className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink"
+                  value={form.source_type}
+                  onChange={(e) => handleSourceTypeChange(e.target.value)}
+                >
+                  {EXTERNAL_SOURCE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
               </div>
-            ) : (
-              <select
-                className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink"
-                value={form.query_template}
-                onChange={(e) =>
-                  setForm({ ...form, query_template: e.target.value })
-                }
-              >
-                {TEMPLATE_OPTIONS.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-            )}
-          </div>
+
+              {/* Kit Subscribers config */}
+              {form.source_type === "kit_subscribers" && (
+                <Input
+                  label="API Key env var name"
+                  value={form.kit_api_key_env}
+                  onChange={(e) => setForm({ ...form, kit_api_key_env: e.target.value })}
+                  placeholder="KIT_API_KEY"
+                />
+              )}
+
+              {/* Discourse Unreplied config */}
+              {form.source_type === "discourse_unreplied" && (
+                <div className="space-y-3">
+                  <Input
+                    label="API Key env var name"
+                    value={form.discourse_api_key_env}
+                    onChange={(e) => setForm({ ...form, discourse_api_key_env: e.target.value })}
+                    placeholder="DISCOURSE_API_KEY"
+                  />
+                  <Input
+                    label="API Username env var name"
+                    value={form.discourse_api_username_env}
+                    onChange={(e) => setForm({ ...form, discourse_api_username_env: e.target.value })}
+                    placeholder="DISCOURSE_API_USERNAME"
+                  />
+                  <Input
+                    label="Forum Base URL"
+                    value={form.discourse_base_url}
+                    onChange={(e) => setForm({ ...form, discourse_base_url: e.target.value })}
+                    placeholder="https://community.example.com"
+                  />
+                  <Input
+                    label="Excluded Usernames (comma-separated)"
+                    value={form.discourse_exclude_usernames}
+                    onChange={(e) => setForm({ ...form, discourse_exclude_usernames: e.target.value })}
+                    placeholder="admin, system, myusername"
+                  />
+                </div>
+              )}
+
+              {/* System Prompt */}
+              <SystemPromptEditor
+                value={form.system_prompt}
+                onChange={(val) => setForm({ ...form, system_prompt: val })}
+                sourceType={form.source_type}
+              />
+
+              {/* Test Fire for External Source */}
+              <div>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleTestFireExternal}
+                  disabled={testing}
+                >
+                  {testing ? "Composing message..." : "Test Fire (preview LLM message)"}
+                </Button>
+                {testMessage && (
+                  <div className="mt-2 p-3 rounded-lg border border-line bg-surface">
+                    <p className="text-xs font-medium text-subtle mb-1">LLM-composed message preview:</p>
+                    <p className="text-sm text-ink whitespace-pre-wrap">{testMessage}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {ventures.length > 1 && (
             <div>
@@ -396,7 +674,7 @@ function CronJobForm({
           )}
 
           <Input
-            label="Discord Webhook URL (optional)"
+            label="Discord Webhook URL"
             value={form.discord_webhook_url}
             onChange={(e) =>
               setForm({ ...form, discord_webhook_url: e.target.value })
@@ -436,11 +714,13 @@ function CronJobForm({
             </div>
           </div>
 
-          {/* Format Template Editor */}
-          <FormatTemplateEditor
-            value={form.handlebars_template}
-            onChange={(val) => setForm({ ...form, handlebars_template: val })}
-          />
+          {/* Format Template Editor (template jobs only) */}
+          {!isExternal && (
+            <FormatTemplateEditor
+              value={form.handlebars_template}
+              onChange={(val) => setForm({ ...form, handlebars_template: val })}
+            />
+          )}
 
           <label className="flex items-center gap-2 text-sm text-ink">
             <input
@@ -558,6 +838,21 @@ function TestResult({ result }: { result: TemplateResult }) {
 }
 
 // ============================================================
+// External Source Test Result
+// ============================================================
+
+function ExternalTestResult({ message }: { message: string }) {
+  return (
+    <div className="mt-3 p-3 rounded-lg bg-canvas border border-line text-sm">
+      <p className="font-mono text-[10px] uppercase tracking-[0.10em] text-subtle mb-2">
+        LLM-composed message
+      </p>
+      <p className="text-ink whitespace-pre-wrap">{message}</p>
+    </div>
+  );
+}
+
+// ============================================================
 // Main Cron View
 // ============================================================
 
@@ -569,6 +864,7 @@ export function CronView({ cronJobs, executions, orgId, ventures }: CronViewProp
   const [editingJob, setEditingJob] = useState<CronJob | null>(null);
   const [expandedJob, setExpandedJob] = useState<string | null>(null);
   const [testResults, setTestResults] = useState<Record<string, TemplateResult>>({});
+  const [externalTestResults, setExternalTestResults] = useState<Record<string, string>>({});
   const [testingJob, setTestingJob] = useState<string | null>(null);
   const [seedingDefaults, setSeedingDefaults] = useState(false);
 
@@ -610,35 +906,51 @@ export function CronView({ cronJobs, executions, orgId, ventures }: CronViewProp
   async function handleTestFire(job: CronJob) {
     setTestingJob(job.id);
     try {
-      // Run template directly via the browser Supabase client.
-      const { executeTemplate } = await import("@/lib/cron/templates");
-      const templateKeys = job.query_template.split(",").map((k: string) => k.trim()).filter(Boolean);
-
-      let result: TemplateResult;
-      if (templateKeys.length === 1) {
-        result = await executeTemplate(
-          templateKeys[0],
-          supabase,
-          job.organization_id,
-          job.venture_id
-        );
+      if (job.job_type === "external_source") {
+        // External source test fire via API
+        const res = await fetch("/api/cron/test-fire", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            externalConfig: job.external_config,
+            systemPrompt: job.system_prompt,
+            jobId: job.id,
+          }),
+        });
+        const data = await res.json();
+        if (data.message) {
+          setExternalTestResults((prev) => ({ ...prev, [job.id]: data.message }));
+        }
       } else {
-        // Composed: run all and merge
-        const results = await Promise.all(
-          templateKeys.map((key: string) =>
-            executeTemplate(key, supabase, job.organization_id, job.venture_id)
-          )
-        );
-        const mergedSections = results.flatMap((r) => r.sections);
-        const titles = results.map((r) => r.title).filter(Boolean);
-        result = {
-          hasData: results.some((r) => r.hasData),
-          title: `Morning Briefing: ${titles.join(" + ")}`,
-          sections: mergedSections,
-        };
-      }
+        // Template test fire (existing logic)
+        const { executeTemplate } = await import("@/lib/cron/templates");
+        const templateKeys = job.query_template.split(",").map((k: string) => k.trim()).filter(Boolean);
 
-      setTestResults((prev) => ({ ...prev, [job.id]: result }));
+        let result: TemplateResult;
+        if (templateKeys.length === 1) {
+          result = await executeTemplate(
+            templateKeys[0],
+            supabase,
+            job.organization_id,
+            job.venture_id
+          );
+        } else {
+          const results = await Promise.all(
+            templateKeys.map((key: string) =>
+              executeTemplate(key, supabase, job.organization_id, job.venture_id)
+            )
+          );
+          const mergedSections = results.flatMap((r) => r.sections);
+          const titles = results.map((r) => r.title).filter(Boolean);
+          result = {
+            hasData: results.some((r) => r.hasData),
+            title: `Morning Briefing: ${titles.join(" + ")}`,
+            sections: mergedSections,
+          };
+        }
+
+        setTestResults((prev) => ({ ...prev, [job.id]: result }));
+      }
     } catch (err) {
       console.error("Test fire failed:", err);
     } finally {
@@ -657,8 +969,9 @@ export function CronView({ cronJobs, executions, orgId, ventures }: CronViewProp
         (p) => p.value === editingJob.schedule && p.value !== "custom"
       );
       const formatConfig = (editingJob.format_template ?? {}) as Record<string, unknown>;
+      const extConfig = editingJob.external_config as ExternalSourceConfig | null;
 
-      return {
+      const base: JobFormData = {
         name: editingJob.name,
         description: editingJob.description ?? "",
         schedule: isPreset ? editingJob.schedule : "custom",
@@ -670,13 +983,38 @@ export function CronView({ cronJobs, executions, orgId, ventures }: CronViewProp
         only_if_data: formatConfig.only_if_data === true,
         day_filter: (formatConfig.day_filter as string) ?? "",
         handlebars_template: (formatConfig.handlebars_template as string) ?? "",
+        job_type: editingJob.job_type ?? "template",
+        source_type: extConfig?.source_type ?? "kit_subscribers",
+        kit_api_key_env: "KIT_API_KEY",
+        discourse_api_key_env: "DISCOURSE_API_KEY",
+        discourse_api_username_env: "DISCOURSE_API_USERNAME",
+        discourse_base_url: "",
+        discourse_exclude_usernames: "",
+        system_prompt: editingJob.system_prompt ?? "",
       };
+
+      // Populate source-specific fields from external_config
+      if (extConfig?.source_type === "kit_subscribers") {
+        base.kit_api_key_env = extConfig.api_key_env;
+      } else if (extConfig?.source_type === "discourse_unreplied") {
+        base.discourse_api_key_env = extConfig.api_key_env;
+        base.discourse_api_username_env = extConfig.api_username_env;
+        base.discourse_base_url = extConfig.base_url;
+        base.discourse_exclude_usernames = extConfig.exclude_usernames.join(", ");
+      }
+
+      return base;
     }
     return EMPTY_FORM;
   }
 
-  function describeTemplate(queryTemplate: string): string {
-    const keys = queryTemplate.split(",").map((k) => k.trim());
+  function describeTemplate(job: CronJob): string {
+    if (job.job_type === "external_source") {
+      const extConfig = job.external_config as ExternalSourceConfig | null;
+      const opt = EXTERNAL_SOURCE_OPTIONS.find((o) => o.value === extConfig?.source_type);
+      return opt?.label ?? extConfig?.source_type ?? "External";
+    }
+    const keys = job.query_template.split(",").map((k) => k.trim());
     return keys
       .map((k) => TEMPLATE_OPTIONS.find((t) => t.value === k)?.label ?? k)
       .join(" + ");
@@ -754,7 +1092,8 @@ export function CronView({ cronJobs, executions, orgId, ventures }: CronViewProp
             const jobExecs = getJobExecutions(job.id);
             const formatConfig = (job.format_template ?? {}) as Record<string, unknown>;
             const hasConditions = Boolean(formatConfig.only_if_data) || Boolean(formatConfig.day_filter);
-            const isComposed = job.query_template.includes(",");
+            const isComposed = job.job_type === "template" && job.query_template.includes(",");
+            const isExternal = job.job_type === "external_source";
 
             return (
               <Card key={job.id} className="border-line bg-surface">
@@ -768,6 +1107,11 @@ export function CronView({ cronJobs, executions, orgId, ventures }: CronViewProp
                         <Badge status={job.enabled ? "green" : "neutral"}>
                           {job.enabled ? "Active" : "Disabled"}
                         </Badge>
+                        {isExternal ? (
+                          <Badge status="neutral">External</Badge>
+                        ) : isComposed ? (
+                          <Badge status="neutral">Composed</Badge>
+                        ) : null}
                         {job.last_run_status && (
                           <Badge
                             status={
@@ -779,16 +1123,13 @@ export function CronView({ cronJobs, executions, orgId, ventures }: CronViewProp
                             Last: {job.last_run_status}
                           </Badge>
                         )}
-                        {isComposed && (
-                          <Badge status="neutral">Composed</Badge>
-                        )}
                         {hasConditions && (
                           <Badge status="neutral">Conditional</Badge>
                         )}
                       </div>
                       <p className="text-sm text-subtle">
                         {describeSchedule(job.schedule)} &middot;{" "}
-                        {describeTemplate(job.query_template)}
+                        {describeTemplate(job)}
                       </p>
                       {job.description && (
                         <p className="text-sm text-subtle mt-1">
@@ -843,9 +1184,14 @@ export function CronView({ cronJobs, executions, orgId, ventures }: CronViewProp
                     </div>
                   </div>
 
-                  {/* Test fire result */}
-                  {testResults[job.id] && (
+                  {/* Test fire result (template jobs) */}
+                  {testResults[job.id] && !isExternal && (
                     <TestResult result={testResults[job.id]} />
+                  )}
+
+                  {/* Test fire result (external source jobs) */}
+                  {externalTestResults[job.id] && isExternal && (
+                    <ExternalTestResult message={externalTestResults[job.id]} />
                   )}
 
                   {/* Expandable execution history */}

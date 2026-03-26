@@ -350,8 +350,10 @@ function MachineFilter({
 
 export function ContentMachinesView({
   pieces,
+  pendingInboxCount = 0,
 }: {
   pieces: ContentPiece[];
+  pendingInboxCount?: number;
 }) {
   const [showAdd, setShowAdd] = useState(false);
   const [machineFilter, setMachineFilter] = useState<MachineType | "all">("all");
@@ -451,6 +453,11 @@ export function ContentMachinesView({
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Link href="/execution/content/inbox">
+            <Button variant="secondary" size="sm">
+              Inbox{pendingInboxCount > 0 ? ` (${pendingInboxCount})` : ""}
+            </Button>
+          </Link>
           <Link href="/execution/content/calendar">
             <Button variant="secondary" size="sm">
               Calendar

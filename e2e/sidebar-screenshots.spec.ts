@@ -7,25 +7,13 @@ const LOGIN_PASSWORD = "TrueNorth-Test-2026!";
 const SCREENSHOT_DIR = path.join(__dirname, "screenshots");
 
 const sidebarLinks = [
-  { name: "Launch", href: "/launch", redirectsTo: "/cockpit" },
-  { name: "Cockpit", href: "/cockpit", redirectsTo: "/cockpit" },
-  { name: "Portfolio", href: "/portfolio", redirectsTo: "/cockpit" },
-  { name: "Vision", href: "/vision" },
-  { name: "Scoreboard", href: "/scoreboard" },
-  { name: "Bets", href: "/bets" },
-  { name: "Ideas", href: "/ideas" },
-  { name: "Content", href: "/content" },
-  { name: "Funnels", href: "/funnels" },
-  { name: "Pulse", href: "/pulse" },
-  { name: "Sync", href: "/sync" },
-  { name: "Operations", href: "/ops" },
-  { name: "Processes", href: "/processes" },
-  { name: "Health", href: "/health" },
-  { name: "Narratives", href: "/narratives" },
-  { name: "Artifacts", href: "/artifacts" },
+  { name: "Home", href: "/" },
+  { name: "Strategy", href: "/strategy" },
+  { name: "Execution", href: "/execution" },
+  { name: "Reviews", href: "/reviews" },
+  { name: "Library", href: "/library" },
+  { name: "Admin", href: "/admin" },
   { name: "Activity", href: "/activity" },
-  { name: "Todos", href: "/todos" },
-  { name: "Settings", href: "/settings" },
   { name: "Profile", href: "/profile" },
 ];
 

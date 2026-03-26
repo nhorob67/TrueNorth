@@ -1,7 +1,10 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { executeTemplate, CronTemplateResult } from "./templates";
-import { postToDiscordWebhook } from "./discord";
+import { postToDiscordWebhook, postTextToDiscordWebhook } from "./discord";
 import { applyFormatTemplate } from "./format";
+import { executeExternalSource, ExternalSourceResult } from "./external-sources";
+import { composeCronMessage } from "./llm-composer";
+import type { ExternalSourceConfig } from "@/types/database";
 
 // ============================================================
 // Cron Execution Engine
@@ -206,6 +209,16 @@ export async function executeCronJob(
       };
     }
 
+    // Branch: external source jobs use a different pipeline
+    if (job.job_type === "external_source" && job.external_config) {
+      return runExternalSourcePipeline(
+        supabase,
+        job,
+        jobId,
+        executionId
+      );
+    }
+
     // 3. Run the template(s) — supports comma-separated composed jobs
     let templateResult = await executeComposedTemplates(
       job.query_template,
@@ -349,4 +362,165 @@ export async function executeTemplateAdHoc(
   ventureId?: string | null
 ): Promise<CronTemplateResult> {
   return executeComposedTemplates(templateKey, supabase, orgId, ventureId);
+}
+
+// ============================================================
+// External Source Pipeline
+// ============================================================
+
+/**
+ * Execute an external source cron job:
+ * 1. Fetch data from external API
+ * 2. Compose message via LLM
+ * 3. Post to Discord as plain text
+ * 4. Log execution
+ */
+async function runExternalSourcePipeline(
+  supabase: SupabaseClient,
+  job: Record<string, unknown>,
+  jobId: string,
+  executionId: string | undefined
+): Promise<ExecutionResult> {
+  const config = job.external_config as ExternalSourceConfig;
+  const orgId = job.organization_id as string;
+  const systemPrompt = job.system_prompt as string | null;
+  const webhookUrl = job.discord_webhook_url as string | null;
+
+  try {
+    // 1. Fetch data from external source
+    const sourceResult = await executeExternalSource(config, supabase, orgId, jobId);
+
+    // 2. If no data and only_if_data is set, skip
+    if (!sourceResult.hasData) {
+      const formatConfig = (job.format_template ?? {}) as Record<string, unknown>;
+      if (formatConfig.only_if_data === true) {
+        if (executionId) {
+          await supabase
+            .from("cron_executions")
+            .update({
+              completed_at: new Date().toISOString(),
+              status: "success",
+              result: { skipped: true, reason: "No data from external source" } as unknown as Record<string, unknown>,
+              records_processed: 0,
+            })
+            .eq("id", executionId);
+        }
+
+        return {
+          jobId,
+          status: "success",
+          result: { hasData: false, title: "Skipped: no data", sections: [] },
+        };
+      }
+    }
+
+    // 3. Compose message via LLM
+    const defaultPrompt = `You are a helpful assistant. Summarize the following data in a brief, natural Discord message.`;
+    const message = await composeCronMessage(
+      sourceResult,
+      systemPrompt ?? defaultPrompt
+    );
+
+    // 4. Post to Discord
+    let discordResult: ExecutionResult["discordResult"];
+    if (webhookUrl) {
+      try {
+        discordResult = await postTextToDiscordWebhook(webhookUrl, message);
+      } catch (err) {
+        discordResult = {
+          ok: false,
+          status: 0,
+          statusText: err instanceof Error ? err.message : "Unknown error",
+        };
+      }
+    }
+
+    // 5. Log execution
+    const resultPayload = {
+      source_type: sourceResult.source_type,
+      data: sourceResult.data,
+      message,
+      summary: sourceResult.summary,
+    };
+
+    if (executionId) {
+      await supabase
+        .from("cron_executions")
+        .update({
+          completed_at: new Date().toISOString(),
+          status: "success",
+          result: resultPayload as unknown as Record<string, unknown>,
+          records_processed: 1,
+        })
+        .eq("id", executionId);
+    }
+
+    // 6. Update job
+    await supabase
+      .from("cron_jobs")
+      .update({
+        last_run_at: new Date().toISOString(),
+        last_run_status: "success",
+        last_run_result: resultPayload,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", jobId);
+
+    return {
+      jobId,
+      status: "success",
+      result: {
+        hasData: sourceResult.hasData,
+        title: sourceResult.summary,
+        sections: [{ heading: "LLM Message", items: [{ label: "Message", value: message }] }],
+      },
+      discordResult,
+    };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : "Unknown external source error";
+
+    if (executionId) {
+      await supabase
+        .from("cron_executions")
+        .update({
+          completed_at: new Date().toISOString(),
+          status: "error",
+          error_message: errorMessage,
+        })
+        .eq("id", executionId);
+    }
+
+    await supabase
+      .from("cron_jobs")
+      .update({
+        last_run_at: new Date().toISOString(),
+        last_run_status: "error",
+        last_run_result: { error: errorMessage },
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", jobId);
+
+    return {
+      jobId,
+      status: "error",
+      result: null,
+      error: errorMessage,
+    };
+  }
+}
+
+/**
+ * Execute an external source job ad-hoc (without saving to DB).
+ * Useful for "Test Fire" preview in the admin UI.
+ */
+export async function executeExternalSourceAdHoc(
+  supabase: SupabaseClient,
+  config: ExternalSourceConfig,
+  orgId: string,
+  jobId: string,
+  systemPrompt: string
+): Promise<{ message: string; data: Record<string, unknown> }> {
+  const sourceResult = await executeExternalSource(config, supabase, orgId, jobId);
+  const message = await composeCronMessage(sourceResult, systemPrompt);
+  return { message, data: sourceResult.data };
 }

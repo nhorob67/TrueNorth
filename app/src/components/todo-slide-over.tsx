@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/client";
 import { useUserContext } from "@/hooks/use-user-context";
 import { isOverdue, PRIORITY_COLOR } from "@/lib/format";
+import { labelColor } from "@/components/todo-detail-panel";
 
 interface TodoSlideOverProps {
   open: boolean;
@@ -20,6 +21,7 @@ interface Todo {
   due_date: string | null;
   completed: boolean;
   linked_entity_type: string | null;
+  labels: string[];
 }
 
 const supabase = createClient();
@@ -35,7 +37,7 @@ export function TodoSlideOver({ open, onClose }: TodoSlideOverProps) {
     setLoading(true);
     const { data } = await supabase
       .from("todos")
-      .select("id, title, priority, due_date, completed, linked_entity_type")
+      .select("id, title, priority, due_date, completed, linked_entity_type, labels")
       .eq("user_id", ctx.userId)
       .eq("completed", false)
       .order("due_date")
@@ -162,6 +164,21 @@ function TodoItem({
       />
       <div className="flex-1 min-w-0">
         <span className="text-sm">{todo.title}</span>
+        {todo.labels && todo.labels.length > 0 && (
+          <div className="flex items-center gap-1 mt-0.5">
+            {todo.labels.slice(0, 2).map((label) => (
+              <span
+                key={label}
+                className={`rounded-full px-1.5 py-px text-[10px] font-medium ${labelColor(label)}`}
+              >
+                {label}
+              </span>
+            ))}
+            {todo.labels.length > 2 && (
+              <span className="text-[10px] text-subtle">+{todo.labels.length - 2}</span>
+            )}
+          </div>
+        )}
         <div className="flex items-center gap-2 mt-0.5">
           {todo.due_date && (
             <span
