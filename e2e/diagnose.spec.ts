@@ -1,16 +1,4 @@
-import { test, expect, Page } from "@playwright/test";
-
-const BASE_URL = "https://true-north-bay.vercel.app";
-
-async function login(page: Page) {
-  await page.goto(`${BASE_URL}/login`);
-  await page.waitForLoadState("networkidle");
-  await page.fill('input[type="email"], input[name="email"]', "test@truenorth.dev");
-  await page.fill('input[type="password"], input[name="password"]', "TrueNorth-Test-2026!");
-  await page.click('button[type="submit"]');
-  await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15000 });
-  await page.waitForLoadState("networkidle");
-}
+import { test } from "@playwright/test";
 
 const failingRoutes = [
   "/strategy/launch", "/strategy/portfolio", "/strategy/vision", "/strategy/scoreboard",
@@ -20,12 +8,12 @@ const failingRoutes = [
 ];
 
 test("diagnose failing routes via direct navigation", async ({ page }) => {
-  await login(page);
+  await page.goto("/", { waitUntil: "networkidle" });
   console.log(`After login, URL: ${page.url()}`);
 
   const results: string[] = [];
   for (const route of failingRoutes) {
-    await page.goto(`${BASE_URL}${route}`, { waitUntil: "networkidle" });
+    await page.goto(route, { waitUntil: "networkidle" });
     const finalUrl = new URL(page.url()).pathname;
     const status = finalUrl.startsWith(route) ? "OK" : `REDIRECTED -> ${finalUrl}`;
     results.push(`${route}: ${status}`);

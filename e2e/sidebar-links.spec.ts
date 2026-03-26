@@ -1,8 +1,4 @@
-import { test, expect, Page } from "@playwright/test";
-
-const BASE_URL = "https://true-north-bay.vercel.app";
-const LOGIN_EMAIL = "test@truenorth.dev";
-const LOGIN_PASSWORD = "TrueNorth-Test-2026!";
+import { test, expect } from "@playwright/test";
 
 // All sidebar nav links from sidebar.tsx
 // redirectsTo: expected redirect for links that legitimately redirect
@@ -17,30 +13,13 @@ const sidebarLinks = [
   { name: "Profile", href: "/profile" },
 ];
 
-async function login(page: Page) {
-  await page.goto(`${BASE_URL}/login`);
-  await page.waitForLoadState("networkidle");
-  await page.fill('input[type="email"], input[name="email"]', LOGIN_EMAIL);
-  await page.fill(
-    'input[type="password"], input[name="password"]',
-    LOGIN_PASSWORD
-  );
-  await page.click('button[type="submit"]');
-  await page.waitForURL((url) => !url.pathname.includes("/login"), {
-    timeout: 15000,
-  });
-  await page.waitForLoadState("networkidle");
-}
-
 test.describe("Sidebar Navigation Links", () => {
-  test.beforeEach(async ({ page }) => {
-    await login(page);
-  });
-
   for (const link of sidebarLinks) {
     test(`sidebar link "${link.name}" (${link.href}) navigates correctly`, async ({
       page,
     }) => {
+      await page.goto("/", { waitUntil: "networkidle" });
+
       const sidebar = page.locator("aside");
       const navLink = sidebar.locator(`a[href="${link.href}"]`);
 
@@ -51,7 +30,7 @@ test.describe("Sidebar Navigation Links", () => {
       }
 
       // Navigate via direct URL (tests both route and rendering)
-      await page.goto(`${BASE_URL}${link.href}`, { waitUntil: "networkidle" });
+      await page.goto(link.href, { waitUntil: "networkidle" });
 
       const expectedPath = (link as { redirectsTo?: string }).redirectsTo ?? link.href;
 

@@ -1,9 +1,6 @@
-import { test, expect, Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import path from "path";
 
-const BASE_URL = "https://true-north-bay.vercel.app";
-const LOGIN_EMAIL = "test@truenorth.dev";
-const LOGIN_PASSWORD = "TrueNorth-Test-2026!";
 const SCREENSHOT_DIR = path.join(__dirname, "screenshots");
 
 const sidebarLinks = [
@@ -17,26 +14,8 @@ const sidebarLinks = [
   { name: "Profile", href: "/profile" },
 ];
 
-async function login(page: Page) {
-  await page.goto(`${BASE_URL}/login`);
-  await page.waitForLoadState("networkidle");
-  await page.fill('input[type="email"], input[name="email"]', LOGIN_EMAIL);
-  await page.fill('input[type="password"], input[name="password"]', LOGIN_PASSWORD);
-
-  // Screenshot the login page
-  await page.screenshot({
-    path: path.join(SCREENSHOT_DIR, "00-login.png"),
-    fullPage: true,
-  });
-  console.log("📸 00-login.png");
-
-  await page.click('button[type="submit"]');
-  await page.waitForURL((url) => !url.pathname.includes("/login"), {
-    timeout: 15000,
-  });
-  await page.waitForLoadState("networkidle");
-
-  // Screenshot after login
+async function captureAuthenticatedHome(page: import("@playwright/test").Page) {
+  await page.goto("/", { waitUntil: "networkidle" });
   await page.screenshot({
     path: path.join(SCREENSHOT_DIR, "01-after-login.png"),
     fullPage: true,
@@ -48,7 +27,7 @@ test("Screenshot all sidebar links", async ({ page }) => {
   // Set a wide viewport to capture full sidebar + content
   await page.setViewportSize({ width: 1440, height: 900 });
 
-  await login(page);
+  await captureAuthenticatedHome(page);
 
   const results: { name: string; href: string; status: string; screenshot: string }[] = [];
 
@@ -68,7 +47,7 @@ test("Screenshot all sidebar links", async ({ page }) => {
     }
 
     // Navigate via direct URL
-    await page.goto(`${BASE_URL}${link.href}`, { waitUntil: "networkidle" });
+    await page.goto(link.href, { waitUntil: "networkidle" });
 
     // Small extra wait for any client-side hydration
     await page.waitForTimeout(500);

@@ -12,3 +12,6 @@ Thumbs.db
 # keys
 *.pem
 *.key
+
+# playwright auth state
+playwright/.auth/

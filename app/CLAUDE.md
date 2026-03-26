@@ -18,11 +18,14 @@ npm run build        # Production build (also serves as type check)
 npx tsc --noEmit     # Type check without building
 npm run lint         # ESLint
 
+# End-to-end tests (run from repo root)
+npx playwright test
+
 # Discord bot (separate service)
 cd discord-bot && npx tsx src/index.ts
 ```
 
-There is no test runner configured. Verify changes with `npx tsc --noEmit` and `npm run build`.
+Vitest lives in `app/` and Playwright lives at the repo root. For UI tests, prefer the shared Playwright auth bootstrap over form-filling credentials.
 
 ## Architecture
 
@@ -120,4 +123,11 @@ Every dashboard page follows the same pattern:
 NEXT_PUBLIC_SUPABASE_URL      # Supabase project URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY # Supabase anon key
 ANTHROPIC_API_KEY             # For Content Copilot and Signal Watch
+PLAYWRIGHT_AUTH_EMAIL         # Dedicated test user email for Playwright
+PLAYWRIGHT_SUPABASE_URL       # Optional override; falls back to NEXT_PUBLIC_SUPABASE_URL
+PLAYWRIGHT_SUPABASE_SERVICE_ROLE_KEY # Used only to mint a one-time magic link in Playwright globalSetup
 ```
+
+## Playwright Auth Method
+
+Root `e2e/` specs no longer store or submit plaintext passwords. `playwright.config.ts` runs `app/playwright/auth.setup.ts`, which uses the Supabase admin API to generate a one-time magic link for `PLAYWRIGHT_AUTH_EMAIL`, opens it in a browser, and saves the resulting authenticated `storageState` under `playwright/.auth/user.json`. Keep that file ignored and rotate environment-backed test access instead of committing reusable credentials.
