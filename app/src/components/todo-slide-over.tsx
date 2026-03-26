@@ -70,6 +70,7 @@ export function TodoSlideOver({ open, onClose }: TodoSlideOverProps) {
     });
     setNewTitle("");
     fetchTodos();
+    router.refresh();
   }
 
   const overdue = todos.filter((t) => isOverdue(t.due_date));

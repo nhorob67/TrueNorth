@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useUserContext } from "@/hooks/use-user-context";
 
@@ -16,6 +17,7 @@ export function AddToTodoButton({
   entityLabel,
 }: AddToTodoButtonProps) {
   const [status, setStatus] = useState<"idle" | "adding" | "added">("idle");
+  const router = useRouter();
   const ctx = useUserContext();
 
   async function handleClick(e: React.MouseEvent) {
@@ -34,6 +36,7 @@ export function AddToTodoButton({
       priority: "medium",
     });
     setStatus("added");
+    router.refresh();
     setTimeout(() => setStatus("idle"), 1500);
   }
 

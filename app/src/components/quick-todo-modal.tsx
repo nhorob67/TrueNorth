@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useOptionalUserContext } from "@/hooks/use-user-context";
 
@@ -17,6 +18,7 @@ export function QuickTodoModal({ open, onClose }: QuickTodoModalProps) {
   const [flash, setFlash] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
   const ctx = useOptionalUserContext();
 
   useEffect(() => {
@@ -58,6 +60,7 @@ export function QuickTodoModal({ open, onClose }: QuickTodoModalProps) {
     });
     setSubmitting(false);
     setFlash(true);
+    router.refresh();
     setTimeout(() => {
       setFlash(false);
       onClose();
