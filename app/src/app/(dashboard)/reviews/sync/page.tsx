@@ -50,6 +50,7 @@ export default async function SyncPage() {
     .order("created_at");
 
   // Last week's commitments
+  // eslint-disable-next-line react-hooks/purity
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const { data: lastWeekCommitments } = await supabase
     .from("commitments")

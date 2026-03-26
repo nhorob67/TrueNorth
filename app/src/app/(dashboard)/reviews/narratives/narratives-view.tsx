@@ -509,7 +509,7 @@ export function NarrativesView({
               <div className="mt-3 text-sm text-semantic-green">
                 Content piece created.{" "}
                 <a
-                  href={`/content/${savedContentId}`}
+                  href={`/execution/content/${savedContentId}`}
                   className="underline font-medium hover:text-semantic-green/80"
                 >
                   Open in editor

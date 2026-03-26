@@ -69,7 +69,7 @@ function ThemeToggle() {
     <button
       type="button"
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover transition-colors w-full"
+      className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover transition-colors w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
       aria-label="Toggle theme"
     >
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -105,7 +105,7 @@ export function Sidebar() {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 ease-in-out ${
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
                   isActive
                     ? "relative text-sidebar-text-active bg-transparent sidebar-active"
                     : "text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover"
@@ -125,7 +125,7 @@ export function Sidebar() {
         {/* Activity feed link */}
         <Link
           href="/activity"
-          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 ease-in-out ${
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
             pathname.startsWith("/activity")
               ? "relative text-sidebar-text-active bg-transparent sidebar-active"
               : "text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover"
@@ -137,7 +137,7 @@ export function Sidebar() {
 
         <Link
           href="/profile"
-          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 ease-in-out ${
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
             pathname.startsWith("/profile")
               ? "relative text-sidebar-text-active bg-transparent sidebar-active"
               : "text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover"

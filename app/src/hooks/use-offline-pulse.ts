@@ -94,7 +94,8 @@ export function useOfflinePulse(onSync: (pulse: OfflinePulseData) => Promise<boo
       });
 
       for (const pulse of pulses) {
-        const { id, queued_at, ...pulseData } = pulse;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, queued_at: _queued_at, ...pulseData } = pulse;
         const success = await onSync(pulseData);
         if (success) {
           navigator.serviceWorker.controller!.postMessage({

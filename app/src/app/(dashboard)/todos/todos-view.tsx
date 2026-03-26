@@ -6,7 +6,7 @@ import { useUserContext } from "@/hooks/use-user-context";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/loading";
-import type { Todo, TodoPriority, EntityType } from "@/types/database";
+import type { Todo, TodoPriority } from "@/types/database";
 
 // ============================================================
 // Constants
@@ -524,8 +524,8 @@ export function TodosView({ todos: initialTodos }: { todos: Todo[] }) {
       {/* Empty state */}
       {initialTodos.length === 0 && (
         <EmptyState
-          title="No todos yet"
-          description="Add your first todo above to get started."
+          title="Inbox zero, todo zero"
+          description="You either just finished everything or haven't started. Either way, your future self is about to add something here."
         />
       )}
 

@@ -293,13 +293,13 @@ export function LaunchWizard({
   ventureName,
   ventureSettings,
   ventureId,
-  orgId,
   isSecondVenture,
   firstVentureContext,
 }: WizardProps) {
   const router = useRouter();
   const supabase = createClient();
   const [currentStep, setCurrentStep] = useState(progress.current_step);
+  const [localSteps, setLocalSteps] = useState(progress.steps);
   const [loading, setLoading] = useState(false);
 
   // Step form state
@@ -318,7 +318,7 @@ export function LaunchWizard({
     (ventureSettings.weekly_sync_time as string) ?? "09:00"
   );
 
-  const done = completedCount(progress.steps);
+  const done = completedCount(localSteps);
   const allComplete = progress.completed;
 
   // Build context for AI guidance
@@ -335,7 +335,7 @@ export function LaunchWizard({
     setLoading(true);
 
     // Save step data to onboarding_progress
-    const steps = { ...progress.steps };
+    const steps = { ...localSteps };
     steps[String(currentStep)] = { completed: true, data: stepData };
 
     const nextStep = Math.min(currentStep + 1, ONBOARDING_STEPS.length);
@@ -348,7 +348,7 @@ export function LaunchWizard({
       .update({ steps, current_step: nextStep, completed: nowAllComplete })
       .eq("venture_id", ventureId);
 
-    progress.steps = steps;
+    setLocalSteps(steps);
 
     if (nowAllComplete) {
       router.push("/");

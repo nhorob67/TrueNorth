@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -134,9 +135,9 @@ export default function InvitePage() {
               You&apos;ve joined {invite?.organizationName ?? "the team"}.
             </p>
             <div className="mt-4">
-              <a href="/" className="text-sm text-accent hover:text-accent/80">
+              <Link href="/" className="text-sm text-accent hover:text-accent/80">
                 Continue to TrueNorth
-              </a>
+              </Link>
             </div>
           </CardContent>
         </Card>

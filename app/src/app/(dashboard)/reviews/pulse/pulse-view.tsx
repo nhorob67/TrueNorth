@@ -13,6 +13,15 @@ import { useOptionalUserContext } from "@/hooks/use-user-context";
 import { useOfflinePulse, type OfflinePulseData } from "@/hooks/use-offline-pulse";
 import { PulseSidebar } from "@/components/pulse-sidebar";
 
+function getStreakMessage(streak: number): string {
+  if (streak >= 60) return `${streak} days. At this point, your pulse has a pulse.`;
+  if (streak >= 30) return `${streak} days. Ironman-level consistency.`;
+  if (streak >= 14) return `${streak} days. You'd survive Idea Quarantine.`;
+  if (streak >= 7) return `${streak} days. More disciplined than most founders.`;
+  if (streak >= 3) return `${streak} days. A habit is forming.`;
+  return `${streak} day. Everyone starts somewhere.`;
+}
+
 interface PulseItem {
   type: "shipped" | "focus" | "blockers" | "signal";
   text: string;
@@ -222,7 +231,7 @@ function PulseForm({
           </h2>
           {pulseStreak > 0 && (
             <span className="text-sm text-accent font-medium">
-              🔥 {pulseStreak} day streak
+              🔥 {getStreakMessage(pulseStreak)}
             </span>
           )}
         </div>

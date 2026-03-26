@@ -6,16 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { CadenceReport } from "@/lib/cadence-intelligence";
-
-const ARTIFACT_LINK_MAP: Record<string, string> = {
-  vision_page: "/vision",
-  quarterly_bets: "/bets",
-  scoreboard: "/scoreboard",
-  meeting_cadence: "/sync",
-  role_cards: "/profile",
-  process_library: "/processes",
-  media_calendar: "/content",
-};
+import { getArtifactHref, getEntityHref } from "@/lib/format";
 
 interface BlockedMove {
   id: string;
@@ -167,14 +158,6 @@ export function CockpitView({
     suggested: "text-semantic-green",
   };
 
-  const ENTITY_LINK: Record<string, (id: string) => string> = {
-    bet: (id) => `/bets/${id}`,
-    kpi: (id) => `/scoreboard/${id}`,
-    move: () => `/bets`,
-    blocker: () => `/ops`,
-    commitment: () => `/ops`,
-  };
-
   return (
     <div>
       <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6">Operator Cockpit</h1>
@@ -245,7 +228,10 @@ export function CockpitView({
                 <p className="text-sm font-medium text-ink">
                   {recommendation.entityType && recommendation.entityId ? (
                     <Link
-                      href={ENTITY_LINK[recommendation.entityType]?.(recommendation.entityId) ?? "#"}
+                      href={getEntityHref(
+                        recommendation.entityType,
+                        recommendation.entityId
+                      ) ?? "#"}
                       className="hover:underline"
                     >
                       {recommendation.action}
@@ -293,7 +279,7 @@ export function CockpitView({
                 <hr className="border-line" />
               )}
               {staleArtifacts.map((artifact) => {
-                const href = ARTIFACT_LINK_MAP[artifact.artifact_type] ?? "#";
+                const href = getArtifactHref(artifact.artifact_type) ?? "#";
                 const overdueDays =
                   artifact.days_since_update !== null
                     ? artifact.days_since_update - artifact.staleness_threshold_days

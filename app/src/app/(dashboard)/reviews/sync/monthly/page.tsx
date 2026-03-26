@@ -8,7 +8,9 @@ export default async function MonthlyReviewPage() {
   const userCtx = await getCachedUserContext();
   if (!userCtx) redirect("/login");
 
+  // eslint-disable-next-line react-hooks/purity
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  // eslint-disable-next-line react-hooks/purity
   const fourWeeksAgo = new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString();
 
   // All active KPIs with current status

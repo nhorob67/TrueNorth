@@ -31,6 +31,7 @@ export default async function AiDashboardPage() {
 
   const orgId = membership.organization_id;
   const thirtyDaysAgo = new Date(
+    // eslint-disable-next-line react-hooks/purity
     Date.now() - 30 * 24 * 60 * 60 * 1000
   ).toISOString();
 

@@ -5,27 +5,12 @@
 // at the organization level.
 // ============================================================
 
+import { getEntityHref } from "./format";
+
 const COLORS = {
   normal: 0x5f6f52, // moss green
   immediate: 0xa04230, // brick
 } as const;
-
-/** Map entity types to deep-link paths */
-const ENTITY_LINK_MAP: Record<string, (id: string) => string> = {
-  bet: (id) => `/bets/${id}`,
-  kpi: (id) => `/scoreboard/${id}`,
-  move: () => `/bets`,
-  move_instance: () => `/bets`,
-  blocker: () => `/ops`,
-  idea: () => `/ideas`,
-  funnel: () => `/funnel`,
-  decision: () => `/decisions`,
-  commitment: () => `/ops`,
-  issue: () => `/ops`,
-  process: () => `/ops`,
-  content_piece: () => `/content`,
-  artifact: () => `/bets`,
-};
 
 interface DiscordNotification {
   title: string;
@@ -43,10 +28,7 @@ function buildDeepLink(
   entityType?: string,
   entityId?: string
 ): string | undefined {
-  if (!entityType) return undefined;
-  const builder = ENTITY_LINK_MAP[entityType];
-  if (!builder) return undefined;
-  return builder(entityId ?? "");
+  return getEntityHref(entityType, entityId) ?? undefined;
 }
 
 /**

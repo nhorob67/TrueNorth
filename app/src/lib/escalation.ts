@@ -26,6 +26,7 @@ export interface EscalationResult {
 
 export async function checkKpiEscalations(
   supabase: SupabaseClient,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   orgId: string
 ): Promise<EscalationResult[]> {
   const results: EscalationResult[] = [];
@@ -83,6 +84,7 @@ export async function checkKpiEscalations(
 
 export async function checkBlockerEscalations(
   supabase: SupabaseClient,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _orgId: string
 ): Promise<EscalationResult[]> {
   const results: EscalationResult[] = [];
@@ -168,6 +170,7 @@ export async function checkPulseDriftEscalations(
 
 export async function checkCommitmentEscalations(
   supabase: SupabaseClient,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _orgId: string
 ): Promise<EscalationResult[]> {
   const results: EscalationResult[] = [];

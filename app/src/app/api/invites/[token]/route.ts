@@ -3,15 +3,6 @@ import { createServiceClient } from "@/lib/supabase/service";
 
 export const dynamic = "force-dynamic";
 
-type InviteRecord = {
-  id: string;
-  email: string;
-  role: string;
-  organization_id: string;
-  accepted_at: string | null;
-  organizations: { name: string } | { name: string }[] | null;
-};
-
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ token: string }> }

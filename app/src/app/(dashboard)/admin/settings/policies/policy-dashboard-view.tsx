@@ -3,8 +3,6 @@
 import { useState, useMemo } from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
 import type { PolicyEnforcement } from "@/lib/policies/engine";
 
@@ -100,11 +98,9 @@ function PolicyCard({
 function OverrideLogTable({
   overrides,
   userNameMap,
-  policies,
 }: {
   overrides: Override[];
   userNameMap: Record<string, string>;
-  policies: PolicyDef[];
 }) {
   const [filterPolicy, setFilterPolicy] = useState("all");
   const [sortField, setSortField] = useState<"created_at" | "policy_name">("created_at");
@@ -292,11 +288,9 @@ function OverrideAnalytics({ overrides }: { overrides: Override[] }) {
 function VenturePolicyToggles({
   ventures,
   policies,
-  orgId,
 }: {
   ventures: VentureInfo[];
   policies: PolicyDef[];
-  orgId: string;
 }) {
   const overrideablePolicies = policies.filter((p) => p.overrideAllowed);
   const [selectedVenture, setSelectedVenture] = useState(ventures[0]?.id ?? "");
@@ -406,13 +400,11 @@ export function PolicyDashboardView({
   overrides,
   userNameMap,
   ventures,
-  orgId,
 }: {
   policies: PolicyDef[];
   overrides: Override[];
   userNameMap: Record<string, string>;
   ventures: VentureInfo[];
-  orgId: string;
 }) {
   // Compute override counts per policy
   const overrideCounts = useMemo(() => {
@@ -454,14 +446,12 @@ export function PolicyDashboardView({
       <OverrideLogTable
         overrides={overrides}
         userNameMap={userNameMap}
-        policies={policies}
       />
 
       {/* Venture Policy Toggles */}
       <VenturePolicyToggles
         ventures={ventures}
         policies={policies}
-        orgId={orgId}
       />
     </div>
   );

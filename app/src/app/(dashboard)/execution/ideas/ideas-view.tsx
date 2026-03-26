@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useUserContext } from "@/hooks/use-user-context";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/loading";
@@ -60,6 +59,13 @@ interface StrategicFilter {
 // Quarantine Timer
 // ============================================================
 
+function getQuarantineCopy(daysLeft: number): string {
+  if (daysLeft > 10) return "Still hot. Let it cool.";
+  if (daysLeft > 5) return "Getting there. Patience is a competitive advantage.";
+  if (daysLeft > 0) return "Almost thawed. If you still care about this idea, that's a good sign.";
+  return "This idea survived 14 days without you losing interest. That alone puts it in the top 10%.";
+}
+
 function CoolingTimer({ expiresAt }: { expiresAt: string }) {
   const now = new Date();
   const expires = new Date(expiresAt);
@@ -83,6 +89,7 @@ function CoolingTimer({ expiresAt }: { expiresAt: string }) {
           style={{ width: `${elapsedPct}%` }}
         />
       </div>
+      <p className="text-xs text-subtle mt-1 italic">{getQuarantineCopy(daysLeft)}</p>
     </div>
   );
 }
@@ -473,12 +480,12 @@ function IdeaDetailPanel({
             <Card>
               <CardContent className="py-3">
                 <h3 className="text-sm font-semibold mb-2">
-                  Cooling Period
+                  Quarantine
                 </h3>
                 <CoolingTimer expiresAt={idea.cooling_expires_at} />
                 {coolingDone && (
                   <p className="text-xs text-semantic-green-text mt-2 font-medium">
-                    Cooling period complete. Ready for filter review.
+                    Quarantine complete. Ready for filter review.
                   </p>
                 )}
               </CardContent>
@@ -878,8 +885,8 @@ export function IdeaVaultView({
       <div>
         <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6">Idea Vault</h1>
         <EmptyState
-          title="The Vault is empty"
-          description="Submit your first idea. It will enter a 14-day quarantine before evaluation."
+          title="The Vault is quiet"
+          description="No shiny objects in quarantine. Either you're incredibly disciplined, or dangerously bored. Submit an idea — we'll make sure it earns its way in."
           action={<Button onClick={() => setShowAdd(true)}>Submit Idea</Button>}
         />
       </div>

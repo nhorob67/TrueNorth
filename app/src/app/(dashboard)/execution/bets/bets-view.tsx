@@ -208,11 +208,11 @@ export function BetsWarRoom({ bets }: { bets: Bet[] }) {
       <div>
         <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6">War Room</h1>
         <EmptyState
-          title="No active bets"
-          description="Create your first quarterly bet to focus your team's energy."
+          title="The War Room is empty"
+          description="No bets, no battles, no progress. You have 3 slots. Use them wisely — each one is a commitment to your team that something matters enough to fight for."
           action={
-            <Button onClick={() => (window.location.href = "/bets/new")}>
-              Create Bet
+            <Button onClick={() => (window.location.href = "/execution/bets/new")}>
+              Place Your First Bet
             </Button>
           }
         />
@@ -228,21 +228,21 @@ export function BetsWarRoom({ bets }: { bets: Bet[] }) {
           <Button
             variant="tertiary"
             size="sm"
-            onClick={() => (window.location.href = "/bets/retrospective")}
+            onClick={() => (window.location.href = "/execution/bets/retrospective")}
           >
             Retrospective
           </Button>
           <Button
             variant="tertiary"
             size="sm"
-            onClick={() => (window.location.href = "/bets/graveyard")}
+            onClick={() => (window.location.href = "/execution/bets/graveyard")}
           >
             Graveyard
           </Button>
           {bets.length < 3 && (
             <Button
               size="sm"
-              onClick={() => (window.location.href = "/bets/new")}
+              onClick={() => (window.location.href = "/execution/bets/new")}
             >
               Create Bet
             </Button>
@@ -251,7 +251,7 @@ export function BetsWarRoom({ bets }: { bets: Bet[] }) {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {bets.map((bet) => (
-          <a key={bet.id} href={`/bets/${bet.id}`}>
+          <a key={bet.id} href={`/execution/bets/${bet.id}`}>
             <BetCard bet={bet} />
           </a>
         ))}

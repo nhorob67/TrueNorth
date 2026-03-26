@@ -81,7 +81,13 @@ export function PolicyViolation({
             <Input
               value={justification}
               onChange={(e) => setJustification(e.target.value)}
-              placeholder="Justification for override..."
+              placeholder={
+              policy.name === "max_active_bets"
+                ? "Explain to Future You why 4 bets was a good idea..."
+                : policy.name === "kpi_range"
+                  ? "Why does this venture need to break the KPI guidelines?"
+                  : "Make your case. This gets logged and your team can see it."
+            }
             />
             <div className="flex gap-2">
               <Button
@@ -104,7 +110,7 @@ export function PolicyViolation({
 
         {!policy.overrideAllowed && (
           <p className="text-xs text-semantic-brick mt-2 font-medium">
-            This policy cannot be overridden.
+            This guardrail exists because Past You was smart enough to set it. Don&apos;t let Present You ruin it.
           </p>
         )}
       </CardContent>

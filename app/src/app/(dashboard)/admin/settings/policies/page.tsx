@@ -30,6 +30,7 @@ export default async function PolicyDashboardPage() {
   }
 
   const orgId = membership.organization_id;
+  // eslint-disable-next-line react-hooks/purity
   const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
 
   // Fetch overrides, ventures, and user profiles in parallel
@@ -80,7 +81,6 @@ export default async function PolicyDashboardPage() {
         name: v.name as string,
         settings: (v.settings ?? {}) as Record<string, unknown>,
       }))}
-      orgId={orgId}
     />
   );
 }

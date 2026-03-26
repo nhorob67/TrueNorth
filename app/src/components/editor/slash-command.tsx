@@ -52,7 +52,7 @@ async function callCopilot(
     editor.commands.setContent(
       currentHtml.replace(`<p>[AI ${action}ing...]</p>`, aiContent)
     );
-  } catch (err) {
+  } catch {
     const currentText = editor.getHTML();
     editor.commands.setContent(
       currentText.replace(
@@ -397,6 +397,7 @@ function CommandList({ items, command, ref }: CommandListProps & { ref?: React.R
     const scrollRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedIndex(0);
     }, [items]);
 

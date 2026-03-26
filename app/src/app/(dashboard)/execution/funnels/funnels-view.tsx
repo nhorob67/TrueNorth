@@ -376,7 +376,7 @@ function FunnelDetailPanel({
               {linkedContent.map((piece) => (
                 <a
                   key={piece.id}
-                  href={`/content/${piece.id}`}
+                  href={`/execution/content/${piece.id}`}
                   className="flex items-center justify-between text-xs py-1.5 px-2 rounded bg-canvas hover:bg-line/30 transition-colors"
                 >
                   <span className="text-ink truncate">{piece.title}</span>

@@ -1,7 +1,9 @@
 "use client";
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { getArtifactHref } from "@/lib/format";
 
 // ============================================================
 // Types
@@ -21,16 +23,6 @@ interface StalenessResult {
 // Artifact links
 // ============================================================
 
-const artifactLinks: Record<string, string> = {
-  vision_page: "/vision",
-  quarterly_bets: "/bets",
-  scoreboard: "/scoreboard",
-  meeting_cadence: "/sync",
-  role_cards: "/profile",
-  process_library: "#",
-  media_calendar: "#",
-};
-
 const artifactIcons: Record<string, string> = {
   vision_page: "North Star for the venture",
   quarterly_bets: "3 active bets per quarter",
@@ -46,7 +38,7 @@ const artifactIcons: Record<string, string> = {
 // ============================================================
 
 function ArtifactCard({ artifact }: { artifact: StalenessResult }) {
-  const link = artifactLinks[artifact.artifact_type] ?? "#";
+  const link = getArtifactHref(artifact.artifact_type) ?? "#";
   const description = artifactIcons[artifact.artifact_type] ?? "";
 
   const healthStatus = artifact.is_stale
@@ -64,7 +56,7 @@ function ArtifactCard({ artifact }: { artifact: StalenessResult }) {
   };
 
   return (
-    <a href={link} className="block">
+    <Link href={link} className="block">
       <Card
         borderColor={healthColors[healthStatus]}
         className="hover:shadow-md transition-shadow"
@@ -142,7 +134,7 @@ function ArtifactCard({ artifact }: { artifact: StalenessResult }) {
           )}
         </CardContent>
       </Card>
-    </a>
+    </Link>
   );
 }
 

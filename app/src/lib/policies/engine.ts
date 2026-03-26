@@ -45,7 +45,7 @@ const MAX_ACTIVE_BETS: PolicyDefinition = {
   enforcement: "override_allowed",
   overrideAllowed: true,
   userExplanation:
-    "Each venture can have at most 3 active bets at a time. This keeps the team focused on what matters most.",
+    "You already have 3 active bets. That's the max. Kill one before starting another — that's not a limitation, it's the whole point of this app.",
   async check(ctx) {
     const { data } = await ctx.supabase
       .from("bets")
@@ -322,7 +322,7 @@ const SACRED_WORK_PROTECTION: PolicyDefinition = {
     if (!sacredIds.includes(ctx.entityId)) return { passed: true };
 
     // Check if the process is being set above L0
-    const { data: process } = await ctx.supabase
+    await ctx.supabase
       .from("processes")
       .select("automation_level")
       .eq("id", ctx.entityId)

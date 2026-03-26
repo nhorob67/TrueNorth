@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { OperatingHealthReport, OperatingHealthMetric, HealthStatus } from "@/types/database";
-import { createClient } from "@/lib/supabase/client";
 
 // ============================================================
 // Types
@@ -702,6 +701,7 @@ function DrillDownLoading() {
 // Drill-Down Panel Router
 // ============================================================
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function DrillDownPanel({ metricKey, data }: { metricKey: MetricKey; data: any }) {
   switch (metricKey) {
     case "decision_velocity":
@@ -737,6 +737,7 @@ export function HealthView({
   const [interpreting, setInterpreting] = useState(false);
   const [interpretation, setInterpretation] = useState(latestInterpretation);
   const [expandedMetric, setExpandedMetric] = useState<MetricKey | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [drillDownData, setDrillDownData] = useState<Record<string, any>>({});
   const [drillDownLoading, setDrillDownLoading] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<DateRangeOption>("4w");

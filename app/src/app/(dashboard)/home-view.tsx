@@ -189,7 +189,7 @@ export function HomeView({
             </CardHeader>
             <CardContent>
               {myTodos.length === 0 ? (
-                <p className="text-sm text-subtle">No active todos.</p>
+                <p className="text-sm text-subtle">All clear. Enjoy this moment — it won&apos;t last.</p>
               ) : (
                 <div className="space-y-1.5">
                   {[...overdueTodos, ...dueTodayOrUpcoming].map((todo) => {

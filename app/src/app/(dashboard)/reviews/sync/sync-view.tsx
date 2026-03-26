@@ -691,6 +691,7 @@ function BlockersSegment({
 
   const daysSince = (dateStr: string) => {
     const days = Math.floor(
+      // eslint-disable-next-line react-hooks/purity
       (Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24)
     );
     return days;
@@ -1214,6 +1215,7 @@ export function WeeklySyncView({
   const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
 
   const meetingStartedAtRef = useRef<string | null>(null);
+  // eslint-disable-next-line react-hooks/purity
   const lastTickRef = useRef<number>(Date.now());
 
   // Timer tick

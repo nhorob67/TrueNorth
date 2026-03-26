@@ -263,6 +263,7 @@ export function Comments({
   }, [supabase, entityId, entityType]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadComments();
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) setCurrentUserId(user.id);

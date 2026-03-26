@@ -48,7 +48,6 @@ async function fetchAllSubscriptions(
   const all: StripeSubscription[] = [];
   let startingAfter: string | undefined;
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const params = new URLSearchParams({
       status,

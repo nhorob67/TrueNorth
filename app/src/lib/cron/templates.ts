@@ -461,7 +461,6 @@ const rhythmHealth: TemplateFn = async (supabase, orgId, ventureId) => {
     return { hasData: false, title: "Rhythm Health", sections: [] };
   }
 
-  const today = new Date().toISOString().split("T")[0];
   const moveIds = moves.map((m) => m.id);
 
   // Fetch recent instances for these moves
@@ -801,6 +800,7 @@ const pulseStreaks: TemplateFn = async (supabase, orgId) => {
       };
     })
     .sort((a, b) => b._streak - a._streak)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     .map(({ _streak: _, ...rest }) => rest);
 
   return {

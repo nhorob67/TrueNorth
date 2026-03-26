@@ -767,8 +767,10 @@ export function QuarterlySummitView({
   activeBets,
   closedBets,
   kpis,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   kpiSnapshots: _kpiSnapshots,
   ideaCandidates,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   roleCards: _roleCards,
   teamMembers,
 }: {
@@ -813,6 +815,7 @@ export function QuarterlySummitView({
   const [meetingSaved, setMeetingSaved] = useState(false);
   const [savingMeeting, setSavingMeeting] = useState(false);
   const meetingStartedAtRef = useRef<string | null>(null);
+  // eslint-disable-next-line react-hooks/purity
   const lastTickRef = useRef<number>(Date.now());
 
   // Timer tick

@@ -7,7 +7,7 @@ import { useUserContext } from "@/hooks/use-user-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { detectOneAskConflicts, type OneAskConflict } from "@/lib/one-ask-rule";
+import { detectOneAskConflicts } from "@/lib/one-ask-rule";
 
 // ============================================================
 // Types
@@ -240,7 +240,7 @@ function ContentPill({
 
   return (
     <a
-      href={`/content/${piece.id}`}
+      href={`/execution/content/${piece.id}`}
       draggable
       onDragStart={handleDragStart}
       className={`group flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs cursor-grab active:cursor-grabbing ${machinePillColors[piece.machine_type]} hover:opacity-80 transition-opacity`}

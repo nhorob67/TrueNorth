@@ -405,6 +405,7 @@ function getPastCycleDate(
   cadence: MoveCadence,
   today: Date,
   cyclesBack: number,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _createdAt: string
 ): Date {
   const d = new Date(today);

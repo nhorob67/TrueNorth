@@ -114,15 +114,14 @@ export function TrueNorthEditor({
 
     // Add collaboration extensions when ydoc is provided
     if (ydoc) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       base.push(
         Collaboration.configure({
           document: ydoc,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         }) as any
       );
 
       if (awareness) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         base.push(
           CollaborationCursor.configure({
             provider: { awareness },
@@ -130,6 +129,7 @@ export function TrueNorthEditor({
               name: "Anonymous",
               color: "#7A756E",
             },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           }) as any
         );
       }

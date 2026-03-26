@@ -62,7 +62,7 @@ const stageLabels: Record<ContentLifecycle, string> = {
 
 function ContentCard({ piece }: { piece: ContentPiece }) {
   return (
-    <a href={`/content/${piece.id}`} className="block">
+    <a href={`/execution/content/${piece.id}`} className="block">
       <Card className="hover:shadow-md transition-shadow">
         <CardContent className="py-3">
           <h3 className="text-sm font-medium text-ink leading-tight">
@@ -586,7 +586,7 @@ export function ContentMachinesView({
                       .single();
 
                     if (data) {
-                      window.location.href = `/content/${data.id}`;
+                      window.location.href = `/execution/content/${data.id}`;
                     }
                   }
                 : undefined

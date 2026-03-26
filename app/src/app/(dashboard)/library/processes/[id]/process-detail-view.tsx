@@ -424,7 +424,7 @@ export function ProcessDetailView({
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [currentProcess, setCurrentProcess] = useState(process);
+  const [currentProcess] = useState(process);
 
   const auto = AUTOMATION_LEVELS[currentProcess.automation_level];
 

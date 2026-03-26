@@ -7,6 +7,7 @@ import {
 } from "@/lib/discord-notify";
 import { checkAndAlertRhythms } from "@/lib/cron/rhythm-alerts";
 import { verifyCronSecret } from "@/lib/cron/verify-secret";
+import { getEntityHref } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -143,12 +144,13 @@ async function checkStalledBets(
   for (const bet of bets ?? []) {
     const appUrl =
       process.env.NEXT_PUBLIC_APP_URL ?? "https://app.truenorth.so";
+    const href = getEntityHref("bet", bet.id) ?? "/execution/bets";
     await postEmbed(webhookUrl, {
       title: "Stalled Bet Warning",
       description: `**${bet.outcome}** has had no updates in 14+ days. Consider reviewing or archiving.`,
       color: OCHRE,
       author: { name: "Signal Watch AI Agent" },
-      footer: { text: `View: ${appUrl}/bets/${bet.id}` },
+      footer: { text: `View: ${appUrl}${href}` },
       timestamp: new Date().toISOString(),
     });
     posted++;

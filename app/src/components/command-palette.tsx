@@ -2,11 +2,17 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { ENTITY_ROUTE_MAP } from "@/lib/format";
+import { useTheme } from "next-themes";
+import { createClient } from "@/lib/supabase/client";
+import { useOptionalUserContext } from "@/hooks/use-user-context";
+import { getEntityHref } from "@/lib/format";
+import { useRecentItems } from "@/hooks/use-recent-items";
 
 interface CommandPaletteProps {
   open: boolean;
   onClose: () => void;
+  onOpenQuickTodo?: () => void;
+  onOpenTodoSlideOver?: () => void;
 }
 
 type SearchResult = {
@@ -15,32 +21,73 @@ type SearchResult = {
   label: string;
 };
 
-const NAVIGATE_ITEMS = [
+type NavItem = {
+  label: string;
+  href: string;
+  keywords?: string[];
+  adminOnly?: boolean;
+};
+
+type CreateItem = {
+  label: string;
+  keywords?: string[];
+  shortcut?: string;
+} & ({ href: string } | { action: () => void });
+
+type ActionItem = {
+  label: string;
+  action: () => void;
+  keywords?: string[];
+  shortcut?: string;
+};
+
+type FlatItem = {
+  label: string;
+  section: "recent" | "nav" | "create" | "action" | "result";
+  shortcut?: string;
+} & ({ href: string } | { action: () => void });
+
+const NAVIGATE_ITEMS: NavItem[] = [
   { label: "Home", href: "/" },
-  { label: "Strategy — Vision", href: "/strategy/vision" },
-  { label: "Strategy — Scoreboard", href: "/strategy/scoreboard" },
-  { label: "Strategy — Portfolio", href: "/strategy/portfolio" },
-  { label: "Execution — Bets", href: "/execution/bets" },
-  { label: "Execution — Ideas", href: "/execution/ideas" },
-  { label: "Execution — Funnels", href: "/execution/funnels" },
-  { label: "Execution — Content", href: "/execution/content" },
-  { label: "Reviews — Sync", href: "/reviews/sync" },
-  { label: "Reviews — Operations", href: "/reviews/operations" },
-  { label: "Reviews — Health", href: "/reviews/health" },
-  { label: "Reviews — Narratives", href: "/reviews/narratives" },
-  { label: "Library — Processes", href: "/library/processes" },
-  { label: "Library — Artifacts", href: "/library/artifacts" },
-  { label: "Activity", href: "/activity" },
-  { label: "Todos", href: "/todos" },
+  { label: "Strategy — Vision", href: "/strategy/vision", keywords: ["bhag", "north star"] },
+  { label: "Strategy — Scoreboard", href: "/strategy/scoreboard", keywords: ["kpi", "metrics"] },
+  { label: "Strategy — Portfolio", href: "/strategy/portfolio", keywords: ["ventures"] },
+  { label: "Strategy — Launch", href: "/strategy/launch", keywords: ["onboarding", "wizard"] },
+  { label: "Execution — Bets", href: "/execution/bets", keywords: ["experiments", "hypotheses"] },
+  { label: "Execution — Ideas", href: "/execution/ideas", keywords: ["vault", "submissions"] },
+  { label: "Execution — Funnels", href: "/execution/funnels", keywords: ["acquisition", "conversion"] },
+  { label: "Execution — Content", href: "/execution/content", keywords: ["writing", "publishing"] },
+  { label: "Content Calendar", href: "/execution/content/calendar", keywords: ["schedule", "publishing"] },
+  { label: "Bet Graveyard", href: "/execution/bets/graveyard", keywords: ["killed", "archived", "completed"] },
+  { label: "Reviews — Sync", href: "/reviews/sync", keywords: ["meeting", "weekly"] },
+  { label: "Reviews — Sync Monthly", href: "/reviews/sync/monthly", keywords: ["meeting"] },
+  { label: "Reviews — Sync Quarterly", href: "/reviews/sync/quarterly", keywords: ["meeting"] },
+  { label: "Reviews — Operations", href: "/reviews/operations", keywords: ["decisions", "blockers", "commitments", "issues"] },
+  { label: "Reviews — Health", href: "/reviews/health", keywords: ["operating", "score"] },
+  { label: "Reviews — Narratives", href: "/reviews/narratives", keywords: ["ai", "summary", "report"] },
+  { label: "Reviews — Pulse", href: "/reviews/pulse", keywords: ["check-in", "streak", "weekly"] },
+  { label: "Library — Processes", href: "/library/processes", keywords: ["workflows", "automation"] },
+  { label: "Library — Artifacts", href: "/library/artifacts", keywords: ["documents", "staleness"] },
+  { label: "Activity", href: "/activity", keywords: ["comments", "feed"] },
+  { label: "Todos", href: "/todos", keywords: ["tasks"] },
+  { label: "Profile", href: "/profile", keywords: ["role", "settings", "account"] },
+  { label: "Admin — Settings", href: "/admin/settings", keywords: ["organization", "members", "invites"], adminOnly: true },
+  { label: "Admin — AI Dashboard", href: "/admin/settings/ai-dashboard", keywords: ["agents", "copilot"], adminOnly: true },
+  { label: "Admin — Agents", href: "/admin/settings/agents", keywords: ["team", "roster"], adminOnly: true },
+  { label: "Admin — Policies", href: "/admin/settings/policies", keywords: ["rules", "enforcement"], adminOnly: true },
+  { label: "Admin — Automation", href: "/admin/settings/automation", keywords: ["cron", "jobs"], adminOnly: true },
 ];
 
-const CREATE_ITEMS = [
-  { label: "New Bet", href: "/execution/bets/new" },
-  { label: "New KPI", href: "/strategy/scoreboard/new" },
-  { label: "New Process", href: "/library/processes/new" },
-];
+const DEFAULT_NAV_COUNT = 8;
 
-export function CommandPalette({ open, onClose }: CommandPaletteProps) {
+function matchesQuery(q: string, label: string, keywords?: string[]): boolean {
+  const lower = q.toLowerCase();
+  if (label.toLowerCase().includes(lower)) return true;
+  if (keywords?.some((kw) => kw.toLowerCase().includes(lower))) return true;
+  return false;
+}
+
+export function CommandPalette({ open, onClose, onOpenQuickTodo, onOpenTodoSlideOver }: CommandPaletteProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -48,39 +95,126 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const abortRef = useRef<AbortController | null>(null);
+  const { theme, setTheme } = useTheme();
+  const ctx = useOptionalUserContext();
+  const { recentItems, addRecentItem, clearRecentItems } = useRecentItems();
 
-  const filteredNav = useMemo(
-    () =>
-      query
-        ? NAVIGATE_ITEMS.filter((item) =>
-            item.label.toLowerCase().includes(query.toLowerCase())
-          )
-        : NAVIGATE_ITEMS.slice(0, 6),
-    [query]
+  const isAdmin = ctx?.orgRole === "admin";
+
+  const createItems: CreateItem[] = useMemo(
+    () => [
+      { label: "New Bet", href: "/execution/bets/new" },
+      { label: "New KPI", href: "/strategy/scoreboard/new", keywords: ["metric"] },
+      { label: "New Process", href: "/library/processes/new", keywords: ["workflow"] },
+      ...(onOpenQuickTodo
+        ? [{ label: "New Todo", action: onOpenQuickTodo, keywords: ["task"], shortcut: "⌘T" } as CreateItem]
+        : []),
+      { label: "New Idea", href: "/execution/ideas", keywords: ["submission"] },
+      { label: "New Content Piece", href: "/execution/content", keywords: ["writing", "draft"] },
+      { label: "New Funnel", href: "/execution/funnels", keywords: ["acquisition"] },
+    ],
+    [onOpenQuickTodo]
   );
+
+  const actionItems: ActionItem[] = useMemo(
+    () => [
+      {
+        label: "Toggle theme",
+        action: () => setTheme(theme === "dark" ? "light" : "dark"),
+        keywords: ["dark", "light", "night", "mode"],
+      },
+      ...(onOpenTodoSlideOver
+        ? [{
+            label: "Open todos",
+            action: onOpenTodoSlideOver,
+            keywords: ["tasks", "slide"],
+            shortcut: "⌘⇧T",
+          }]
+        : []),
+      {
+        label: "Copy page URL",
+        action: () => { navigator.clipboard.writeText(window.location.href); },
+        keywords: ["link", "share", "clipboard"],
+      },
+      {
+        label: "Sign out",
+        action: () => { createClient().auth.signOut().then(() => router.push("/login")); },
+        keywords: ["logout", "log out"],
+      },
+    ],
+    [theme, setTheme, onOpenTodoSlideOver, router]
+  );
+
+  const filteredNav = useMemo(() => {
+    const items = NAVIGATE_ITEMS.filter((item) => !item.adminOnly || isAdmin);
+    return query
+      ? items.filter((item) => matchesQuery(query, item.label, item.keywords))
+      : items.slice(0, DEFAULT_NAV_COUNT);
+  }, [query, isAdmin]);
 
   const filteredCreate = useMemo(
     () =>
       query
-        ? CREATE_ITEMS.filter((item) =>
-            item.label.toLowerCase().includes(query.toLowerCase())
-          )
-        : CREATE_ITEMS,
-    [query]
+        ? createItems.filter((item) => matchesQuery(query, item.label, item.keywords))
+        : createItems,
+    [query, createItems]
   );
 
-  const allItems = useMemo(
-    () => [
-      ...filteredNav.map((i) => ({ ...i, section: "nav" as const })),
-      ...filteredCreate.map((i) => ({ ...i, section: "create" as const })),
-      ...results.map((r) => ({
-        label: `${r.type}: ${r.label}`,
-        href: `${ENTITY_ROUTE_MAP[r.type] ?? "/"}/${r.id}`,
-        section: "result" as const,
-      })),
-    ],
-    [filteredNav, filteredCreate, results]
+  const filteredActions = useMemo(
+    () =>
+      query
+        ? actionItems.filter((item) => matchesQuery(query, item.label, item.keywords))
+        : actionItems,
+    [query, actionItems]
   );
+
+  const showRecent = !query && recentItems.length > 0;
+
+  // Easter egg items that appear for specific search queries
+  const easterEggs = useMemo((): FlatItem[] => {
+    const q = query.toLowerCase().trim();
+    if (q === "shiny object" || q === "shiny objects")
+      return [{ label: "Nice try. Back to work.", section: "action", action: () => onClose() }];
+    if (q === "bet #4" || q === "bet 4" || q === "fourth bet")
+      return [{ label: "You already have 3. Kill one first, champ.", section: "action", action: () => { onClose(); router.push("/execution/bets/graveyard"); } }];
+    if (q === "help" || q === "advice" || q === "wisdom")
+      return [{ label: "Remember: the goal isn't to do everything. It's to do the right 3 things.", section: "action", action: () => onClose() }];
+    return [];
+  }, [query, onClose, router]);
+
+  const allItems = useMemo((): FlatItem[] => {
+    const resultItems: FlatItem[] = results.flatMap((r) => {
+      const href = getEntityHref(r.type, r.id);
+      return href
+        ? [{
+            label: `${r.type}: ${r.label}`,
+            href,
+            section: "result",
+          }]
+        : [];
+    });
+
+    return [
+      ...easterEggs,
+      ...(showRecent
+        ? recentItems.map((i): FlatItem => ({ label: i.label, href: i.href, section: "recent" }))
+        : []),
+      ...filteredNav.map((i): FlatItem => ({ label: i.label, href: i.href, section: "nav" })),
+      ...filteredCreate.map((i): FlatItem => ({
+        label: i.label,
+        section: "create",
+        ...("href" in i ? { href: i.href } : { action: i.action }),
+        shortcut: i.shortcut,
+      })),
+      ...filteredActions.map((i): FlatItem => ({
+        label: i.label,
+        section: "action",
+        action: i.action,
+        shortcut: i.shortcut,
+      })),
+      ...resultItems,
+    ];
+  }, [easterEggs, showRecent, recentItems, filteredNav, filteredCreate, filteredActions, results]);
 
   useEffect(() => {
     if (query.length < 2) {
@@ -125,12 +259,17 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     }
   }, [open]);
 
-  const navigate = useCallback(
-    (href: string) => {
+  const execute = useCallback(
+    (item: FlatItem) => {
       onClose();
-      router.push(href);
+      if ("action" in item && typeof item.action === "function") {
+        item.action();
+      } else if ("href" in item) {
+        addRecentItem({ label: item.label, href: item.href });
+        router.push(item.href);
+      }
     },
-    [onClose, router]
+    [onClose, router, addRecentItem]
   );
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -142,7 +281,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
       setSelectedIndex((i) => Math.max(i - 1, 0));
     } else if (e.key === "Enter" && allItems[selectedIndex]) {
       e.preventDefault();
-      navigate(allItems[selectedIndex].href);
+      execute(allItems[selectedIndex]);
     } else if (e.key === "Escape") {
       onClose();
     }
@@ -151,6 +290,30 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const clampedIndex = Math.min(selectedIndex, Math.max(0, allItems.length - 1));
 
   if (!open) return null;
+
+  // Build sections with global index tracking
+  const sections: { key: string; title: string; startIdx: number; count: number; prefix?: string }[] = [];
+  let offset = 0;
+
+  if (showRecent) {
+    sections.push({ key: "recent", title: "Recent", startIdx: offset, count: recentItems.length });
+    offset += recentItems.length;
+  }
+  if (filteredNav.length > 0) {
+    sections.push({ key: "nav", title: "Navigate", startIdx: offset, count: filteredNav.length });
+    offset += filteredNav.length;
+  }
+  if (filteredCreate.length > 0) {
+    sections.push({ key: "create", title: "Create", startIdx: offset, count: filteredCreate.length, prefix: "+ " });
+    offset += filteredCreate.length;
+  }
+  if (filteredActions.length > 0) {
+    sections.push({ key: "action", title: "Actions", startIdx: offset, count: filteredActions.length });
+    offset += filteredActions.length;
+  }
+  if (results.length > 0) {
+    sections.push({ key: "result", title: "Results", startIdx: offset, count: results.length });
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[20vh]">
@@ -184,84 +347,60 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
           </kbd>
         </div>
 
-        <div className="max-h-80 overflow-y-auto py-2">
-          {filteredNav.length > 0 && (
-            <div>
-              <p className="px-4 py-1 text-[10px] font-mono uppercase tracking-wider text-faded">
-                Navigate
-              </p>
-              {filteredNav.map((item, i) => (
-                <button
-                  key={item.href}
-                  onClick={() => navigate(item.href)}
-                  className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                    clampedIndex === i
-                      ? "bg-accent/10 text-accent"
-                      : "text-ink hover:bg-hovered"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {filteredCreate.length > 0 && (
-            <div>
-              <p className="px-4 py-1 mt-1 text-[10px] font-mono uppercase tracking-wider text-faded">
-                Create
-              </p>
-              {filteredCreate.map((item, i) => {
-                const idx = filteredNav.length + i;
-                return (
+        <div className="max-h-80 overflow-y-auto py-2" aria-live="polite">
+          {sections.map((section, sIdx) => (
+            <div key={section.key}>
+              <div className={`flex items-center justify-between px-4 py-1${sIdx > 0 ? " mt-1" : ""}`}>
+                <p className="text-[10px] font-mono uppercase tracking-wider text-faded">
+                  {section.title}
+                </p>
+                {section.key === "recent" && (
                   <button
-                    key={item.href}
-                    onClick={() => navigate(item.href)}
-                    className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                      clampedIndex === idx
-                        ? "bg-accent/10 text-accent"
-                        : "text-ink hover:bg-hovered"
-                    }`}
+                    onClick={clearRecentItems}
+                    className="text-[10px] font-mono text-faded hover:text-subtle transition-colors"
                   >
-                    + {item.label}
+                    Clear
                   </button>
-                );
-              })}
-            </div>
-          )}
-
-          {results.length > 0 && (
-            <div>
-              <p className="px-4 py-1 mt-1 text-[10px] font-mono uppercase tracking-wider text-faded">
-                Results
-              </p>
-              {results.map((r, i) => {
-                const idx = filteredNav.length + filteredCreate.length + i;
+                )}
+              </div>
+              {Array.from({ length: section.count }, (_, i) => {
+                const globalIdx = section.startIdx + i;
+                const item = allItems[globalIdx];
                 return (
                   <button
-                    key={`${r.type}-${r.id}`}
-                    onClick={() =>
-                      navigate(
-                        `${ENTITY_ROUTE_MAP[r.type] ?? "/"}/${r.id}`
-                      )
-                    }
-                    className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                      clampedIndex === idx
+                    key={`${item.section}-${globalIdx}`}
+                    onClick={() => execute(item)}
+                    className={`w-full text-left px-4 py-2 text-sm flex items-center justify-between transition-colors ${
+                      clampedIndex === globalIdx
                         ? "bg-accent/10 text-accent"
                         : "text-ink hover:bg-hovered"
                     }`}
                   >
-                    <span className="font-mono text-[10px] uppercase text-faded mr-2">
-                      {r.type}
+                    <span>
+                      {section.prefix}
+                      {item.section === "result" ? (
+                        <>
+                          <span className="font-mono text-[10px] uppercase text-faded mr-2">
+                            {item.label.split(": ")[0]}
+                          </span>
+                          {item.label.split(": ").slice(1).join(": ")}
+                        </>
+                      ) : (
+                        item.label
+                      )}
                     </span>
-                    {r.label}
+                    {item.shortcut && (
+                      <kbd className="text-[10px] font-mono text-faded border border-line rounded px-1.5 py-0.5 ml-2">
+                        {item.shortcut}
+                      </kbd>
+                    )}
                   </button>
                 );
               })}
             </div>
-          )}
+          ))}
 
-          {query.length >= 2 && results.length === 0 && !loading && (
+          {query.length >= 2 && !loading && sections.length === 0 && (
             <p className="px-4 py-3 text-sm text-subtle text-center">
               No results found
             </p>

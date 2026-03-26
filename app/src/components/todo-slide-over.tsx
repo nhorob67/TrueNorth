@@ -45,6 +45,7 @@ export function TodoSlideOver({ open, onClose }: TodoSlideOverProps) {
   }, [ctx.userId]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (open) fetchTodos();
   }, [open, fetchTodos]);
 

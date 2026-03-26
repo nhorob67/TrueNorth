@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Sidebar } from "./sidebar";
+import { MobileNav } from "./mobile-nav";
 import { InstallPrompt } from "@/components/install-prompt";
 import { QuickTodoModal } from "@/components/quick-todo-modal";
 import { CommandPalette } from "@/components/command-palette";
@@ -60,6 +61,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen">
+      {/* Skip to content link for keyboard users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-cta focus:text-cta-text focus:rounded-[8px] focus:text-sm focus:font-semibold"
+      >
+        Skip to main content
+      </a>
+
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
@@ -78,7 +87,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <Sidebar />
       </div>
 
-      <main className="flex-1 bg-canvas min-w-0">
+      <main id="main-content" className="flex-1 bg-canvas min-w-0">
         {/* Mobile header */}
         <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-sidebar text-sidebar-text-hover">
           <button
@@ -93,9 +102,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <span className="font-display font-bold">TrueNorth</span>
         </div>
 
-        <div className="px-4 py-4 md:px-8 md:py-6">{children}</div>
+        <div className="px-4 py-4 md:px-8 md:py-6 pb-20 md:pb-6">{children}</div>
       </main>
 
+      <MobileNav />
       <InstallPrompt />
       <QuickTodoModal
         open={quickTodoOpen}
@@ -104,6 +114,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <CommandPalette
         open={commandPaletteOpen}
         onClose={closeCommandPalette}
+        onOpenQuickTodo={ctx ? () => setQuickTodoOpen(true) : undefined}
+        onOpenTodoSlideOver={ctx ? () => setTodoSlideOverOpen(true) : undefined}
       />
       <TodoSlideOver
         open={todoSlideOverOpen}

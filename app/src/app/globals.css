@@ -93,8 +93,8 @@
 [data-theme="dark"] {
   /* Backgrounds */
   --color-canvas: #131110;
-  --color-surface: #1A1816;
-  --color-well: #221F1C;
+  --color-surface: #1E1B18;
+  --color-well: #252220;
   --color-hovered: #2A2622;
 
   /* Text */
@@ -110,8 +110,8 @@
   --color-accent-glow: rgba(204,94,52,0.06);
 
   /* Borders */
-  --color-line: rgba(255,220,180,0.06);
-  --color-line-strong: rgba(255,220,180,0.12);
+  --color-line: rgba(255,220,180,0.08);
+  --color-line-strong: rgba(255,220,180,0.14);
   --color-line-focus: rgba(204,94,52,0.45);
 
   /* Chart */
@@ -440,6 +440,15 @@ body {
    AI Pulsing Dot Animation
    ============================================================ */
 
+@keyframes star-glow {
+  0%, 100% { color: var(--color-sidebar-text-active); filter: drop-shadow(0 0 0px transparent); }
+  50% { color: var(--color-brass, #B69A45); filter: drop-shadow(0 0 4px var(--color-brass, #B69A45)); }
+}
+
+.star-glow {
+  animation: star-glow 3s ease-in-out infinite;
+}
+
 @keyframes ai-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
@@ -494,4 +503,49 @@ body {
   width: 2.5px;
   background: #CC5E34;
   border-radius: 0 2px 2px 0;
+}
+
+/* ============================================================
+   Staggered List Animation
+   ============================================================ */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stagger-list > * {
+  animation: fade-in-up 0.3s ease-out both;
+}
+
+.stagger-list > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-list > *:nth-child(2) { animation-delay: 40ms; }
+.stagger-list > *:nth-child(3) { animation-delay: 80ms; }
+.stagger-list > *:nth-child(4) { animation-delay: 120ms; }
+.stagger-list > *:nth-child(5) { animation-delay: 160ms; }
+.stagger-list > *:nth-child(6) { animation-delay: 200ms; }
+.stagger-list > *:nth-child(7) { animation-delay: 240ms; }
+.stagger-list > *:nth-child(8) { animation-delay: 280ms; }
+.stagger-list > *:nth-child(9) { animation-delay: 320ms; }
+.stagger-list > *:nth-child(10) { animation-delay: 360ms; }
+.stagger-list > *:nth-child(n+11) { animation-delay: 400ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stagger-list > * {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   Safe area for mobile bottom nav
+   ============================================================ */
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }

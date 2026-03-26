@@ -191,11 +191,6 @@ function TodoItem({
 }
 
 function RhythmItem({ rhythm }: { rhythm: RecurringMoveRhythm }) {
-  const progress =
-    rhythm.instances_total > 0
-      ? rhythm.instances_completed / rhythm.instances_total
-      : 0;
-
   const healthColors: Record<string, string> = {
     green: "bg-semantic-green",
     yellow: "bg-semantic-ochre",

@@ -8,6 +8,7 @@ export default async function HomePage() {
 
   const supabase = await getCachedClient();
   const today = new Date().toISOString().split("T")[0];
+  // eslint-disable-next-line react-hooks/purity
   const weekFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
     .toISOString()
     .split("T")[0];

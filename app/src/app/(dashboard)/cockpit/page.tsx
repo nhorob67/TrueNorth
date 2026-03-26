@@ -10,6 +10,7 @@ export default async function CockpitPage() {
   const supabase = await getCachedClient();
   const today = new Date().toISOString().split("T")[0];
   const sevenDaysFromNow = new Date(
+    // eslint-disable-next-line react-hooks/purity
     Date.now() + 7 * 24 * 60 * 60 * 1000
   ).toISOString().split("T")[0];
 

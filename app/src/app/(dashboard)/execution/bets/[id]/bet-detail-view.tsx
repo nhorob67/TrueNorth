@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -1040,11 +1040,11 @@ function KillBetAction({
     <Card borderColor="var(--color-semantic-brick)" className="mt-4">
       <CardContent className="py-3 space-y-3">
         <p className="text-sm font-medium text-semantic-brick">
-          Kill this bet?
+          Time to say goodbye?
         </p>
         <p className="text-xs text-subtle">
-          The bet will move to the Graveyard. This is the system working, not
-          a failure — smart kills protect focus.
+          This bet will be honored in the Graveyard with a proper tombstone.
+          Every kill protects your team&apos;s focus. This takes courage — and your Kill Courage Score knows it.
         </p>
         {bet.kill_criteria && (
           <div className="p-2 bg-canvas rounded text-xs">
@@ -1055,7 +1055,7 @@ function KillBetAction({
         <textarea
           value={lessonsLearned}
           onChange={(e) => setLessonsLearned(e.target.value)}
-          placeholder="What did you learn? What would you do differently? (Required — this gets preserved in the Graveyard)"
+          placeholder="Write the eulogy. What did this bet teach you? What would you tell your past self?"
           className="w-full min-h-[80px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
         />
         <div className="flex gap-2">
@@ -1065,7 +1065,7 @@ function KillBetAction({
             onClick={handleKill}
             disabled={killing || !lessonsLearned.trim()}
           >
-            {killing ? "Killing..." : "Confirm Kill"}
+            {killing ? "Saying goodbye..." : "Rest in Peace"}
           </Button>
           <Button
             variant="secondary"
@@ -1159,8 +1159,11 @@ export function BetDetailView({
   const [showCheckpoint, setShowCheckpoint] = useState(false);
 
   // Week-6 checkpoint detection: bet is ~6 weeks old and still active
-  const betAgeMs = Date.now() - new Date(bet.created_at).getTime();
-  const betAgeWeeks = betAgeMs / (7 * 24 * 60 * 60 * 1000);
+  const betAgeWeeks = useMemo(() => {
+    // eslint-disable-next-line react-hooks/purity
+    const betAgeMs = Date.now() - new Date(bet.created_at).getTime();
+    return betAgeMs / (7 * 24 * 60 * 60 * 1000);
+  }, [bet.created_at]);
   const isCheckpointDue =
     bet.lifecycle_status === "active" &&
     betAgeWeeks >= 5.5 &&

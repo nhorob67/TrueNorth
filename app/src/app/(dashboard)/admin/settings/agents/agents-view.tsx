@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import type { Agent, RoleCard, AiAction } from "@/types/database";
+import type { Agent, RoleCard } from "@/types/database";
 
 const AUTOMATION_LABELS: Record<number, string> = {
   0: "L0 - Manual",
@@ -374,6 +374,7 @@ export function AgentsView({ agents, roleCards, orgId, trustMetrics }: AgentsVie
   // Auto-seed default agents if none exist
   useEffect(() => {
     if (agents.length === 0 && !seeding) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSeeding(true);
       const rows = DEFAULT_AGENTS.map((a) => ({
         organization_id: orgId,

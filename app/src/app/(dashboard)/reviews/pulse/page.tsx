@@ -12,10 +12,10 @@ export default async function PulsePage() {
   const userId = user?.id ?? "";
 
   const [
-    { data: myPulse, error: e1 },
+    { data: myPulse },
     { data: teamPulses, error: e2 },
     { data: bets, error: e3 },
-    { data: profile, error: e4 },
+    { data: profile },
     { data: todos },
     { data: recurringMoves },
   ] = await Promise.all([
@@ -68,6 +68,7 @@ export default async function PulsePage() {
         .from("move_instances")
         .select("status")
         .eq("move_id", move.id)
+        // eslint-disable-next-line react-hooks/purity
         .gte("cycle_start", new Date(Date.now() - 30 * 86400000).toISOString());
 
       const completed = instances?.filter((i) => i.status === "completed").length ?? 0;

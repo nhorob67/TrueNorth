@@ -51,7 +51,7 @@ function Tombstone({ bet }: { bet: KilledBet }) {
     <Card className="overflow-hidden">
       {/* Tombstone header — dark, somber, but celebratory */}
       <div className="bg-ink px-6 py-5 text-center">
-        <div className="text-subtle/40 text-3xl mb-2">&#x2020;</div>
+        <div className="text-subtle/40 text-3xl mb-2 transition-transform duration-[400ms] ease-out hover:rotate-[15deg] hover:opacity-60 cursor-default" title="Rest well, old friend">&#x2020;</div>
         <h3 className="text-surface font-semibold text-base leading-tight">
           {bet.outcome}
         </h3>
@@ -158,14 +158,14 @@ export function GraveyardView({
           <Button
             variant="tertiary"
             size="sm"
-            onClick={() => (window.location.href = "/bets")}
+            onClick={() => (window.location.href = "/execution/bets")}
           >
             Back to War Room
           </Button>
         </div>
         <EmptyState
-          title="The Graveyard is empty"
-          description="No bets have been killed yet. When a bet is killed, it moves here to celebrate the smart decision and preserve the lessons learned."
+          title="Nothing has died yet"
+          description="That's... suspicious. Healthy teams kill bets regularly. If everything's a winner, you're probably not being honest enough. Go review your War Room."
         />
       </div>
     );
@@ -184,7 +184,7 @@ export function GraveyardView({
         <Button
           variant="tertiary"
           size="sm"
-          onClick={() => (window.location.href = "/bets")}
+          onClick={() => (window.location.href = "/execution/bets")}
         >
           Back to War Room
         </Button>

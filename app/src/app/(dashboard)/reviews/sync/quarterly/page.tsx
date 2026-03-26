@@ -8,6 +8,7 @@ export default async function QuarterlySummitPage() {
   const userCtx = await getCachedUserContext();
   if (!userCtx) redirect("/login");
 
+  // eslint-disable-next-line react-hooks/purity
   const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
 
   // Vision data (BHAG, strategic filters, annual outcomes, not doing list)

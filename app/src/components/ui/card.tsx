@@ -2,14 +2,15 @@ import { HTMLAttributes } from "react";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   borderColor?: string;
+  interactive?: boolean;
   ref?: React.Ref<HTMLDivElement>;
 }
 
-export function Card({ borderColor, className = "", style, children, ref, ...props }: CardProps) {
+export function Card({ borderColor, interactive = false, className = "", style, children, ref, ...props }: CardProps) {
   return (
     <div
       ref={ref}
-      className={`bg-surface border border-line rounded-[10px] shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-shadow duration-200 hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)] ${className}`}
+      className={`bg-surface border border-line rounded-[10px] shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all duration-200 ${interactive ? "hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)] hover:translate-y-[-1px] cursor-pointer" : ""} ${className}`}
       style={{
         ...style,
         ...(borderColor ? { borderLeftWidth: "4px", borderLeftColor: borderColor } : {}),

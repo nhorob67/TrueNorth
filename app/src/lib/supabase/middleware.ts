@@ -81,7 +81,7 @@ export async function updateSession(request: NextRequest) {
     }
     if (orgRole === "viewer") {
       const url = request.nextUrl.clone();
-      url.pathname = "/scoreboard";
+      url.pathname = "/strategy/scoreboard";
       return NextResponse.redirect(url);
     }
     // admin stays on /cockpit (Operator Cockpit)

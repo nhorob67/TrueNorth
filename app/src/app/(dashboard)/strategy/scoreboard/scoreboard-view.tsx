@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/loading";
@@ -265,7 +265,7 @@ export function ScoreboardView({ kpis }: { kpis: Kpi[] }) {
               >
                 {seeding ? "Seeding..." : "Seed Default KPIs"}
               </Button>
-              <Button onClick={() => (window.location.href = "/scoreboard/new")}>
+              <Button onClick={() => (window.location.href = "/strategy/scoreboard/new")}>
                 Add KPI
               </Button>
             </div>
@@ -305,7 +305,7 @@ export function ScoreboardView({ kpis }: { kpis: Kpi[] }) {
           </Button>
           <Button
             size="sm"
-            onClick={() => (window.location.href = "/scoreboard/new")}
+            onClick={() => (window.location.href = "/strategy/scoreboard/new")}
           >
             Add KPI
           </Button>

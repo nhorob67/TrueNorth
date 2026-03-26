@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { AgentsView } from "./agents-view";
-import type { AiAction } from "@/types/database";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +29,7 @@ export default async function AgentsSettingsPage() {
   }
 
   const orgId = membership.organization_id;
+  // eslint-disable-next-line react-hooks/purity
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
   const [{ data: agents }, { data: aiActions }] = await Promise.all([

@@ -394,7 +394,7 @@ function NotDoingSection({
         <CardContent>
           {items.length === 0 && !editing && (
             <p className="text-sm text-subtle">
-              No items on the Not Doing list yet.
+              Nothing here yet. The most powerful word in strategy is &lsquo;no.&rsquo; Add the things this venture proudly refuses to chase.
             </p>
           )}
           <ul className="space-y-0">
@@ -580,8 +580,8 @@ export function VisionBoardView({
       <div>
         <h1 className="font-display text-[28px] font-bold tracking-[-0.03em] mb-6">Vision Board</h1>
         <EmptyState
-          title="No vision defined"
-          description="Define your BHAG, strategic filters, and annual outcomes to anchor your operating system."
+          title="No North Star yet"
+          description="Without a BHAG, every direction looks equally promising. That's how Shiny Object Syndrome wins. Define where you're going so you can say no to everything else."
           action={
             isAdmin ? (
               <Button onClick={() => setEditing(true)}>

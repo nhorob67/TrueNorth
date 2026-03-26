@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 
 interface DialogProps {
   open: boolean;
@@ -13,6 +13,8 @@ interface DialogProps {
 export function Dialog({ open, onClose, children, title, description }: DialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const [visible, setVisible] = useState(false);
+  const [animating, setAnimating] = useState(false);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -42,19 +44,31 @@ export function Dialog({ open, onClose, children, title, description }: DialogPr
     [onClose]
   );
 
+  // Handle open/close with animation
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setAnimating(true);
+      setVisible(true);
       previousFocusRef.current = document.activeElement as HTMLElement;
       document.addEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "hidden";
 
-      // Focus first focusable element after render
       requestAnimationFrame(() => {
+        requestAnimationFrame(() => setAnimating(false));
         const focusable = dialogRef.current?.querySelector<HTMLElement>(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         );
         focusable?.focus();
       });
+    } else if (visible) {
+      // Exit animation
+      setAnimating(true);
+      const timeout = setTimeout(() => {
+        setVisible(false);
+        setAnimating(false);
+      }, 150);
+      return () => clearTimeout(timeout);
     }
 
     return () => {
@@ -62,15 +76,17 @@ export function Dialog({ open, onClose, children, title, description }: DialogPr
       document.body.style.overflow = "";
       previousFocusRef.current?.focus();
     };
-  }, [open, handleKeyDown]);
+  }, [open, handleKeyDown, visible]);
 
-  if (!open) return null;
+  if (!visible) return null;
+
+  const entering = open && !animating;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-ink/50 transition-opacity duration-200"
+        className={`fixed inset-0 bg-ink/50 transition-opacity duration-200 ${entering ? "opacity-100" : "opacity-0"}`}
         onClick={onClose}
         aria-hidden="true"
       />
@@ -82,7 +98,8 @@ export function Dialog({ open, onClose, children, title, description }: DialogPr
         aria-modal="true"
         aria-labelledby={title ? "dialog-title" : undefined}
         aria-describedby={description ? "dialog-description" : undefined}
-        className="relative z-50 w-full max-w-lg mx-4 bg-surface border border-line rounded-xl shadow-xl"
+        className={`relative z-50 w-full max-w-lg mx-4 bg-surface border border-line rounded-xl shadow-xl transition-all ${entering ? "opacity-100 scale-100 duration-250" : "opacity-0 scale-95 duration-150"}`}
+        style={{ transitionTimingFunction: entering ? "cubic-bezier(0.34, 1.56, 0.64, 1)" : "ease-in" }}
       >
         {(title || description) && (
           <div className="px-6 pt-6 pb-2">

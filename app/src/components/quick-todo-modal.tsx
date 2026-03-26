@@ -21,6 +21,7 @@ export function QuickTodoModal({ open, onClose }: QuickTodoModalProps) {
 
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTitle("");
       setPriority("medium");
       setFlash(false);
