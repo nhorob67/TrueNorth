@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { ScoreboardView } from "./scoreboard-view";
 
+export const dynamic = "force-dynamic";
+
 export default async function ScoreboardPage() {
   const supabase = await createClient();
 
