@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { syncKpiIntegration } from "@/lib/kpi-integrations/sync";
 import type { KpiIntegration } from "@/types/database";
 
 export const dynamic = "force-dynamic";
+
+function revalidateKpiPaths(kpiId: string) {
+  revalidatePath("/");
+  revalidatePath("/strategy/scoreboard");
+  revalidatePath(`/strategy/scoreboard/${kpiId}`);
+  revalidatePath(`/strategy/scoreboard/${kpiId}/integrations`);
+}
 
 /**
  * POST /api/kpi/sync-one
@@ -104,6 +112,8 @@ export async function POST(request: Request) {
         last_sync_error: null,
       })
       .eq("id", integration_id);
+
+    revalidateKpiPaths(typedIntegration.kpi_id);
 
     return NextResponse.json({
       status: "success",
