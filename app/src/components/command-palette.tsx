@@ -12,6 +12,7 @@ interface CommandPaletteProps {
   open: boolean;
   onClose: () => void;
   onOpenQuickTodo?: () => void;
+  onOpenQuickIdea?: () => void;
   onOpenTodoSlideOver?: () => void;
 }
 
@@ -87,7 +88,7 @@ function matchesQuery(q: string, label: string, keywords?: string[]): boolean {
   return false;
 }
 
-export function CommandPalette({ open, onClose, onOpenQuickTodo, onOpenTodoSlideOver }: CommandPaletteProps) {
+export function CommandPalette({ open, onClose, onOpenQuickTodo, onOpenQuickIdea, onOpenTodoSlideOver }: CommandPaletteProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -109,11 +110,13 @@ export function CommandPalette({ open, onClose, onOpenQuickTodo, onOpenTodoSlide
       ...(onOpenQuickTodo
         ? [{ label: "New Todo", action: onOpenQuickTodo, keywords: ["task"], shortcut: "⌘T" } as CreateItem]
         : []),
-      { label: "New Idea", href: "/execution/ideas", keywords: ["submission"] },
+      ...(onOpenQuickIdea
+        ? [{ label: "New Idea", action: onOpenQuickIdea, keywords: ["submission"] } as CreateItem]
+        : [{ label: "New Idea", href: "/execution/ideas", keywords: ["submission"] } as CreateItem]),
       { label: "New Content Piece", href: "/execution/content", keywords: ["writing", "draft"] },
       { label: "New Funnel", href: "/execution/funnels", keywords: ["acquisition"] },
     ],
-    [onOpenQuickTodo]
+    [onOpenQuickTodo, onOpenQuickIdea]
   );
 
   const actionItems: ActionItem[] = useMemo(

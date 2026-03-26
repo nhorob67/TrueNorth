@@ -5,6 +5,7 @@ import { Sidebar } from "./sidebar";
 import { MobileNav } from "./mobile-nav";
 import { InstallPrompt } from "@/components/install-prompt";
 import { QuickTodoModal } from "@/components/quick-todo-modal";
+import { QuickIdeaModal } from "@/components/quick-idea-modal";
 import { CommandPalette } from "@/components/command-palette";
 import { TodoSlideOver } from "@/components/todo-slide-over";
 import { useOptionalUserContext } from "@/hooks/use-user-context";
@@ -12,12 +13,14 @@ import { useOptionalUserContext } from "@/hooks/use-user-context";
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [quickTodoOpen, setQuickTodoOpen] = useState(false);
+  const [quickIdeaOpen, setQuickIdeaOpen] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [todoSlideOverOpen, setTodoSlideOverOpen] = useState(false);
   const ctx = useOptionalUserContext();
 
   const closeSidebar = useCallback(() => setSidebarOpen(false), []);
   const closeQuickTodo = useCallback(() => setQuickTodoOpen(false), []);
+  const closeQuickIdea = useCallback(() => setQuickIdeaOpen(false), []);
   const closeCommandPalette = useCallback(() => setCommandPaletteOpen(false), []);
   const closeTodoSlideOver = useCallback(() => setTodoSlideOverOpen(false), []);
 
@@ -111,10 +114,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         open={quickTodoOpen}
         onClose={closeQuickTodo}
       />
+      <QuickIdeaModal
+        open={quickIdeaOpen}
+        onClose={closeQuickIdea}
+      />
       <CommandPalette
         open={commandPaletteOpen}
         onClose={closeCommandPalette}
         onOpenQuickTodo={ctx ? () => setQuickTodoOpen(true) : undefined}
+        onOpenQuickIdea={ctx ? () => setQuickIdeaOpen(true) : undefined}
         onOpenTodoSlideOver={ctx ? () => setTodoSlideOverOpen(true) : undefined}
       />
       <TodoSlideOver
