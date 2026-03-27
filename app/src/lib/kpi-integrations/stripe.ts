@@ -5,7 +5,7 @@
 
 interface StripeConfig {
   apiKey: string;
-  metric: "mrr" | "active_customers" | "churn_rate" | "revenue";
+  metric: "mrr" | "active_customers" | "churn_rate" | "revenue" | "ltm_revenue";
 }
 
 interface StripeListResponse<T> {
@@ -28,6 +28,13 @@ interface StripeSubscription {
 
 interface StripeBalance {
   available: Array<{ amount: number; currency: string }>;
+}
+
+interface StripeCharge {
+  id: string;
+  amount: number;
+  amount_refunded: number;
+  status: string;
 }
 
 async function stripeGet<T>(apiKey: string, path: string): Promise<T> {
@@ -126,6 +133,36 @@ async function fetchRevenue(apiKey: string): Promise<number> {
   return totalCents / 100;
 }
 
+async function fetchLtmRevenue(apiKey: string): Promise<number> {
+  const twelveMonthsAgo = Math.floor(Date.now() / 1000) - 365 * 24 * 60 * 60;
+  let totalCents = 0;
+  let startingAfter: string | undefined;
+
+  while (true) {
+    const params = new URLSearchParams({
+      "created[gte]": twelveMonthsAgo.toString(),
+      limit: "100",
+    });
+    if (startingAfter) params.set("starting_after", startingAfter);
+
+    const res = await stripeGet<StripeListResponse<StripeCharge>>(
+      apiKey,
+      `/charges?${params.toString()}`
+    );
+
+    for (const charge of res.data) {
+      if (charge.status === "succeeded") {
+        totalCents += charge.amount - charge.amount_refunded;
+      }
+    }
+
+    if (!res.has_more || res.data.length === 0) break;
+    startingAfter = res.data[res.data.length - 1].id;
+  }
+
+  return totalCents / 100;
+}
+
 export async function fetchStripeMetric(config: StripeConfig): Promise<number> {
   const { apiKey, metric } = config;
 
@@ -138,6 +175,8 @@ export async function fetchStripeMetric(config: StripeConfig): Promise<number> {
       return fetchChurnRate(apiKey);
     case "revenue":
       return fetchRevenue(apiKey);
+    case "ltm_revenue":
+      return fetchLtmRevenue(apiKey);
     default:
       throw new Error(`Unknown Stripe metric: ${metric}`);
   }

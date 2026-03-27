@@ -36,6 +36,7 @@ const STRIPE_METRICS = [
   { value: "active_customers", label: "Active Customers" },
   { value: "churn_rate", label: "Churn Rate (%)" },
   { value: "revenue", label: "Available Revenue" },
+  { value: "ltm_revenue", label: "LTM Revenue" },
 ];
 
 const CONVERTKIT_METRICS = [

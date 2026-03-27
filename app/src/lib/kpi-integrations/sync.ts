@@ -29,7 +29,7 @@ export async function syncKpiIntegration(
       case "stripe": {
         const value = await fetchStripeMetric({
           apiKey: config.apiKey as string,
-          metric: config.metric as "mrr" | "active_customers" | "churn_rate" | "revenue",
+          metric: config.metric as "mrr" | "active_customers" | "churn_rate" | "revenue" | "ltm_revenue",
         });
         return { value };
       }
