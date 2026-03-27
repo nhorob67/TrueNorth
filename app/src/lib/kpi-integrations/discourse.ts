@@ -63,8 +63,8 @@ async function discourseGet<T>(config: DiscourseConfig, path: string): Promise<T
  * Runs a Data Explorer query via the Discourse API.
  * Requires the Data Explorer plugin to be installed (bundled with Discourse core).
  *
- * The query calculates: % of topics created in the last 7 days that received
- * ≥2 replies within 24 hours of creation.
+ * The query calculates: % of topics created in the last 14 days that received
+ * ≥2 replies within 24 hours of creation. Excludes topics by NickHorob.
  */
 async function fetchPostsWith2Replies24h(config: DiscourseConfig): Promise<number> {
   const queryId = (config as DiscourseConfig & { dataExplorerQueryId?: number }).dataExplorerQueryId;
@@ -83,14 +83,17 @@ async function fetchPostsWith2Replies24h(config: DiscourseConfig): Promise<numbe
   }
 
   // Fallback: run inline SQL via Data Explorer
-  // This calculates the % of topics from the last 7 days with ≥2 replies within 24h
+  // This calculates the % of topics from the last 14 days with ≥2 replies within 24h
+  // Excludes topics created by NickHorob
   const sql = `
     WITH recent_topics AS (
       SELECT t.id AS topic_id, t.created_at AS topic_created_at
       FROM topics t
+      JOIN users u ON u.id = t.user_id
       WHERE t.archetype = 'regular'
         AND t.deleted_at IS NULL
-        AND t.created_at >= CURRENT_TIMESTAMP - INTERVAL '7 days'
+        AND t.created_at >= CURRENT_TIMESTAMP - INTERVAL '14 days'
+        AND u.username != 'NickHorob'
     ),
     reply_counts AS (
       SELECT
