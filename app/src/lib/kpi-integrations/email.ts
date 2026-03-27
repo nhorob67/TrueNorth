@@ -12,20 +12,55 @@ interface ConvertKitConfig {
 }
 
 interface ConvertKitSubscribersResponse {
+  subscribers: unknown[];
   total_subscribers: number;
 }
 
-interface ConvertKitBroadcast {
+interface KitBroadcastStats {
+  recipients: number;
+  open_rate: number;
+  click_rate: number;
+  unsubscribe_rate: number;
+  status: string;
+  open_tracking_disabled: boolean;
+  click_tracking_disabled: boolean;
+}
+
+interface KitBroadcastStatsEntry {
   id: number;
-  stats?: {
-    recipients: number;
-    open_rate: number;
-    click_rate: number;
+  stats: KitBroadcastStats;
+}
+
+interface KitBroadcastStatsResponse {
+  broadcasts: KitBroadcastStatsEntry[];
+  pagination: {
+    has_previous_page: boolean;
+    has_next_page: boolean;
+    start_cursor: string;
+    end_cursor: string;
+    per_page: number;
   };
 }
 
-interface ConvertKitBroadcastsResponse {
-  broadcasts: ConvertKitBroadcast[];
+/**
+ * Fetch broadcast stats from Kit v4 API.
+ * Only includes completed broadcasts with open tracking enabled.
+ */
+async function fetchKitBroadcastStats(
+  apiKey: string
+): Promise<KitBroadcastStatsEntry[]> {
+  const res = await fetch("https://api.kit.com/v4/broadcasts/stats", {
+    headers: { "X-Kit-Api-Key": apiKey },
+  });
+  if (!res.ok) {
+    throw new Error(`Kit API error ${res.status}: ${await res.text()}`);
+  }
+  const data = (await res.json()) as KitBroadcastStatsResponse;
+
+  return data.broadcasts.filter(
+    (b) =>
+      b.stats.status === "completed" && !b.stats.open_tracking_disabled
+  );
 }
 
 export async function fetchConvertKitMetric(config: ConvertKitConfig): Promise<number> {
@@ -36,39 +71,26 @@ export async function fetchConvertKitMetric(config: ConvertKitConfig): Promise<n
       `https://api.convertkit.com/v3/subscribers?api_secret=${apiKey}`
     );
     if (!res.ok) {
-      throw new Error(`ConvertKit API error ${res.status}: ${await res.text()}`);
+      throw new Error(`Kit API error ${res.status}: ${await res.text()}`);
     }
     const data = (await res.json()) as ConvertKitSubscribersResponse;
     return data.total_subscribers;
   }
 
-  // For open_rate and click_rate, fetch recent broadcasts and average
-  const res = await fetch(
-    `https://api.convertkit.com/v3/broadcasts?api_secret=${apiKey}`
-  );
-  if (!res.ok) {
-    throw new Error(`ConvertKit API error ${res.status}: ${await res.text()}`);
-  }
-  const data = (await res.json()) as ConvertKitBroadcastsResponse;
+  // Fetch broadcast-only stats from Kit v4 API (excludes sequences)
+  const broadcasts = await fetchKitBroadcastStats(apiKey);
+  if (broadcasts.length === 0) return 0;
 
-  const withStats = data.broadcasts.filter((b) => b.stats);
-  if (withStats.length === 0) return 0;
+  const recent = broadcasts.slice(0, 10);
 
-  const recentBroadcasts = withStats.slice(0, 10); // last 10
   if (metric === "open_rate") {
-    const total = recentBroadcasts.reduce(
-      (sum, b) => sum + (b.stats?.open_rate ?? 0),
-      0
-    );
-    return total / recentBroadcasts.length;
+    const total = recent.reduce((sum, b) => sum + b.stats.open_rate, 0);
+    return total / recent.length;
   }
 
   // click_rate
-  const total = recentBroadcasts.reduce(
-    (sum, b) => sum + (b.stats?.click_rate ?? 0),
-    0
-  );
-  return total / recentBroadcasts.length;
+  const total = recent.reduce((sum, b) => sum + b.stats.click_rate, 0);
+  return total / recent.length;
 }
 
 // ============================================================
