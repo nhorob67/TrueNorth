@@ -72,7 +72,7 @@ async function runDataExplorerSQL<T>(config: DiscourseConfig, sql: string): Prom
   };
 
   // 1. Create a temporary query
-  const createRes = await fetch(`${base}/admin/plugins/explorer/queries`, {
+  const createRes = await fetch(`${base}/admin/plugins/discourse-data-explorer/queries`, {
     method: "POST",
     headers,
     body: JSON.stringify({
@@ -95,7 +95,7 @@ async function runDataExplorerSQL<T>(config: DiscourseConfig, sql: string): Prom
   try {
     // 2. Run the query
     const runRes = await fetch(
-      `${base}/admin/plugins/explorer/queries/${queryId}/run`,
+      `${base}/admin/plugins/discourse-data-explorer/queries/${queryId}/run`,
       { method: "POST", headers }
     );
 
@@ -107,7 +107,7 @@ async function runDataExplorerSQL<T>(config: DiscourseConfig, sql: string): Prom
     return (await runRes.json()) as T;
   } finally {
     // 3. Clean up — delete the temporary query
-    await fetch(`${base}/admin/plugins/explorer/queries/${queryId}`, {
+    await fetch(`${base}/admin/plugins/discourse-data-explorer/queries/${queryId}`, {
       method: "DELETE",
       headers,
     }).catch(() => {
@@ -131,7 +131,7 @@ async function fetchPostsWith2Replies24h(config: DiscourseConfig): Promise<numbe
     // Use a pre-created Data Explorer query
     const result = await discourseGet<{
       rows: Array<[number, number, number]>;
-    }>(config, `/admin/plugins/explorer/queries/${queryId}/run.json`);
+    }>(config, `/admin/plugins/discourse-data-explorer/queries/${queryId}/run`);
 
     if (result.rows && result.rows.length > 0) {
       // Expect row: [total_topics, topics_with_2_replies, percentage]
@@ -193,7 +193,7 @@ async function fetchMedianTtfrHours(config: DiscourseConfig): Promise<number> {
   if (queryId) {
     const result = await discourseGet<{
       rows: Array<[number]>;
-    }>(config, `/admin/plugins/explorer/queries/${queryId}/run.json`);
+    }>(config, `/admin/plugins/discourse-data-explorer/queries/${queryId}/run`);
 
     if (result.rows && result.rows.length > 0) {
       return result.rows[0][0] ?? 0;
