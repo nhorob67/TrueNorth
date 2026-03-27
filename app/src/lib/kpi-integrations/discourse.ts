@@ -60,6 +60,64 @@ async function discourseGet<T>(config: DiscourseConfig, path: string): Promise<T
 }
 
 /**
+ * Runs SQL via the Discourse Data Explorer plugin by creating a temporary
+ * query, executing it, and cleaning it up afterwards.
+ */
+async function runDataExplorerSQL<T>(config: DiscourseConfig, sql: string): Promise<T> {
+  const base = config.baseUrl.replace(/\/+$/, "");
+  const headers = {
+    "Api-Key": config.apiKey,
+    "Api-Username": config.apiUsername,
+    "Content-Type": "application/json",
+  };
+
+  // 1. Create a temporary query
+  const createRes = await fetch(`${base}/admin/plugins/explorer/queries`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      query: {
+        name: `TrueNorth temp query ${Date.now()}`,
+        description: "Auto-created by TrueNorth KPI sync — safe to delete",
+        sql,
+      },
+    }),
+  });
+
+  if (!createRes.ok) {
+    const body = await createRes.text();
+    throw new Error(`Discourse Data Explorer create error ${createRes.status}: ${body}`);
+  }
+
+  const created = (await createRes.json()) as { query: { id: number } };
+  const queryId = created.query.id;
+
+  try {
+    // 2. Run the query
+    const runRes = await fetch(
+      `${base}/admin/plugins/explorer/queries/${queryId}/run`,
+      { method: "POST", headers }
+    );
+
+    if (!runRes.ok) {
+      const body = await runRes.text();
+      throw new Error(`Discourse Data Explorer run error ${runRes.status}: ${body}`);
+    }
+
+    return (await runRes.json()) as T;
+  } finally {
+    // 3. Clean up — delete the temporary query
+    await fetch(`${base}/admin/plugins/explorer/queries/${queryId}`, {
+      method: "DELETE",
+      headers,
+    }).catch(() => {
+      // Non-critical — log but don't throw
+      console.warn(`Failed to delete temporary Data Explorer query ${queryId}`);
+    });
+  }
+}
+
+/**
  * Runs a Data Explorer query via the Discourse API.
  * Requires the Data Explorer plugin to be installed (bundled with Discourse core).
  *
@@ -117,25 +175,7 @@ async function fetchPostsWith2Replies24h(config: DiscourseConfig): Promise<numbe
     FROM reply_counts
   `;
 
-  const res = await fetch(
-    `${config.baseUrl.replace(/\/+$/, "")}/admin/plugins/explorer/queries/-1/run.json`,
-    {
-      method: "POST",
-      headers: {
-        "Api-Key": config.apiKey,
-        "Api-Username": config.apiUsername,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ sql }),
-    }
-  );
-
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Discourse Data Explorer error ${res.status}: ${body}`);
-  }
-
-  const result = (await res.json()) as { rows: Array<[number, number, number]> };
+  const result = await runDataExplorerSQL<{ rows: Array<[number, number, number]> }>(config, sql);
   if (result.rows && result.rows.length > 0) {
     return result.rows[0][2] ?? 0;
   }
@@ -189,25 +229,7 @@ async function fetchMedianTtfrHours(config: DiscourseConfig): Promise<number> {
     FROM topic_first_reply
   `;
 
-  const res = await fetch(
-    `${config.baseUrl.replace(/\/+$/, "")}/admin/plugins/explorer/queries/-1/run.json`,
-    {
-      method: "POST",
-      headers: {
-        "Api-Key": config.apiKey,
-        "Api-Username": config.apiUsername,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ sql }),
-    }
-  );
-
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Discourse Data Explorer error ${res.status}: ${body}`);
-  }
-
-  const result = (await res.json()) as { rows: Array<[number]> };
+  const result = await runDataExplorerSQL<{ rows: Array<[number]> }>(config, sql);
   if (result.rows && result.rows.length > 0) {
     return result.rows[0][0] ?? 0;
   }
