@@ -29,7 +29,7 @@ export default async function CockpitPage() {
     getCachedUserContext(),
     supabase
       .from("kpis")
-      .select("id, name, health_status, current_value, target, unit")
+      .select("id, name, health_status, current_value, target, unit, directionality, kpi_entries(value, recorded_at)")
       .eq("lifecycle_status", "active")
       .in("health_status", ["red", "yellow"])
       .order("health_status"),
@@ -185,7 +185,42 @@ export default async function CockpitPage() {
     <CockpitView
       blockedMoves={blockedMovesData}
       nextCadenceEvent={nextCadenceEvent}
-      driftingKpis={driftingKpis ?? []}
+      driftingKpis={(driftingKpis ?? []).map((kpi: Record<string, unknown>) => {
+        const entries = (kpi.kpi_entries ?? []) as Array<{ value: number; recorded_at: string }>;
+        // Compute day-over-day from entries
+        const byDay = new Map<string, { value: number; time: number }>();
+        for (const e of entries) {
+          const d = new Date(e.recorded_at);
+          const dateKey = d.toISOString().slice(0, 10);
+          const time = d.getTime();
+          const existing = byDay.get(dateKey);
+          if (!existing || time > existing.time) {
+            byDay.set(dateKey, { value: e.value, time });
+          }
+        }
+        const days = [...byDay.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+        let dod: { delta: number; pctChange: number | null; direction: "up" | "down" | "flat" } | null = null;
+        if (days.length >= 2) {
+          const today = days[0][1].value;
+          const yesterday = days[1][1].value;
+          const delta = today - yesterday;
+          dod = {
+            delta,
+            pctChange: yesterday !== 0 ? (delta / Math.abs(yesterday)) * 100 : null,
+            direction: delta > 0 ? "up" : delta < 0 ? "down" : "flat",
+          };
+        }
+        return {
+          id: kpi.id as string,
+          name: kpi.name as string,
+          health_status: kpi.health_status as "green" | "yellow" | "red",
+          current_value: kpi.current_value as number | null,
+          target: kpi.target as number | null,
+          unit: kpi.unit as string | null,
+          directionality: (kpi.directionality as string) ?? null,
+          dod,
+        };
+      })}
       staleArtifacts={staleArtifacts}
       openDecisions={openDecisions ?? []}
       atRiskBets={atRiskBets ?? []}

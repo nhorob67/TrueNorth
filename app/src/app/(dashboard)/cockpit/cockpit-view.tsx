@@ -33,6 +33,8 @@ interface CockpitProps {
     current_value: number | null;
     target: number | null;
     unit: string | null;
+    directionality: string | null;
+    dod: { delta: number; pctChange: number | null; direction: "up" | "down" | "flat" } | null;
   }>;
   openDecisions: Array<{
     id: string;
@@ -271,6 +273,19 @@ export function CockpitView({
                     <span className="text-xs font-mono text-subtle">
                       {kpi.current_value ?? "—"} / {kpi.target ?? "—"}
                     </span>
+                    {kpi.dod && kpi.dod.direction !== "flat" && (() => {
+                      const isUp = kpi.dod!.direction === "up";
+                      const dir = kpi.directionality ?? "up_is_good";
+                      const isGood = dir === "up_is_good" ? isUp : dir === "down_is_good" ? !isUp : null;
+                      const colorClass = isGood === true ? "text-semantic-green" : isGood === false ? "text-semantic-brick" : "text-subtle";
+                      const arrow = isUp ? "↑" : "↓";
+                      const pct = kpi.dod!.pctChange !== null ? `${Math.abs(kpi.dod!.pctChange).toFixed(1)}%` : "";
+                      return (
+                        <span className={`text-xs font-mono ${colorClass}`}>
+                          {arrow}{pct}
+                        </span>
+                      );
+                    })()}
                     <Badge status={kpi.health_status} />
                   </div>
                 </div>

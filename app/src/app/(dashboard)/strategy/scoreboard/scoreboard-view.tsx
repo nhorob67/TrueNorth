@@ -42,11 +42,100 @@ interface Kpi {
   current_value: number | null;
   target: number | null;
   health_status: "green" | "yellow" | "red";
+  directionality: "up_is_good" | "down_is_good" | "target_is_good";
   frequency: string;
   owner_id: string;
   icon: string | null;
   kpi_entries: KpiEntry[];
   linked_driver_kpis: string[];
+}
+
+interface DayOverDay {
+  delta: number;
+  pctChange: number | null; // null if previous was 0
+  direction: "up" | "down" | "flat";
+}
+
+/**
+ * Compute day-over-day change from kpi_entries.
+ * Groups entries by calendar date (UTC), takes the latest entry per day,
+ * then compares the two most recent days.
+ */
+function computeDayOverDay(entries: KpiEntry[]): DayOverDay | null {
+  if (entries.length < 2) return null;
+
+  // Group by UTC date, keep latest entry per day
+  const byDay = new Map<string, { value: number; time: number }>();
+  for (const e of entries) {
+    const d = new Date(e.recorded_at);
+    const dateKey = d.toISOString().slice(0, 10);
+    const time = d.getTime();
+    const existing = byDay.get(dateKey);
+    if (!existing || time > existing.time) {
+      byDay.set(dateKey, { value: e.value, time });
+    }
+  }
+
+  // Sort days descending
+  const days = [...byDay.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+  if (days.length < 2) return null;
+
+  const today = days[0][1].value;
+  const yesterday = days[1][1].value;
+  const delta = today - yesterday;
+
+  return {
+    delta,
+    pctChange: yesterday !== 0 ? (delta / Math.abs(yesterday)) * 100 : null,
+    direction: delta > 0 ? "up" : delta < 0 ? "down" : "flat",
+  };
+}
+
+function DayOverDayBadge({
+  dod,
+  directionality,
+  unit,
+}: {
+  dod: DayOverDay;
+  directionality: string;
+  unit: string;
+}) {
+  if (dod.direction === "flat") return null;
+
+  const isPositiveMovement = dod.direction === "up";
+  const isGood =
+    directionality === "up_is_good"
+      ? isPositiveMovement
+      : directionality === "down_is_good"
+        ? !isPositiveMovement
+        : null; // target_is_good — can't determine without more context
+
+  const colorClass =
+    isGood === true
+      ? "text-semantic-green"
+      : isGood === false
+        ? "text-semantic-brick"
+        : "text-subtle";
+
+  const arrow = dod.direction === "up" ? "↑" : "↓";
+  const absVal = Math.abs(dod.delta);
+  const formatted =
+    unit === "$" || unit === "USD"
+      ? `$${absVal.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+      : unit === "%"
+        ? `${absVal.toFixed(1)}pp`
+        : absVal.toLocaleString(undefined, { maximumFractionDigits: 2 });
+
+  const pct =
+    dod.pctChange !== null
+      ? ` (${Math.abs(dod.pctChange).toFixed(1)}%)`
+      : "";
+
+  return (
+    <span className={`text-xs font-mono ${colorClass}`}>
+      {arrow} {formatted}{pct}
+    </span>
+  );
 }
 
 const healthColors: Record<string, string> = {
@@ -94,6 +183,8 @@ function Sparkline({ entries }: { entries: KpiEntry[] }) {
 }
 
 function KpiTile({ kpi, linked = true }: { kpi: Kpi; linked?: boolean }) {
+  const dod = computeDayOverDay(kpi.kpi_entries);
+
   const card = (
     <Card borderColor={healthColors[kpi.health_status]} className={linked ? "hover:border-accent/30 transition-colors" : ""}>
       <CardContent className="py-4">
@@ -111,11 +202,20 @@ function KpiTile({ kpi, linked = true }: { kpi: Kpi; linked?: boolean }) {
                 <span className="text-xs text-subtle">{kpi.unit}</span>
               )}
             </div>
-            {kpi.target !== null && (
-              <p className="text-xs text-subtle mt-0.5">
-                Target: {kpi.target} {kpi.unit}
-              </p>
-            )}
+            <div className="flex items-center gap-2 mt-0.5">
+              {kpi.target !== null && (
+                <p className="text-xs text-subtle">
+                  Target: {kpi.target} {kpi.unit}
+                </p>
+              )}
+              {dod && (
+                <DayOverDayBadge
+                  dod={dod}
+                  directionality={kpi.directionality ?? "up_is_good"}
+                  unit={kpi.unit}
+                />
+              )}
+            </div>
           </div>
           <div className="flex flex-col items-end gap-2">
             <div className="flex items-center gap-1" onClick={(e) => e.preventDefault()}>

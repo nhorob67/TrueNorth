@@ -37,6 +37,11 @@ interface StripeCharge {
   status: string;
 }
 
+interface StripeRefund {
+  id: string;
+  amount: number;
+}
+
 async function stripeGet<T>(apiKey: string, path: string): Promise<T> {
   const res = await fetch(`https://api.stripe.com/v1${path}`, {
     headers: { Authorization: `Bearer ${apiKey}` },
@@ -135,7 +140,9 @@ async function fetchRevenue(apiKey: string): Promise<number> {
 
 async function fetchLtmRevenue(apiKey: string): Promise<number> {
   const twelveMonthsAgo = Math.floor(Date.now() / 1000) - 365 * 24 * 60 * 60;
-  let totalCents = 0;
+
+  // Sum gross charges
+  let grossCents = 0;
   let startingAfter: string | undefined;
 
   while (true) {
@@ -152,7 +159,7 @@ async function fetchLtmRevenue(apiKey: string): Promise<number> {
 
     for (const charge of res.data) {
       if (charge.status === "succeeded") {
-        totalCents += charge.amount - charge.amount_refunded;
+        grossCents += charge.amount;
       }
     }
 
@@ -160,7 +167,31 @@ async function fetchLtmRevenue(apiKey: string): Promise<number> {
     startingAfter = res.data[res.data.length - 1].id;
   }
 
-  return totalCents / 100;
+  // Subtract refunds issued in the same window
+  let refundCents = 0;
+  startingAfter = undefined;
+
+  while (true) {
+    const params = new URLSearchParams({
+      "created[gte]": twelveMonthsAgo.toString(),
+      limit: "100",
+    });
+    if (startingAfter) params.set("starting_after", startingAfter);
+
+    const res = await stripeGet<StripeListResponse<StripeRefund>>(
+      apiKey,
+      `/refunds?${params.toString()}`
+    );
+
+    for (const refund of res.data) {
+      refundCents += refund.amount;
+    }
+
+    if (!res.has_more || res.data.length === 0) break;
+    startingAfter = res.data[res.data.length - 1].id;
+  }
+
+  return (grossCents - refundCents) / 100;
 }
 
 export async function fetchStripeMetric(config: StripeConfig): Promise<number> {
