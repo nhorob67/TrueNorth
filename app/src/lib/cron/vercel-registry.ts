@@ -78,8 +78,8 @@ export const VERCEL_CRONS: VercelCronDefinition[] = [
   {
     path: "/api/cron/kill-switch",
     schedule: "0 8 1,15 * *",
-    name: "Kill Switch",
-    description: "AI agent: biweekly bet health assessment",
+    name: "Bet Tracker",
+    description: "AI agent: weekly bet lifecycle tracking and kill criteria monitoring",
     isAiAgent: true,
   },
   {

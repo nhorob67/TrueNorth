@@ -221,7 +221,7 @@ export type AgentCategory =
   | "content_copilot"
   | "cockpit_advisor"
   | "agenda_builder"
-  | "kill_switch"
+  | "bet_tracker"
   | "narrative_generator"
   | "narrative_collector"
   | "health_interpreter"

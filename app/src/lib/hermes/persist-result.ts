@@ -99,12 +99,17 @@ function buildTitle(
   parsed: Record<string, unknown> | null
 ): string {
   const labels: Record<string, string> = {
-    kill_switch: "Kill Switch Assessment",
+    bet_tracker: "Bet Tracker Assessment",
     signal_watch: "Signal Watch Report",
     filter_guardian: "Filter Guardian Evaluation",
     agenda_builder: "Meeting Agenda",
     cockpit_advisor: "Cockpit Recommendation",
     vault_archaeologist: "Resurfaced Ideas",
+    dispatch_scribe: "Dispatch Scribe Update",
+    funnel_watchdog: "Funnel Health Report",
+    community_pulse: "Community Pulse Report",
+    content_copilot: "Content Draft",
+    launch_assistant: "Launch Status",
   };
 
   const base = labels[category] ?? `Agent Report (${category})`;
@@ -112,7 +117,7 @@ function buildTitle(
   if (!parsed) return base;
 
   // Try to add context from the parsed result
-  if (category === "kill_switch" && parsed.summary) {
+  if (category === "bet_tracker" && parsed.summary) {
     const s = parsed.summary as Record<string, number>;
     return `${base}: ${s.continue ?? 0} continue, ${s.pause ?? 0} pause, ${s.kill ?? 0} kill`;
   }
@@ -131,7 +136,7 @@ function extractSummary(
   category: string,
   parsed: Record<string, unknown>
 ): string {
-  if (category === "kill_switch") {
+  if (category === "bet_tracker") {
     const bets = parsed.bets as Array<Record<string, unknown>> | undefined;
     if (bets?.length) {
       return bets
@@ -172,7 +177,7 @@ function inferPriority(
 ): "low" | "normal" | "high" | "urgent" {
   if (!parsed) return "normal";
 
-  if (category === "kill_switch") {
+  if (category === "bet_tracker") {
     const s = parsed.summary as Record<string, number> | undefined;
     if (s?.kill && s.kill > 0) return "urgent";
     if (s?.pause && s.pause > 0) return "high";

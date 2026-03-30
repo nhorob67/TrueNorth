@@ -67,7 +67,7 @@ export async function GET(request: Request) {
               .from("agents")
               .select("hermes_enabled, hermes_profile_name")
               .eq("organization_id", org.id)
-              .eq("category", "kill_switch")
+              .eq("category", "bet_tracker")
               .single();
 
             if (hermesAgent?.hermes_enabled && hermesAgent.hermes_profile_name) {
@@ -83,7 +83,7 @@ export async function GET(request: Request) {
                   orgId: org.id,
                   ventureId: venture.id,
                   agentProfile: hermesAgent.hermes_profile_name,
-                  agentCategory: "kill_switch",
+                  agentCategory: "bet_tracker",
                   vpsResult: vpsResult,
                 });
               }
