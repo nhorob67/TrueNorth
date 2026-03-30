@@ -25,6 +25,7 @@ export default async function CockpitPage() {
     { data: pendingCommitments, error: e6 },
     { data: todayPulses, error: e7 },
     { data: blockerLinks, error: e8 },
+    { data: pendingAgentTasks, error: e9 },
   ] = await Promise.all([
     getCachedUserContext(),
     supabase
@@ -71,9 +72,15 @@ export default async function CockpitPage() {
       .eq("resolution_state", "open")
       .eq("linked_entity_type", "move")
       .not("linked_entity_id", "is", null),
+    supabase
+      .from("agent_tasks")
+      .select("id, agent_profile, title, output_data, entity_id, entity_type, created_at, completed_at")
+      .eq("status", "review")
+      .order("created_at", { ascending: false })
+      .limit(10),
   ]);
 
-  const firstError = e1 || e2 || e3 || e4 || e5 || e6 || e7 || e8;
+  const firstError = e1 || e2 || e3 || e4 || e5 || e6 || e7 || e8 || e9;
   if (firstError) throw firstError;
 
   // Stage 2: dependent queries in parallel
@@ -239,6 +246,7 @@ export default async function CockpitPage() {
       aiRecommendation={aiRecommendation}
       healthScore={healthReport?.composite_score ?? null}
       healthStatus={healthReport?.composite_status ?? null}
+      pendingAgentTasks={(pendingAgentTasks ?? []) as Array<{ id: string; agent_profile: string; title: string; output_data: Record<string, unknown>; entity_id: string | null; entity_type: string | null; created_at: string; completed_at: string | null }>}
       healthTrend={
         healthReport
           ? (() => {

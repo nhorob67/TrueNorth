@@ -32,7 +32,7 @@ export default async function AgentsSettingsPage() {
   // eslint-disable-next-line react-hooks/purity
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  const [{ data: agents }, { data: aiActions }] = await Promise.all([
+  const [{ data: agents }, { data: aiActions }, { data: memoryRows }] = await Promise.all([
     supabase
       .from("agents")
       .select("*")
@@ -43,6 +43,10 @@ export default async function AgentsSettingsPage() {
       .select("agent_category, outcome")
       .eq("organization_id", orgId)
       .gte("created_at", thirtyDaysAgo),
+    supabase
+      .from("agent_memory")
+      .select("agent_id")
+      .eq("organization_id", orgId),
   ]);
 
   // Fetch role cards for agents (entity_type = 'agent')
@@ -78,12 +82,19 @@ export default async function AgentsSettingsPage() {
     };
   }
 
+  // Compute memory counts per agent
+  const memoryCounts: Record<string, number> = {};
+  for (const row of (memoryRows ?? []) as Array<{ agent_id: string }>) {
+    memoryCounts[row.agent_id] = (memoryCounts[row.agent_id] ?? 0) + 1;
+  }
+
   return (
     <AgentsView
       agents={agents ?? []}
       roleCards={roleCards ?? []}
       orgId={orgId}
       trustMetrics={trustMetrics}
+      memoryCounts={memoryCounts}
     />
   );
 }

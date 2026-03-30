@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { verifyCronSecret } from "@/lib/cron/verify-secret";
+import { logCronExecution } from "@/lib/cron/execution-logger";
 
 export const dynamic = "force-dynamic";
 
@@ -18,76 +19,86 @@ export async function GET(request: Request) {
 
   try {
     const supabase = createServiceClient();
-    const todayStart = new Date();
-    todayStart.setUTCHours(0, 0, 0, 0);
-    const todayISO = todayStart.toISOString();
 
-    // Fetch all active KPIs that have a current_value
-    const { data: kpis, error: kpiError } = await supabase
-      .from("kpis")
-      .select("id, current_value")
-      .eq("lifecycle_status", "active")
-      .not("current_value", "is", null);
+    const result = await logCronExecution(
+      supabase,
+      "/api/cron/kpi-daily-snapshot",
+      "0 0 * * *",
+      async () => {
+        const todayStart = new Date();
+        todayStart.setUTCHours(0, 0, 0, 0);
+        const todayISO = todayStart.toISOString();
 
-    if (kpiError) {
-      return NextResponse.json(
-        { error: "Failed to fetch KPIs", details: kpiError.message },
-        { status: 500 }
-      );
-    }
+        // Fetch all active KPIs that have a current_value
+        const { data: kpis, error: kpiError } = await supabase
+          .from("kpis")
+          .select("id, current_value")
+          .eq("lifecycle_status", "active")
+          .not("current_value", "is", null);
 
-    if (!kpis || kpis.length === 0) {
-      return NextResponse.json({ snapshotted: 0, skipped: 0 });
-    }
+        if (kpiError) {
+          throw new Error(`Failed to fetch KPIs: ${kpiError.message}`);
+        }
 
-    // Find which KPIs already have a daily_snapshot for today
-    const { data: existing, error: existError } = await supabase
-      .from("kpi_entries")
-      .select("kpi_id")
-      .eq("source", "daily_snapshot")
-      .gte("recorded_at", todayISO);
+        if (!kpis || kpis.length === 0) {
+          return {
+            orgsProcessed: 0,
+            summary: { snapshotted: 0, skipped: 0 },
+          };
+        }
 
-    if (existError) {
-      return NextResponse.json(
-        { error: "Failed to check existing snapshots", details: existError.message },
-        { status: 500 }
-      );
-    }
+        // Find which KPIs already have a daily_snapshot for today
+        const { data: existing, error: existError } = await supabase
+          .from("kpi_entries")
+          .select("kpi_id")
+          .eq("source", "daily_snapshot")
+          .gte("recorded_at", todayISO);
 
-    const alreadySnapshotted = new Set((existing ?? []).map((e) => e.kpi_id));
+        if (existError) {
+          throw new Error(`Failed to check existing snapshots: ${existError.message}`);
+        }
 
-    const toInsert = kpis
-      .filter((k) => !alreadySnapshotted.has(k.id))
-      .map((k) => ({
-        kpi_id: k.id,
-        value: k.current_value,
-        recorded_at: new Date().toISOString(),
-        source: "daily_snapshot",
-      }));
+        const alreadySnapshotted = new Set((existing ?? []).map((e) => e.kpi_id));
 
-    if (toInsert.length === 0) {
-      return NextResponse.json({
-        snapshotted: 0,
-        skipped: kpis.length,
-        message: "All KPIs already snapshotted today",
-      });
-    }
+        const toInsert = kpis
+          .filter((k) => !alreadySnapshotted.has(k.id))
+          .map((k) => ({
+            kpi_id: k.id,
+            value: k.current_value,
+            recorded_at: new Date().toISOString(),
+            source: "daily_snapshot",
+          }));
 
-    const { error: insertError } = await supabase
-      .from("kpi_entries")
-      .insert(toInsert);
+        if (toInsert.length === 0) {
+          return {
+            orgsProcessed: 0,
+            summary: {
+              snapshotted: 0,
+              skipped: kpis.length,
+              message: "All KPIs already snapshotted today",
+            },
+          };
+        }
 
-    if (insertError) {
-      return NextResponse.json(
-        { error: "Failed to insert snapshots", details: insertError.message },
-        { status: 500 }
-      );
-    }
+        const { error: insertError } = await supabase
+          .from("kpi_entries")
+          .insert(toInsert);
 
-    return NextResponse.json({
-      snapshotted: toInsert.length,
-      skipped: alreadySnapshotted.size,
-    });
+        if (insertError) {
+          throw new Error(`Failed to insert snapshots: ${insertError.message}`);
+        }
+
+        return {
+          orgsProcessed: 0,
+          summary: {
+            snapshotted: toInsert.length,
+            skipped: alreadySnapshotted.size,
+          },
+        };
+      }
+    );
+
+    return NextResponse.json(result.summary ?? { success: true });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Internal error";
     return NextResponse.json({ error: message }, { status: 500 });

@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Agent, RoleCard } from "@/types/database";
+import { SoulEditor } from "./soul-editor";
+import { HermesToggle } from "./hermes-toggle";
 
 const AUTOMATION_LABELS: Record<number, string> = {
   0: "L0 - Manual",
@@ -57,6 +59,7 @@ interface AgentsViewProps {
   roleCards: RoleCard[];
   orgId: string;
   trustMetrics?: Record<string, TrustMetrics>;
+  memoryCounts?: Record<string, number>;
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -237,13 +240,16 @@ function AgentCard({
   roleCard,
   orgId,
   trustMetrics,
+  memoryCount = 0,
 }: {
   agent: Agent;
   roleCard: RoleCard | null;
   orgId: string;
   trustMetrics?: TrustMetrics;
+  memoryCount?: number;
 }) {
   const [editingRoleCard, setEditingRoleCard] = useState(false);
+  const [editingSoul, setEditingSoul] = useState(false);
 
   return (
     <Card className="border-line bg-surface overflow-hidden">
@@ -282,13 +288,22 @@ function AgentCard({
               </p>
             </div>
           </div>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setEditingRoleCard(true)}
-          >
-            {roleCard ? "Edit Role Card" : "Set Up Role Card"}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setEditingSoul(true)}
+            >
+              {agent.soul_content ? "Edit SOUL" : "Set Up SOUL"}
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setEditingRoleCard(true)}
+            >
+              {roleCard ? "Edit Role Card" : "Set Up Role Card"}
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -359,6 +374,38 @@ function AgentCard({
           />
         )}
 
+        {/* SOUL Editor */}
+        {editingSoul && (
+          <SoulEditor
+            agentId={agent.id}
+            currentSoul={agent.soul_content}
+            profileName={agent.hermes_profile_name}
+            onClose={() => setEditingSoul(false)}
+          />
+        )}
+
+        {/* SOUL preview (when not editing) */}
+        {agent.soul_content && !editingSoul && (
+          <div className="border-t border-line pt-3 mt-3">
+            <p className="text-xs font-semibold text-subtle uppercase mb-1">SOUL.md</p>
+            <p className="text-sm text-ink line-clamp-3 whitespace-pre-wrap">
+              {agent.soul_content.slice(0, 200)}
+              {agent.soul_content.length > 200 ? "..." : ""}
+            </p>
+          </div>
+        )}
+
+        {/* Hermes Runtime Toggle + Memory Link */}
+        <HermesToggle agent={agent} />
+        <div className="flex items-center gap-3 mt-2">
+          <Link
+            href={`/admin/settings/agents/${agent.id}/memory`}
+            className="text-xs text-accent hover:underline"
+          >
+            View Memory{memoryCount > 0 ? ` (${memoryCount})` : ""}
+          </Link>
+        </div>
+
         {/* Trust Metrics */}
         <TrustMetricsSection metrics={trustMetrics} />
       </CardContent>
@@ -366,7 +413,7 @@ function AgentCard({
   );
 }
 
-export function AgentsView({ agents, roleCards, orgId, trustMetrics }: AgentsViewProps) {
+export function AgentsView({ agents, roleCards, orgId, trustMetrics, memoryCounts = {} }: AgentsViewProps) {
   const router = useRouter();
   const supabase = createClient();
   const [seeding, setSeeding] = useState(false);
@@ -425,6 +472,7 @@ export function AgentsView({ agents, roleCards, orgId, trustMetrics }: AgentsVie
               roleCard={getRoleCard(agent.id)}
               orgId={orgId}
               trustMetrics={trustMetrics?.[agent.category]}
+              memoryCount={memoryCounts[agent.id] ?? 0}
             />
           ))}
         </div>

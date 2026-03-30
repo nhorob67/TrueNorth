@@ -88,6 +88,16 @@ interface CockpitProps {
   healthScore?: number | null;
   healthStatus?: "green" | "yellow" | "red" | null;
   healthTrend?: "improving" | "declining" | "stable" | null;
+  pendingAgentTasks?: Array<{
+    id: string;
+    agent_profile: string;
+    title: string;
+    output_data: Record<string, unknown>;
+    entity_id: string | null;
+    entity_type: string | null;
+    created_at: string;
+    completed_at: string | null;
+  }>;
 }
 
 function CockpitSection({
@@ -112,6 +122,125 @@ function CockpitSection({
   );
 }
 
+function AgentTaskReviewCard({
+  task,
+}: {
+  task: {
+    id: string;
+    agent_profile: string;
+    title: string;
+    output_data: Record<string, unknown>;
+    entity_id: string | null;
+    entity_type: string | null;
+    created_at: string;
+    completed_at: string | null;
+  };
+}) {
+  const [reviewing, setReviewing] = useState(false);
+  const [rejectNotes, setRejectNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const outputSummary =
+    typeof task.output_data?.summary === "string"
+      ? task.output_data.summary
+      : typeof task.output_data?.output_summary === "string"
+        ? task.output_data.output_summary
+        : JSON.stringify(task.output_data).slice(0, 300);
+
+  async function handleAction(outcome: "approved" | "rejected") {
+    setSubmitting(true);
+    await fetch("/api/hermes/tasks", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        taskId: task.id,
+        status: outcome === "approved" ? "done" : "rejected",
+        ...(outcome === "rejected" && rejectNotes ? { error_message: rejectNotes } : {}),
+      }),
+    });
+    setSubmitting(false);
+    window.location.reload();
+  }
+
+  return (
+    <div className="border border-line rounded-lg p-3">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="inline-flex items-center rounded-full bg-sage px-2 py-0.5 text-[10px] font-mono text-white shrink-0">
+            {task.agent_profile}
+          </span>
+          <p className="text-sm font-medium text-ink truncate">{task.title}</p>
+        </div>
+        {task.entity_id && task.entity_type && getEntityHref(task.entity_type, task.entity_id) && (
+          <Link
+            href={getEntityHref(task.entity_type, task.entity_id)!}
+            className="text-xs text-accent hover:underline shrink-0"
+          >
+            View entity
+          </Link>
+        )}
+      </div>
+
+      <p className="text-sm text-subtle mt-1 whitespace-pre-wrap line-clamp-4">
+        {outputSummary}
+      </p>
+
+      <div className="flex items-center gap-2 mt-2">
+        {!reviewing ? (
+          <>
+            <Button
+              size="sm"
+              onClick={() => handleAction("approved")}
+              disabled={submitting}
+            >
+              Approve
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setReviewing(true)}
+              disabled={submitting}
+            >
+              Reject
+            </Button>
+            <span className="text-xs text-faded ml-auto">
+              {task.completed_at
+                ? new Date(task.completed_at).toLocaleString()
+                : new Date(task.created_at).toLocaleString()}
+            </span>
+          </>
+        ) : (
+          <div className="flex-1 space-y-2">
+            <textarea
+              value={rejectNotes}
+              onChange={(e) => setRejectNotes(e.target.value)}
+              placeholder="Feedback for the agent (optional)..."
+              className="w-full min-h-[60px] rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow/20"
+            />
+            <div className="flex gap-2">
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => handleAction("rejected")}
+                disabled={submitting}
+              >
+                Confirm Reject
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setReviewing(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function CockpitView({
   blockedMoves,
   nextCadenceEvent,
@@ -129,6 +258,7 @@ export function CockpitView({
   healthScore,
   healthStatus,
   healthTrend,
+  pendingAgentTasks = [],
 }: CockpitProps) {
   const [recommendation, setRecommendation] = useState(initialRecommendation ?? null);
   const [refreshing, setRefreshing] = useState(false);
@@ -545,6 +675,18 @@ export function CockpitView({
             </div>
           )}
         </CockpitSection>
+      {/* Agent Inbox — tasks awaiting human review */}
+      {pendingAgentTasks.length > 0 && (
+        <div>
+          <CockpitSection title="Agent Inbox" count={pendingAgentTasks.length}>
+            <div className="space-y-2">
+              {pendingAgentTasks.map((task) => (
+                <AgentTaskReviewCard key={task.id} task={task} />
+              ))}
+            </div>
+          </CockpitSection>
+        </div>
+      )}
       </div>
     </div>
   );

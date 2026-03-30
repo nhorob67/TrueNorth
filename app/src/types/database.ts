@@ -220,9 +220,20 @@ export type AgentCategory =
   | "signal_watch"
   | "content_copilot"
   | "cockpit_advisor"
-  | "agenda_builder";
+  | "agenda_builder"
+  | "kill_switch"
+  | "narrative_generator"
+  | "narrative_collector"
+  | "health_interpreter"
+  | "vault_archaeologist"
+  | "seo_suggestions"
+  | "launch_assistant";
 
 export type AgentStatus = "active" | "paused" | "disabled";
+
+export type HermesRuntime = "worker" | "gateway" | "orchestrator";
+export type HermesSource = "legacy" | "hermes" | "hybrid";
+export type AgentConnectionStatus = "offline" | "idle" | "busy" | "error";
 
 export interface Agent {
   id: string;
@@ -233,6 +244,17 @@ export interface Agent {
   automation_level: number;
   status: string;
   settings: Record<string, unknown>;
+  // Hermes integration fields
+  soul_content: string | null;
+  hermes_profile_name: string | null;
+  hermes_enabled: boolean;
+  hermes_runtime: HermesRuntime | null;
+  hermes_source: HermesSource;
+  capabilities: string[];
+  connection_status: AgentConnectionStatus;
+  last_heartbeat_at: string | null;
+  current_task_id: string | null;
+  last_error: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -741,4 +763,287 @@ export interface NarrativeDataSnapshot {
     metricSummaries: Array<{ label: string; value: number; status: HealthStatus; trend: string }>;
   } | null;
   blockersResolved: Array<{ description: string; resolution_notes: string | null; severity: string }>;
+}
+
+// ============================================================
+// Agent Task Queue (Hermes Integration — Phase 7)
+// ============================================================
+
+export type AgentTaskStatus =
+  | "submitted"
+  | "assigned"
+  | "running"
+  | "review"
+  | "approved"
+  | "rejected"
+  | "done"
+  | "failed";
+
+export type AgentTaskPriority = "low" | "normal" | "high" | "urgent";
+
+export interface AgentTask {
+  id: string;
+  organization_id: string;
+  venture_id: string | null;
+  agent_profile: string;
+  title: string;
+  description: string | null;
+  status: AgentTaskStatus;
+  priority: AgentTaskPriority;
+  entity_id: string | null;
+  entity_type: string | null;
+  input_data: Record<string, unknown>;
+  output_data: Record<string, unknown>;
+  error_message: string | null;
+  submitted_by: string | null;
+  reviewed_by: string | null;
+  review_notes: string | null;
+  retry_count: number;
+  max_retries: number;
+  requires_human_review: boolean;
+  automation_level_at_submission: number | null;
+  claimed_at: string | null;
+  claim_token: string | null;
+  run_metadata: Record<string, unknown>;
+  created_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+  updated_at: string;
+}
+
+// ============================================================
+// Agent Memory (Hermes Integration — Phase 5)
+// ============================================================
+
+export type AgentMemoryType = "core" | "user" | "session";
+
+export interface AgentMemory {
+  id: string;
+  organization_id: string;
+  agent_id: string;
+  memory_type: AgentMemoryType;
+  key: string;
+  content: string;
+  metadata: Record<string, unknown>;
+  version: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// ============================================================
+// Agent Token Usage & Budget (Hermes Integration — Phase 6)
+// ============================================================
+
+export interface AgentTokenUsage {
+  id: string;
+  organization_id: string;
+  agent_id: string | null;
+  hermes_profile: string;
+  session_id: string | null;
+  task_id: string | null;
+  model: string;
+  input_tokens: number;
+  output_tokens: number;
+  cache_read_tokens: number;
+  estimated_cost: number;
+  created_at: string;
+}
+
+export type BudgetScope = "org" | "agent";
+export type BudgetPeriod = "daily" | "weekly" | "monthly";
+export type BudgetAction = "alert" | "pause" | "block";
+
+export interface AgentBudgetPolicy {
+  id: string;
+  organization_id: string;
+  scope: BudgetScope;
+  agent_id: string | null;
+  period: BudgetPeriod;
+  budget_cap: number;
+  alert_threshold_pct: number;
+  action_on_exceed: BudgetAction;
+  enabled: boolean;
+  created_at: string;
+}
+
+// ============================================================
+// Agent Skills (Hermes Integration — Phase 9)
+// ============================================================
+
+export type SkillSource = "manual" | "vps_sync" | "auto_generated";
+
+export interface AgentSkill {
+  id: string;
+  organization_id: string;
+  agent_profile: string;
+  skill_name: string;
+  skill_description: string | null;
+  skill_content: string;
+  auto_generated: boolean;
+  approved: boolean;
+  approved_by: string | null;
+  approved_at: string | null;
+  shared: boolean;
+  source: SkillSource;
+  version: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// ============================================================
+// Delegation Workflows (Hermes Integration — Phase 8)
+// ============================================================
+
+export type WorkflowTriggerType = "manual" | "event" | "schedule" | "threshold";
+export type WorkflowStatus = "running" | "completed" | "failed" | "cancelled";
+
+export interface WorkflowStep {
+  order: number;
+  agent_profile: string;
+  action: string;
+  prompt_template?: string;
+  input_mapping: Record<string, string>;
+  output_key?: string;
+  depends_on: number[];
+  parallel_group?: string;
+}
+
+export interface WorkflowTemplate {
+  id: string;
+  organization_id: string;
+  name: string;
+  description: string | null;
+  trigger_type: WorkflowTriggerType;
+  trigger_config: Record<string, unknown>;
+  steps: WorkflowStep[];
+  enabled: boolean;
+  is_preset: boolean;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WorkflowExecution {
+  id: string;
+  organization_id: string;
+  workflow_template_id: string;
+  status: WorkflowStatus;
+  trigger_context: Record<string, unknown>;
+  step_results: Record<string, unknown>[];
+  current_step: number | null;
+  total_steps: number | null;
+  triggered_by: string | null;
+  started_at: string;
+  completed_at: string | null;
+  error_message: string | null;
+}
+
+// ============================================================
+// Agent Performance Snapshots (Hermes Integration — Phase 10)
+// ============================================================
+
+export interface AgentPerformanceSnapshot {
+  id: string;
+  organization_id: string;
+  agent_profile: string;
+  snapshot_date: string;
+  period: "daily" | "weekly" | "monthly";
+  metrics: {
+    tasks_completed?: number;
+    tasks_failed?: number;
+    avg_processing_time_ms?: number;
+    acceptance_rate?: number;
+    override_rate?: number;
+    total_cost?: number;
+    avg_confidence?: string;
+    token_usage?: { input: number; output: number; cache_read: number };
+  };
+  created_at: string;
+}
+
+// ============================================================
+// Agent Drift Alerts (Hermes Integration — Phase 10)
+// ============================================================
+
+export type DriftType = "acceptance_rate" | "cost" | "override_rate" | "latency";
+export type DriftSeverity = "warning" | "critical";
+
+export interface AgentDriftAlert {
+  id: string;
+  organization_id: string;
+  agent_profile: string;
+  drift_type: DriftType;
+  severity: DriftSeverity;
+  current_value: number;
+  baseline_value: number;
+  delta_pct: number;
+  current_window_start: string;
+  current_window_end: string;
+  baseline_window_start: string;
+  baseline_window_end: string;
+  acknowledged: boolean;
+  acknowledged_by: string | null;
+  acknowledged_at: string | null;
+  created_at: string;
+}
+
+// ============================================================
+// MoA Configurations (Hermes Integration — Phase 10)
+// ============================================================
+
+export interface MoaConfig {
+  id: string;
+  organization_id: string;
+  name: string;
+  description: string | null;
+  decision_type: string;
+  proposer_profiles: string[];
+  aggregator_profile: string;
+  min_proposals: number;
+  consensus_threshold: number;
+  enabled: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// ============================================================
+// Cron Visibility (Hermes Integration — Cron Phase)
+// ============================================================
+
+export interface VercelCronExecution {
+  id: string;
+  cron_path: string;
+  schedule: string;
+  status: "success" | "error" | "timeout";
+  started_at: string;
+  completed_at: string | null;
+  duration_ms: number | null;
+  result_summary: Record<string, unknown>;
+  error_message: string | null;
+  organizations_processed: number;
+}
+
+export interface HermesCronJob {
+  id: string;
+  organization_id: string;
+  agent_profile: string;
+  name: string;
+  prompt: string | null;
+  schedule: string;
+  delivery_target: string;
+  enabled: boolean;
+  last_run_at: string | null;
+  last_run_status: string | null;
+  created_at: string;
+}
+
+export interface HermesCronExecution {
+  id: string;
+  hermes_cron_job_id: string;
+  status: "success" | "error" | "timeout" | "skipped";
+  started_at: string;
+  completed_at: string | null;
+  duration_ms: number | null;
+  result: Record<string, unknown>;
+  error_message: string | null;
 }

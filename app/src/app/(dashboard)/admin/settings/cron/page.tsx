@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { CronView } from "./cron-view";
+import { UnifiedCronView } from "./unified-cron-view";
 
 export const dynamic = "force-dynamic";
 
@@ -30,13 +32,38 @@ export default async function CronSettingsPage() {
 
   const orgId = membership.organization_id;
 
-  const { data: cronJobs } = await supabase
-    .from("cron_jobs")
-    .select("*")
-    .eq("organization_id", orgId)
-    .order("created_at", { ascending: false });
+  // Fetch all data in parallel
+  const serviceClient = createServiceClient();
+  const [
+    { data: cronJobs },
+    { data: ventures },
+    { data: vercelExecs },
+    { data: hermesCrons },
+  ] = await Promise.all([
+    supabase
+      .from("cron_jobs")
+      .select("*")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("ventures")
+      .select("id, name")
+      .eq("organization_id", orgId),
+    // Vercel cron executions — use service client (no RLS on this table)
+    serviceClient
+      .from("vercel_cron_executions")
+      .select("*")
+      .order("started_at", { ascending: false })
+      .limit(100),
+    // Hermes cron jobs for this org
+    supabase
+      .from("hermes_cron_jobs")
+      .select("*")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false }),
+  ]);
 
-  // Fetch last 5 executions per job
+  // Fetch executions for Discord cron jobs
   const jobIds = (cronJobs ?? []).map((j: Record<string, unknown>) => j.id as string);
   const { data: executions } = jobIds.length > 0
     ? await supabase
@@ -47,18 +74,30 @@ export default async function CronSettingsPage() {
         .limit(50)
     : { data: [] };
 
-  // Fetch ventures for the org (for venture_id dropdown)
-  const { data: ventures } = await supabase
-    .from("ventures")
-    .select("id, name")
-    .eq("organization_id", orgId);
+  // Fetch executions for Hermes cron jobs
+  const hermesCronIds = (hermesCrons ?? []).map((j: Record<string, unknown>) => j.id as string);
+  const { data: hermesExecs } = hermesCronIds.length > 0
+    ? await supabase
+        .from("hermes_cron_executions")
+        .select("*")
+        .in("hermes_cron_job_id", hermesCronIds)
+        .order("started_at", { ascending: false })
+        .limit(50)
+    : { data: [] };
 
   return (
-    <CronView
-      cronJobs={cronJobs ?? []}
-      executions={executions ?? []}
+    <UnifiedCronView
+      vercelExecs={vercelExecs ?? []}
+      hermesCrons={hermesCrons ?? []}
+      hermesExecs={hermesExecs ?? []}
       orgId={orgId}
-      ventures={ventures ?? []}
-    />
+    >
+      <CronView
+        cronJobs={cronJobs ?? []}
+        executions={executions ?? []}
+        orgId={orgId}
+        ventures={ventures ?? []}
+      />
+    </UnifiedCronView>
   );
 }

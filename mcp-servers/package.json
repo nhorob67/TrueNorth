@@ -1,0 +1,19 @@
+{
+  "name": "truenorth-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev:kpis": "tsx src/servers/truenorth-kpis.ts",
+    "dev:strategy": "tsx src/servers/truenorth-strategy.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "@supabase/supabase-js": "^2.49.4"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}

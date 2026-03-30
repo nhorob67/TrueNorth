@@ -21,7 +21,9 @@ export type NotificationType =
   | "cockpit_advice"
   | "kill_switch_assessment"
   | "narrative_generated"
-  | "health_threshold";
+  | "health_threshold"
+  | "agent_drift_detected"
+  | "agent_budget_warning";
 
 export type NotificationTier = "immediate" | "urgent" | "daily_digest" | "weekly_digest";
 

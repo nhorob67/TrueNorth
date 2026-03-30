@@ -7,6 +7,7 @@ import {
 } from "@/lib/discord-notify";
 import { checkAndAlertRhythms } from "@/lib/cron/rhythm-alerts";
 import { verifyCronSecret } from "@/lib/cron/verify-secret";
+import { logCronExecution } from "@/lib/cron/execution-logger";
 import { getEntityHref } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -352,161 +353,170 @@ export async function GET(request: Request) {
   try {
     const supabase = createServiceClient();
 
-    const { data: orgs, error: orgError } = await supabase
-      .from("organizations")
-      .select("id, name");
+    const result = await logCronExecution(
+      supabase,
+      "/api/cron/agent-channel",
+      "0 7,17 * * *",
+      async () => {
+        const { data: orgs, error: orgError } = await supabase
+          .from("organizations")
+          .select("id, name");
 
-    if (orgError) {
-      return NextResponse.json(
-        { error: "Failed to fetch organizations", details: orgError.message },
-        { status: 500 }
-      );
-    }
-
-    const results = [];
-
-    for (const org of orgs ?? []) {
-      try {
-        const webhookUrl = await getOrgDiscordWebhook(supabase, org.id);
-        if (!webhookUrl) {
-          results.push({
-            orgId: org.id,
-            orgName: org.name,
-            status: "skipped",
-            reason: "no_webhook",
-          });
-          continue;
+        if (orgError) {
+          throw new Error(`Failed to fetch organizations: ${orgError.message}`);
         }
 
-        let cockpitPosted = false;
-        let signalAlerts = 0;
-        let stalledBets = 0;
-        let missedPulses = 0;
-        let syncPrepPosted = false;
-        let rhythmAlerts = 0;
+        const results = [];
 
-        // Determine if this is the morning run (roughly)
-        const hour = new Date().getUTCHours();
-        const isMorning = hour < 12;
-
-        // Daily cockpit summary (morning only)
-        if (isMorning) {
+        for (const org of orgs ?? []) {
           try {
-            await buildAndPostCockpitSummary(supabase, org.id, webhookUrl);
-            cockpitPosted = true;
-          } catch (err) {
-            console.error(
-              `Cockpit summary failed for org ${org.id}:`,
-              err instanceof Error ? err.message : err
-            );
-          }
-        }
-
-        // Signal watch alerts
-        try {
-          const alerts = await runSignalWatch(supabase, org.id, {
-            enableAI: false,
-          });
-          const highSeverity = alerts.filter((a) => a.severity === "high");
-          for (const alert of highSeverity) {
-            try {
-              await sendDiscordNotification(webhookUrl, {
-                title: alert.title,
-                body: alert.body,
-                entityType: "kpi",
-                entityId: alert.kpi_id,
-                tier: "urgent",
+            const webhookUrl = await getOrgDiscordWebhook(supabase, org.id);
+            if (!webhookUrl) {
+              results.push({
+                orgId: org.id,
+                orgName: org.name,
+                status: "skipped",
+                reason: "no_webhook",
               });
-              signalAlerts++;
+              continue;
+            }
+
+            let cockpitPosted = false;
+            let signalAlerts = 0;
+            let stalledBets = 0;
+            let missedPulses = 0;
+            let syncPrepPosted = false;
+            let rhythmAlerts = 0;
+
+            // Determine if this is the morning run (roughly)
+            const hour = new Date().getUTCHours();
+            const isMorning = hour < 12;
+
+            // Daily cockpit summary (morning only)
+            if (isMorning) {
+              try {
+                await buildAndPostCockpitSummary(supabase, org.id, webhookUrl);
+                cockpitPosted = true;
+              } catch (err) {
+                console.error(
+                  `Cockpit summary failed for org ${org.id}:`,
+                  err instanceof Error ? err.message : err
+                );
+              }
+            }
+
+            // Signal watch alerts
+            try {
+              const alerts = await runSignalWatch(supabase, org.id, {
+                enableAI: false,
+              });
+              const highSeverity = alerts.filter((a) => a.severity === "high");
+              for (const alert of highSeverity) {
+                try {
+                  await sendDiscordNotification(webhookUrl, {
+                    title: alert.title,
+                    body: alert.body,
+                    entityType: "kpi",
+                    entityId: alert.kpi_id,
+                    tier: "urgent",
+                  });
+                  signalAlerts++;
+                } catch (err) {
+                  console.error(
+                    `Signal alert failed for org ${org.id}:`,
+                    err instanceof Error ? err.message : err
+                  );
+                }
+              }
             } catch (err) {
               console.error(
-                `Signal alert failed for org ${org.id}:`,
+                `Signal watch failed for org ${org.id}:`,
                 err instanceof Error ? err.message : err
               );
             }
-          }
-        } catch (err) {
-          console.error(
-            `Signal watch failed for org ${org.id}:`,
-            err instanceof Error ? err.message : err
-          );
-        }
 
-        // Stalled bets
-        try {
-          stalledBets = await checkStalledBets(supabase, org.id, webhookUrl);
-        } catch (err) {
-          console.error(
-            `Stalled bets check failed for org ${org.id}:`,
-            err instanceof Error ? err.message : err
-          );
-        }
+            // Stalled bets
+            try {
+              stalledBets = await checkStalledBets(supabase, org.id, webhookUrl);
+            } catch (err) {
+              console.error(
+                `Stalled bets check failed for org ${org.id}:`,
+                err instanceof Error ? err.message : err
+              );
+            }
 
-        // Missed pulse streaks
-        try {
-          missedPulses = await checkMissedPulseStreaks(
-            supabase,
-            org.id,
-            webhookUrl
-          );
-        } catch (err) {
-          console.error(
-            `Missed pulse check failed for org ${org.id}:`,
-            err instanceof Error ? err.message : err
-          );
-        }
+            // Missed pulse streaks
+            try {
+              missedPulses = await checkMissedPulseStreaks(
+                supabase,
+                org.id,
+                webhookUrl
+              );
+            } catch (err) {
+              console.error(
+                `Missed pulse check failed for org ${org.id}:`,
+                err instanceof Error ? err.message : err
+              );
+            }
 
-        // Rhythm alerts (recurring moves turned red)
-        try {
-          rhythmAlerts = await checkAndAlertRhythms(supabase, org.id);
-        } catch (err) {
-          console.error(
-            `Rhythm alerts failed for org ${org.id}:`,
-            err instanceof Error ? err.message : err
-          );
-        }
+            // Rhythm alerts (recurring moves turned red)
+            try {
+              rhythmAlerts = await checkAndAlertRhythms(supabase, org.id);
+            } catch (err) {
+              console.error(
+                `Rhythm alerts failed for org ${org.id}:`,
+                err instanceof Error ? err.message : err
+              );
+            }
 
-        // Weekly sync prep (morning only)
-        if (isMorning) {
-          try {
-            syncPrepPosted = await maybeSendWeeklySyncPrep(
-              supabase,
-              org.id,
-              webhookUrl
-            );
+            // Weekly sync prep (morning only)
+            if (isMorning) {
+              try {
+                syncPrepPosted = await maybeSendWeeklySyncPrep(
+                  supabase,
+                  org.id,
+                  webhookUrl
+                );
+              } catch (err) {
+                console.error(
+                  `Sync prep failed for org ${org.id}:`,
+                  err instanceof Error ? err.message : err
+                );
+              }
+            }
+
+            results.push({
+              orgId: org.id,
+              orgName: org.name,
+              status: "success",
+              cockpitPosted,
+              signalAlerts,
+              stalledBets,
+              missedPulses,
+              rhythmAlerts,
+              syncPrepPosted,
+            });
           } catch (err) {
-            console.error(
-              `Sync prep failed for org ${org.id}:`,
-              err instanceof Error ? err.message : err
-            );
+            results.push({
+              orgId: org.id,
+              orgName: org.name,
+              status: "error",
+              error: err instanceof Error ? err.message : "Unknown error",
+            });
           }
         }
 
-        results.push({
-          orgId: org.id,
-          orgName: org.name,
-          status: "success",
-          cockpitPosted,
-          signalAlerts,
-          stalledBets,
-          missedPulses,
-          rhythmAlerts,
-          syncPrepPosted,
-        });
-      } catch (err) {
-        results.push({
-          orgId: org.id,
-          orgName: org.name,
-          status: "error",
-          error: err instanceof Error ? err.message : "Unknown error",
-        });
+        return {
+          orgsProcessed: results.length,
+          summary: {
+            organizations: results.length,
+            results,
+          },
+        };
       }
-    }
+    );
 
-    return NextResponse.json({
-      organizations: results.length,
-      results,
-    });
+    return NextResponse.json(result.summary ?? { success: true });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Internal error";
     return NextResponse.json({ error: message }, { status: 500 });
