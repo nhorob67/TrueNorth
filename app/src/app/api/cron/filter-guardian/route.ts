@@ -4,6 +4,7 @@ import { checkAndTriggerFilterGuardian } from "@/lib/ai/filter-guardian-trigger"
 import { verifyCronSecret } from "@/lib/cron/verify-secret";
 import { logCronExecution } from "@/lib/cron/execution-logger";
 import { callVps } from "@/lib/hermes/vps-client";
+import { persistVpsResult } from "@/lib/hermes/persist-result";
 
 export const dynamic = "force-dynamic";
 
@@ -50,13 +51,13 @@ export async function GET(request: Request) {
               orgId: agent.organization_id,
               mode: "one-shot",
             }) as Record<string, unknown>;
-            console.log(
-              `Filter Guardian Hermes result for org ${agent.organization_id}:`,
-              JSON.stringify(vpsResult)
-            );
+            await persistVpsResult(supabase, {
+              orgId: agent.organization_id,
+              agentProfile: agent.hermes_profile_name,
+              agentCategory: "filter_guardian",
+              vpsResult: vpsResult,
+            });
             hermesProcessed++;
-            // TODO: Parse VPS result and apply downstream effects (idea status updates, etc.)
-            // when Hermes agents are fully wired. For now, VPS agent handles everything internally.
           } catch (err) {
             console.error(
               `Filter Guardian Hermes failed for org ${agent.organization_id}:`,

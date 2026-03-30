@@ -11,6 +11,56 @@ import {
 
 const PORT = parseInt(process.env.PROXY_PORT ?? "3100", 10);
 const HOST = process.env.PROXY_HOST ?? "0.0.0.0";
+const TRUENORTH_URL = process.env.TRUENORTH_URL ?? "";
+
+/**
+ * Fire-and-forget POST to TrueNorth's /api/hermes/token-usage.
+ * Failures are logged but never block the trigger response.
+ */
+async function syncTokenUsage(
+  profile: string,
+  orgId: string,
+  sessionId: string | null,
+  tokens: Record<string, unknown> | null
+): Promise<void> {
+  if (!TRUENORTH_URL || !tokens) return;
+
+  const secret = process.env.HERMES_API_SECRET;
+  if (!secret) return;
+
+  try {
+    const res = await fetch(`${TRUENORTH_URL}/api/hermes/token-usage`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${secret}`,
+      },
+      body: JSON.stringify({
+        orgId,
+        hermesProfile: profile,
+        sessionId: sessionId ?? (tokens.id as string) ?? null,
+        model: (tokens.model as string) ?? "unknown",
+        inputTokens: (tokens.input_tokens as number) ?? 0,
+        outputTokens: (tokens.output_tokens as number) ?? 0,
+        cacheReadTokens: (tokens.cache_read_tokens as number) ?? 0,
+        estimatedCost: (tokens.estimated_cost_usd as number) ?? 0,
+        metadata: {
+          reasoning_tokens: tokens.reasoning_tokens,
+          cost_status: tokens.cost_status,
+          started_at: tokens.started_at,
+          ended_at: tokens.ended_at,
+        },
+      }),
+    });
+
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      console.error(`Token usage sync failed (${res.status}): ${body}`);
+    }
+  } catch (err) {
+    console.error("Token usage sync error:", err instanceof Error ? err.message : err);
+  }
+}
 
 const app = Fastify({ logger: true });
 
@@ -70,6 +120,9 @@ app.post<{
 
     // Fetch token usage from the session
     const tokens = await getLatestSessionTokens(profile);
+
+    // Fire-and-forget: sync token usage to TrueNorth
+    syncTokenUsage(profile, orgId, result.sessionId, tokens).catch(() => {});
 
     return {
       status: "completed",

@@ -23,7 +23,7 @@ export function agentHome(profile: string): string {
 export function runOneShot(
   profile: string,
   prompt: string,
-  timeoutMs = 120_000
+  timeoutMs = 300_000
 ): Promise<{ output: string; sessionId: string | null }> {
   const home = agentHome(profile);
 

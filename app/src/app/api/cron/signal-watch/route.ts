@@ -8,6 +8,7 @@ import {
 import { verifyCronSecret } from "@/lib/cron/verify-secret";
 import { logCronExecution } from "@/lib/cron/execution-logger";
 import { callVps } from "@/lib/hermes/vps-client";
+import { persistVpsResult } from "@/lib/hermes/persist-result";
 
 export const dynamic = "force-dynamic";
 
@@ -63,15 +64,12 @@ export async function GET(request: Request) {
                   mode: "one-shot",
                 }) as Record<string, unknown>;
 
-                console.log(
-                  `Signal Watch Hermes result for org ${org.id}:`,
-                  JSON.stringify(vpsResult)
-                );
-
-                // TODO: Parse VPS result to extract alerts in the same shape as
-                // runSignalWatch output, then dispatch notifications and Discord
-                // alerts using the existing logic below. For now, the VPS agent
-                // handles notification dispatch internally.
+                await persistVpsResult(supabase, {
+                  orgId: org.id,
+                  agentProfile: hermesAgent.hermes_profile_name,
+                  agentCategory: "signal_watch",
+                  vpsResult: vpsResult,
+                });
                 results.push({
                   orgId: org.id,
                   orgName: org.name,

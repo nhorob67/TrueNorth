@@ -6,7 +6,10 @@
   "scripts": {
     "build": "tsc",
     "dev:kpis": "tsx src/servers/truenorth-kpis.ts",
-    "dev:strategy": "tsx src/servers/truenorth-strategy.ts"
+    "dev:strategy": "tsx src/servers/truenorth-strategy.ts",
+    "dev:content": "tsx src/servers/truenorth-content.ts",
+    "dev:operations": "tsx src/servers/truenorth-operations.ts",
+    "dev:actions": "tsx src/servers/truenorth-actions.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",

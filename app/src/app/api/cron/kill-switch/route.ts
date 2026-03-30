@@ -6,6 +6,7 @@ import { sendDiscordNotification, getOrgDiscordWebhook } from "@/lib/discord-not
 import { verifyCronSecret } from "@/lib/cron/verify-secret";
 import { logCronExecution } from "@/lib/cron/execution-logger";
 import { callVps } from "@/lib/hermes/vps-client";
+import { persistVpsResult } from "@/lib/hermes/persist-result";
 
 export const dynamic = "force-dynamic";
 
@@ -77,8 +78,13 @@ export async function GET(request: Request) {
                   ventureId: venture.id,
                   mode: "one-shot",
                 }) as Record<string, unknown>;
-                // TODO: Parse VPS result (recommendation, reasoning, signals, confidence) and dispatch notifications when Hermes agents are fully wired
-                console.log(`Delegated to Hermes: ${hermesAgent.hermes_profile_name} for org ${org.id}, venture ${venture.id}`, vpsResult);
+                await persistVpsResult(supabase, {
+                  orgId: org.id,
+                  ventureId: venture.id,
+                  agentProfile: hermesAgent.hermes_profile_name,
+                  agentCategory: "kill_switch",
+                  vpsResult: vpsResult,
+                });
               }
             } else {
               // Legacy: existing AI call

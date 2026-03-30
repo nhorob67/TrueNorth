@@ -5,6 +5,7 @@ import { sendNotification } from "@/lib/notifications";
 import { verifyCronSecret } from "@/lib/cron/verify-secret";
 import { logCronExecution } from "@/lib/cron/execution-logger";
 import { callVps } from "@/lib/hermes/vps-client";
+import { persistVpsResult } from "@/lib/hermes/persist-result";
 
 export const dynamic = "force-dynamic";
 
@@ -63,15 +64,14 @@ export async function GET(request: Request) {
                     mode: "one-shot",
                   }) as Record<string, unknown>;
 
-                  console.log(
-                    `Agenda Builder Hermes result for org ${org.id} venture ${venture.id}:`,
-                    JSON.stringify(vpsResult)
-                  );
+                  await persistVpsResult(supabase, {
+                    orgId: org.id,
+                    ventureId: venture.id,
+                    agentProfile: hermesAgent.hermes_profile_name,
+                    agentCategory: "agenda_builder",
+                    vpsResult: vpsResult,
+                  });
                   hermesAgendas++;
-
-                  // TODO: Parse VPS result to extract agenda and dispatch notifications
-                  // to admins using sendNotification, matching the legacy path behavior.
-                  // For now, the VPS agent handles agenda generation and notification internally.
                 } catch (err) {
                   console.error(
                     `Agenda Builder Hermes failed for org ${org.id} venture ${venture.id}:`,
