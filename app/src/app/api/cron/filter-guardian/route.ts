@@ -7,6 +7,7 @@ import { callVps } from "@/lib/hermes/vps-client";
 import { persistVpsResult } from "@/lib/hermes/persist-result";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 300;
 
 // ============================================================
 // GET /api/cron/filter-guardian
@@ -50,7 +51,7 @@ export async function GET(request: Request) {
               profile: agent.hermes_profile_name,
               orgId: agent.organization_id,
               mode: "one-shot",
-            }) as Record<string, unknown>;
+            }, { timeout: 270_000 }) as Record<string, unknown>;
             await persistVpsResult(supabase, {
               orgId: agent.organization_id,
               agentProfile: agent.hermes_profile_name,
