@@ -112,17 +112,89 @@ Every dashboard page follows the same pattern:
 - **All types** live in `types/database.ts` — add new entity types there, not inline
 - **Sidebar nav** defined in `components/layout/sidebar.tsx` — add nav items to the `navigation` array and icons to `iconMap`
 
+## Hermes Agent Integration
+
+TrueNorth uses **Hermes Agent v0.6.0** on a VPS (87.99.128.11) as the AI agent runtime. Agents run as isolated Hermes profiles, triggered by Vercel crons via a VPS proxy.
+
+### Architecture
+- **VPS Proxy** (`vps-proxy/`) — Fastify API at port 3100, routes trigger requests to `hermes -p {profile} chat -q`
+- **MCP Servers** (`mcp-servers/`) — 9 Node.js MCP servers providing 44 tools to agents via stdio transport
+- **Hermes Profiles** — 12 agent profiles at `~/.hermes/profiles/` on VPS, each with own config, SOUL.md, memories, MCP servers
+- **Control Plane** — TrueNorth (Vercel) owns scheduling, review, approvals; Hermes owns execution
+
+### Agent Roster (12 agents)
+| Agent | Category | Profile | Status |
+|---|---|---|---|
+| Bet Tracker | governance | `kill-switch` | hermes_enabled |
+| Signal Watch | sensing | `signal-watch` | legacy |
+| Filter Guardian | governance | `filter-guardian` | legacy |
+| Cockpit Advisor | operations | `cockpit-advisor` | legacy |
+| Agenda Builder | operations | `agenda-builder` | legacy |
+| Vault Archaeologist | synthesis | `vault-archaeologist` | legacy |
+| Dispatch Scribe | synthesis + production | `dispatch-scribe` | legacy |
+| Funnel Watchdog | sensing + synthesis | `funnel-watchdog` | legacy |
+| Community Pulse | sensing | `community-pulse` | legacy |
+| Content Copilot | production | `content-copilot` | legacy |
+| Launch Assistant | execution | `launch-assistant` | legacy |
+| Market Scout | sensing (external) | `market-scout` | hermes_enabled |
+
+### MCP Servers (9 servers, 44 tools)
+| Server | Tools | Data Source |
+|---|---|---|
+| `truenorth-kpis` | 5 | Supabase (KPIs, entries, health) |
+| `truenorth-strategy` | 6 | Supabase (vision, bets, moves, ideas) |
+| `truenorth-content` | 3 | Supabase (content pieces, funnels) |
+| `truenorth-operations` | 7 | Supabase (blockers, decisions, commitments, pulses, health) |
+| `truenorth-community` | 8 | Discourse API + Data Explorer SQL |
+| `truenorth-email` | 7 | ConvertKit/Kit v4 API |
+| `truenorth-revenue` | 6 | Stripe API |
+| `truenorth-web` | 3 | Tavily Search API |
+| `truenorth-actions` | 8 | Supabase (action logging, notifications, memory, reviews) |
+
+### Hermes-Enabled Cron Route Pattern
+All 6 AI cron routes check `hermes_enabled` per-org before delegating to VPS:
+```ts
+const { data: hermesAgent } = await supabase
+  .from("agents").select("hermes_enabled, hermes_profile_name")
+  .eq("organization_id", org.id).eq("category", "AGENT_CATEGORY").single();
+
+if (hermesAgent?.hermes_enabled && hermesAgent.hermes_profile_name) {
+  const vpsResult = await callVps("/api/trigger", { ... }, { timeout: 270_000 });
+  await persistVpsResult(supabase, { orgId, agentProfile, agentCategory, vpsResult });
+} else {
+  // Legacy Claude API path
+}
+```
+
+### Key Files
+- `lib/hermes/vps-client.ts` — `callVps()` for TrueNorth → VPS communication
+- `lib/hermes/verify-secret.ts` — `verifyHermesSecret()` for VPS → TrueNorth auth
+- `lib/hermes/persist-result.ts` — `persistVpsResult()` for inserting VPS results into `agent_tasks`
+- `lib/cron/execution-logger.ts` — `logCronExecution()` wraps all 18+ cron routes
+- `lib/cron/vercel-registry.ts` — static registry of all Vercel crons
+
+### Database Tables (Hermes-specific)
+`agent_tasks`, `agent_memory`, `agent_token_usage`, `agent_budget_policies`, `agent_skills`, `agent_performance_snapshots`, `agent_drift_alerts`, `moa_configs`, `workflow_templates`, `workflow_executions`, `vercel_cron_executions`, `hermes_cron_jobs`, `hermes_cron_executions`
+
+### Cockpit Inbox Flow
+VPS trigger result → `persistVpsResult()` extracts JSON → inserts `agent_tasks` (status=review) → Cockpit Inbox UI → human approve/reject → PATCH `/api/hermes/tasks`
+
 ## Reference Documents
 
 - `TrueNorth-PRD.md` — full product requirements (design language, feature specs, AI agent definitions, data model)
 - `BUILDPLAN.md` — phased implementation checklist tracking what's built vs. remaining
+- `.claude/plans/humble-bouncing-parasol.md` — Hermes integration plan with full VPS infrastructure reference
 
 ## Environment Variables
 
 ```
 NEXT_PUBLIC_SUPABASE_URL      # Supabase project URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY # Supabase anon key
-ANTHROPIC_API_KEY             # For Content Copilot and Signal Watch
+SUPABASE_SERVICE_ROLE_KEY     # Service role key for cron routes and server-side operations
+ANTHROPIC_API_KEY             # For Content Copilot and Signal Watch (legacy path)
+HERMES_VPS_URL                # VPS proxy URL (http://87.99.128.11:3100)
+HERMES_API_SECRET             # Shared secret for TrueNorth ↔ VPS auth
+CRON_SECRET                   # Vercel cron authentication
 PLAYWRIGHT_AUTH_EMAIL         # Dedicated test user email for Playwright
 PLAYWRIGHT_SUPABASE_URL       # Optional override; falls back to NEXT_PUBLIC_SUPABASE_URL
 PLAYWRIGHT_SUPABASE_SERVICE_ROLE_KEY # Used only to mint a one-time magic link in Playwright globalSetup
