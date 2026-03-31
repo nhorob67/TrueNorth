@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getDefaultDashboardPath } from "@/lib/user-context-helpers";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -71,19 +72,9 @@ export async function updateSession(request: NextRequest) {
     }
 
     // Redirect based on role
-    if (orgRole === "manager") {
+    if (orgRole !== "admin") {
       const url = request.nextUrl.clone();
-      url.pathname = "/cockpit/team";
-      return NextResponse.redirect(url);
-    }
-    if (orgRole === "member") {
-      const url = request.nextUrl.clone();
-      url.pathname = "/cockpit/my";
-      return NextResponse.redirect(url);
-    }
-    if (orgRole === "viewer") {
-      const url = request.nextUrl.clone();
-      url.pathname = "/strategy/scoreboard";
+      url.pathname = getDefaultDashboardPath(orgRole as "manager" | "member" | "viewer");
       return NextResponse.redirect(url);
     }
     // admin stays on /cockpit (Operator Cockpit)

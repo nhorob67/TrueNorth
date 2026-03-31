@@ -2,7 +2,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { executeTemplate, CronTemplateResult } from "./templates";
 import { postToDiscordWebhook, postTextToDiscordWebhook } from "./discord";
 import { applyFormatTemplate } from "./format";
-import { executeExternalSource, ExternalSourceResult } from "./external-sources";
+import { executeExternalSource } from "./external-sources";
 import { composeCronMessage } from "./llm-composer";
 import type { ExternalSourceConfig } from "@/types/database";
 

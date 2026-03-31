@@ -3,19 +3,27 @@ import { getCachedUserContext } from "@/lib/user-context";
 import { IdeaVaultView } from "./ideas-view";
 
 export default async function IdeasPage() {
-  const supabase = await createClient();
-  const userCtx = await getCachedUserContext();
+  const [supabase, userCtx] = await Promise.all([
+    createClient(),
+    getCachedUserContext(),
+  ]);
+
+  if (!userCtx) {
+    return <p className="text-subtle p-8">Please sign in to view ideas.</p>;
+  }
 
   const [{ data: ideas }, { data: vision }, { data: venture }] =
     await Promise.all([
       supabase
         .from("ideas")
         .select("*")
+        .eq("venture_id", userCtx.ventureId)
         .order("submitted_at", { ascending: false }),
       // Fetch strategic filters for the filter review stage
       supabase
         .from("visions")
         .select("strategic_filters")
+        .eq("venture_id", userCtx.ventureId)
         .order("year", { ascending: false })
         .limit(1)
         .single(),

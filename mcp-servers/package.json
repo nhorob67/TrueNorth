@@ -9,7 +9,11 @@
     "dev:strategy": "tsx src/servers/truenorth-strategy.ts",
     "dev:content": "tsx src/servers/truenorth-content.ts",
     "dev:operations": "tsx src/servers/truenorth-operations.ts",
-    "dev:actions": "tsx src/servers/truenorth-actions.ts"
+    "dev:actions": "tsx src/servers/truenorth-actions.ts",
+    "dev:community": "tsx src/servers/truenorth-community.ts",
+    "dev:email": "tsx src/servers/truenorth-email.ts",
+    "dev:revenue": "tsx src/servers/truenorth-revenue.ts",
+    "dev:web": "tsx src/servers/truenorth-web.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",

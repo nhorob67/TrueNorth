@@ -70,14 +70,7 @@ export default async function PortfolioPage() {
 
   const today = new Date().toISOString().split("T")[0];
 
-  // Fetch all ventures for the org
-  const { data: ventures } = await supabase
-    .from("ventures")
-    .select("id, name")
-    .eq("organization_id", ctx.orgId)
-    .order("created_at");
-
-  const ventureList = ventures ?? [];
+  const ventureList = ctx.ventures;
 
   // For each venture, fetch aggregate metrics in parallel
   const ventureDataPromises = ventureList.map(async (venture): Promise<VenturePortfolioData> => {

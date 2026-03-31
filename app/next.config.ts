@@ -15,10 +15,6 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      // Cockpit → Home
-      { source: "/cockpit", destination: "/", permanent: true },
-      { source: "/cockpit/:path*", destination: "/:path*", permanent: true },
-
       // Strategy
       { source: "/vision", destination: "/strategy/vision", permanent: true },
       { source: "/scoreboard", destination: "/strategy/scoreboard", permanent: true },

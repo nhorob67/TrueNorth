@@ -67,13 +67,9 @@ export async function GET(request: Request) {
           }
         }
 
-        // Legacy path: checkAndTriggerFilterGuardian processes all ideas globally.
-        // It doesn't support per-org filtering, so we call it for all ideas.
-        // Ideas belonging to Hermes-enabled orgs may be processed by both paths
-        // until the legacy function supports org scoping.
-        // TODO: Add org_id filtering to checkAndTriggerFilterGuardian to avoid
-        // double-processing ideas for Hermes-enabled orgs.
-        const legacyProcessed = await checkAndTriggerFilterGuardian(supabase);
+        const legacyProcessed = await checkAndTriggerFilterGuardian(supabase, {
+          excludeOrganizationIds: [...hermesOrgIds],
+        });
 
         return {
           orgsProcessed: hermesOrgIds.size,

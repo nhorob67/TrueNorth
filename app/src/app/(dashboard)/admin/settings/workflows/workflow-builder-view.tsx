@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -47,11 +47,6 @@ const STATUS_BADGE: Record<string, "green" | "yellow" | "red" | "neutral"> = {
   failed: "red",
   cancelled: "neutral",
 };
-
-function agentName(profile: string, agents: AgentInfo[]): string {
-  const agent = agents.find((a) => a.hermes_profile_name === profile);
-  return agent?.name ?? profile;
-}
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -296,7 +291,6 @@ function ExecutionRow({ execution }: { execution: WorkflowExecution }) {
 function WorkflowCard({
   template,
   executions,
-  agents,
   isAdmin,
   onRun,
   onToggle,
@@ -304,7 +298,6 @@ function WorkflowCard({
 }: {
   template: WorkflowTemplate;
   executions: WorkflowExecution[];
-  agents: AgentInfo[];
   isAdmin: boolean;
   onRun: (id: string) => Promise<void>;
   onToggle: (id: string, enabled: boolean) => Promise<void>;
@@ -640,7 +633,6 @@ export function WorkflowBuilderView({
               key={template.id}
               template={template}
               executions={executions}
-              agents={agents}
               isAdmin={isAdmin}
               onRun={handleRun}
               onToggle={handleToggle}

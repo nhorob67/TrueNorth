@@ -4,9 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import type { AgentMemory, AgentMemoryType } from "@/types/database";
 
 const MEMORY_TYPE_LABELS: Record<AgentMemoryType, string> = {
@@ -30,7 +29,6 @@ interface MemoryViewProps {
     hermes_enabled: boolean;
   };
   memories: AgentMemory[];
-  orgId: string;
   isAdmin: boolean;
 }
 
@@ -110,7 +108,7 @@ function MemoryEntry({
   );
 }
 
-export function MemoryView({ agent, memories, orgId, isAdmin }: MemoryViewProps) {
+export function MemoryView({ agent, memories, isAdmin }: MemoryViewProps) {
   const router = useRouter();
   const supabase = createClient();
   const [activeTab, setActiveTab] = useState<AgentMemoryType>("core");

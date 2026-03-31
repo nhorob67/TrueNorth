@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogFooter } from "@/components/ui/dialog";
@@ -52,9 +52,7 @@ function agentName(profile: string, agents: AgentInfo[]): string {
 
 function SkillCard({
   skill,
-  agents,
   isAdmin,
-  userId,
   onApprove,
   onReject,
   onToggleShare,
@@ -62,9 +60,7 @@ function SkillCard({
   onUpdate,
 }: {
   skill: AgentSkill;
-  agents: AgentInfo[];
   isAdmin: boolean;
-  userId: string;
   onApprove: (id: string) => Promise<void>;
   onReject: (id: string) => Promise<void>;
   onToggleShare: (id: string, shared: boolean) => Promise<void>;
@@ -494,9 +490,7 @@ export function SkillsView({ skills, agents, orgId, isAdmin, userId }: SkillsVie
             <SkillCard
               key={skill.id}
               skill={skill}
-              agents={agents}
               isAdmin={isAdmin}
-              userId={userId}
               onApprove={handleApprove}
               onReject={handleReject}
               onToggleShare={handleToggleShare}

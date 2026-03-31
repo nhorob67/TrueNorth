@@ -90,7 +90,6 @@ export default async function CronSettingsPage() {
       vercelExecs={vercelExecs ?? []}
       hermesCrons={hermesCrons ?? []}
       hermesExecs={hermesExecs ?? []}
-      orgId={orgId}
     >
       <CronView
         cronJobs={cronJobs ?? []}

@@ -61,7 +61,13 @@ export function TodoDetailPanel({ todo, onClose, onUpdate, orgId }: TodoDetailPa
   if (!todo) return null;
   return (
     <SlideOver open={!!todo} onClose={onClose} width="lg">
-      <TodoDetailContent todo={todo} onClose={onClose} onUpdate={onUpdate} orgId={orgId} />
+      <TodoDetailContent
+        key={todo.id}
+        todo={todo}
+        onClose={onClose}
+        onUpdate={onUpdate}
+        orgId={orgId}
+      />
     </SlideOver>
   );
 }
@@ -82,13 +88,11 @@ function TodoDetailContent({
   // ---- Title editing ----
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState(todo.title);
+  const [descValue, setDescValue] = useState(todo.description ?? "");
+  const [descDirty, setDescDirty] = useState(false);
+  const [labelsLocal, setLabelsLocal] = useState<string[]>(todo.labels);
+  const [labelInput, setLabelInput] = useState("");
   const titleRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    setTitleValue(todo.title);
-    setDescValue(todo.description ?? "");
-    setLabelsLocal(todo.labels);
-  }, [todo.id, todo.title, todo.description, todo.labels]);
 
   useEffect(() => {
     if (editingTitle) titleRef.current?.focus();
@@ -105,10 +109,6 @@ function TodoDetailContent({
     setEditingTitle(false);
     onUpdate();
   }
-
-  // ---- Description ----
-  const [descValue, setDescValue] = useState(todo.description ?? "");
-  const [descDirty, setDescDirty] = useState(false);
 
   async function saveDescription() {
     if (!descDirty) return;
@@ -136,10 +136,6 @@ function TodoDetailContent({
     await supabase.from("todos").update({ visibility: next, updated_at: new Date().toISOString() }).eq("id", todo.id);
     onUpdate();
   }
-
-  // ---- Labels ----
-  const [labelsLocal, setLabelsLocal] = useState<string[]>(todo.labels);
-  const [labelInput, setLabelInput] = useState("");
 
   async function addLabel() {
     const label = labelInput.trim().toLowerCase();
@@ -352,7 +348,9 @@ function ChecklistSection({ todoId }: { todoId: string }) {
   }, [supabase, todoId]);
 
   useEffect(() => {
-    fetchItems();
+    void (async () => {
+      await fetchItems();
+    })();
   }, [fetchItems]);
 
   async function addItem() {

@@ -24,7 +24,7 @@ export default async function TodosPage() {
   const todoIds = (todos ?? []).map((t) => t.id);
 
   // Fetch comment counts per todo
-  let commentCountMap: Record<string, number> = {};
+  const commentCountMap: Record<string, number> = {};
   if (todoIds.length > 0) {
     const { data: commentRows } = await supabase
       .from("comments")

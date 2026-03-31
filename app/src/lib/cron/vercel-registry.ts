@@ -138,6 +138,13 @@ export const VERCEL_CRONS: VercelCronDefinition[] = [
     description: "Weekly drift analysis comparing 7-day window to 4-week baseline",
     isAiAgent: false,
   },
+  {
+    path: "/api/cron/market-scout",
+    schedule: "0 9 * * 1",
+    name: "Market Scout",
+    description: "AI agent: weekly competitor monitoring and market intelligence",
+    isAiAgent: true,
+  },
 ];
 
 /**

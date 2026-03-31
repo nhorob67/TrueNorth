@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { VERCEL_CRONS, type VercelCronDefinition } from "@/lib/cron/vercel-registry";
 import type { VercelCronExecution, HermesCronJob, HermesCronExecution } from "@/types/database";
 
@@ -244,7 +243,6 @@ interface UnifiedCronViewProps {
   vercelExecs: VercelCronExecution[];
   hermesCrons: HermesCronJob[];
   hermesExecs: HermesCronExecution[];
-  orgId: string;
   children: React.ReactNode; // Existing CronView component
 }
 
@@ -252,7 +250,6 @@ export function UnifiedCronView({
   vercelExecs,
   hermesCrons,
   hermesExecs,
-  orgId,
   children,
 }: UnifiedCronViewProps) {
   const [activeSection, setActiveSection] = useState<CronSection>("system");

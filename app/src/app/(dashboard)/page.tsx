@@ -1,10 +1,15 @@
 import { getCachedClient } from "@/lib/supabase/server";
 import { getCachedUserContext } from "@/lib/user-context";
+import { getDefaultDashboardPath } from "@/lib/user-context-helpers";
+import { redirect } from "next/navigation";
 import { HomeView } from "./home-view";
 
 export default async function HomePage() {
   const ctx = await getCachedUserContext();
   if (!ctx) return null;
+  if (ctx.orgRole !== "admin") {
+    redirect(getDefaultDashboardPath(ctx.orgRole));
+  }
 
   const supabase = await getCachedClient();
   const today = new Date().toISOString().split("T")[0];

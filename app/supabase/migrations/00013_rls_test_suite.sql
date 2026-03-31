@@ -133,10 +133,34 @@ BEGIN
   detail := format('user_a saw %s KPIs from org_b (expected 0)', _count);
   RETURN NEXT;
 
+  SELECT count(*) INTO _count FROM public.organization_memberships WHERE organization_id = _s.org_b_id;
+  test_name := 'org_isolation_memberships_user_a_cannot_see_org_b';
+  passed := (_count = 0);
+  detail := format('user_a saw %s memberships from org_b (expected 0)', _count);
+  RETURN NEXT;
+
+  SELECT count(*) INTO _count FROM public.user_profiles WHERE id = _s.user_b_admin_id;
+  test_name := 'org_isolation_profiles_user_a_cannot_see_org_b';
+  passed := (_count = 0);
+  detail := format('user_a saw %s profiles from org_b (expected 0)', _count);
+  RETURN NEXT;
+
   SELECT count(*) INTO _count FROM public.kpis WHERE id = _kpi_a;
   test_name := 'org_isolation_kpis_user_a_sees_own';
   passed := (_count = 1);
   detail := format('user_a saw %s own KPIs (expected 1)', _count);
+  RETURN NEXT;
+
+  SELECT count(*) INTO _count FROM public.organization_memberships WHERE organization_id = _s.org_a_id;
+  test_name := 'org_isolation_memberships_user_a_sees_own';
+  passed := (_count = 2);
+  detail := format('user_a saw %s memberships from org_a (expected 2)', _count);
+  RETURN NEXT;
+
+  SELECT count(*) INTO _count FROM public.user_profiles WHERE id = _s.user_a_member_id;
+  test_name := 'org_isolation_profiles_user_a_sees_own_org';
+  passed := (_count = 1);
+  detail := format('user_a saw %s peer profiles from own org (expected 1)', _count);
   RETURN NEXT;
 
   SELECT count(*) INTO _count FROM public.bets WHERE id = _bet_b;
@@ -152,6 +176,18 @@ BEGIN
   test_name := 'org_isolation_kpis_user_b_cannot_see_org_a';
   passed := (_count = 0);
   detail := format('user_b saw %s KPIs from org_a (expected 0)', _count);
+  RETURN NEXT;
+
+  SELECT count(*) INTO _count FROM public.organization_memberships WHERE organization_id = _s.org_a_id;
+  test_name := 'org_isolation_memberships_user_b_cannot_see_org_a';
+  passed := (_count = 0);
+  detail := format('user_b saw %s memberships from org_a (expected 0)', _count);
+  RETURN NEXT;
+
+  SELECT count(*) INTO _count FROM public.user_profiles WHERE id = _s.user_a_admin_id;
+  test_name := 'org_isolation_profiles_user_b_cannot_see_org_a';
+  passed := (_count = 0);
+  detail := format('user_b saw %s profiles from org_a (expected 0)', _count);
   RETURN NEXT;
 
   SELECT count(*) INTO _count FROM public.bets WHERE id = _bet_a;

@@ -13,6 +13,7 @@ export default async function VisionPage() {
   const { data: vision } = await supabase
     .from("visions")
     .select("*")
+    .eq("venture_id", ctx.ventureId)
     .order("year", { ascending: false })
     .limit(1)
     .single();

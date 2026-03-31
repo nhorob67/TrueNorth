@@ -110,6 +110,7 @@ function buildTitle(
     community_pulse: "Community Pulse Report",
     content_copilot: "Content Draft",
     launch_assistant: "Launch Status",
+    market_scout: "Market Scout Report",
   };
 
   const base = labels[category] ?? `Agent Report (${category})`;

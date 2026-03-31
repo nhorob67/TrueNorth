@@ -1,7 +1,8 @@
-import { SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { cache } from "react";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { resolveActiveVenture } from "@/lib/user-context-helpers";
 
 export interface UserContext {
   userId: string;
@@ -12,6 +13,12 @@ export interface UserContext {
   ventureRole: "admin" | "manager" | "member" | "viewer";
   ventures: Array<{ id: string; name: string }>;
   isSingleVenture: boolean;
+}
+
+interface VentureSummary {
+  id: string;
+  name: string;
+  role: UserContext["ventureRole"];
 }
 
 export async function getUserContext(
@@ -37,13 +44,30 @@ export async function getUserContext(
 
   if (!orgMembership) return null;
 
+  const { data: ventureMemberships } = await supabase
+    .from("venture_memberships")
+    .select("venture_id, role")
+    .eq("user_id", user.id);
+
+  const ventureIds = (ventureMemberships ?? []).map((membership) => membership.venture_id);
+  if (ventureIds.length === 0) return null;
+
   const { data: ventures } = await supabase
     .from("ventures")
     .select("id, name")
     .eq("organization_id", orgMembership.organization_id)
+    .in("id", ventureIds)
     .order("created_at");
 
-  const ventureList = ventures ?? [];
+  const ventureRoleById = new Map(
+    (ventureMemberships ?? []).map((membership) => [membership.venture_id, membership.role])
+  );
+
+  const ventureList: VentureSummary[] = (ventures ?? []).map((venture) => ({
+    id: venture.id,
+    name: venture.name,
+    role: (ventureRoleById.get(venture.id) ?? "member") as UserContext["ventureRole"],
+  }));
   if (ventureList.length === 0) return null;
 
   // Check for user's selected venture in cookie
@@ -51,15 +75,8 @@ export async function getUserContext(
   const selectedVentureId = cookieStore.get("truenorth_venture_id")?.value;
 
   // Use selected venture if valid, otherwise first
-  const activeVenture =
-    ventureList.find((v) => v.id === selectedVentureId) ?? ventureList[0];
-
-  const { data: ventureMembership } = await supabase
-    .from("venture_memberships")
-    .select("role")
-    .eq("user_id", user.id)
-    .eq("venture_id", activeVenture.id)
-    .single();
+  const activeVenture = resolveActiveVenture(ventureList, selectedVentureId);
+  if (!activeVenture) return null;
 
   return {
     userId: user.id,
@@ -67,8 +84,8 @@ export async function getUserContext(
     orgId: orgMembership.organization_id,
     orgRole: orgMembership.role,
     ventureId: activeVenture.id,
-    ventureRole: ventureMembership?.role ?? "member",
-    ventures: ventureList,
+    ventureRole: activeVenture.role,
+    ventures: ventureList.map(({ id, name }) => ({ id, name })),
     isSingleVenture: ventureList.length === 1,
   };
 }

@@ -9,14 +9,32 @@ import { evaluateIdeaAgainstFilters } from "./filter-guardian";
 // ============================================================
 
 export async function checkAndTriggerFilterGuardian(
-  supabase: SupabaseClient
+  supabase: SupabaseClient,
+  options?: {
+    includeOrganizationIds?: string[];
+    excludeOrganizationIds?: string[];
+  }
 ): Promise<number> {
   // Find ideas in quarantine whose cooling period has expired
-  const { data: expiredIdeas, error: queryError } = await supabase
+  let ideasQuery = supabase
     .from("ideas")
-    .select("id, name, description, classification, venture_id")
+    .select("id, name, description, classification, venture_id, organization_id")
     .eq("lifecycle_status", "quarantine")
     .lte("cooling_expires_at", new Date().toISOString());
+
+  if (options?.includeOrganizationIds?.length) {
+    ideasQuery = ideasQuery.in("organization_id", options.includeOrganizationIds);
+  }
+
+  if (options?.excludeOrganizationIds?.length) {
+    ideasQuery = ideasQuery.not(
+      "organization_id",
+      "in",
+      `(${options.excludeOrganizationIds.join(",")})`
+    );
+  }
+
+  const { data: expiredIdeas, error: queryError } = await ideasQuery;
 
   if (queryError) {
     console.error("Filter Guardian trigger query error:", queryError.message);

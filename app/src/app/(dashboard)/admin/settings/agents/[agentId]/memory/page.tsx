@@ -65,7 +65,6 @@ export default async function AgentMemoryPage({
     <MemoryView
       agent={agent}
       memories={memories ?? []}
-      orgId={membership.organization_id}
       isAdmin={membership.role === "admin"}
     />
   );

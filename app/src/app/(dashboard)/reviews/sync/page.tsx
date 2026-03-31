@@ -14,6 +14,7 @@ export default async function SyncPage() {
   const { data: kpis } = await supabase
     .from("kpis")
     .select("id, name, health_status, current_value, target, unit, owner_id, action_playbook")
+    .eq("venture_id", ctx.ventureId)
     .eq("lifecycle_status", "active")
     .in("health_status", ["red", "yellow"])
     .order("health_status");
@@ -24,6 +25,7 @@ export default async function SyncPage() {
     .select(
       "id, outcome, health_status, owner_id, moves(id, title, lifecycle_status, health_status, type, cadence, target_per_cycle, owner_id)"
     )
+    .eq("venture_id", ctx.ventureId)
     .eq("lifecycle_status", "active")
     .order("created_at");
 
@@ -31,6 +33,7 @@ export default async function SyncPage() {
   const { data: blockers } = await supabase
     .from("blockers")
     .select("id, description, severity, owner_id, resolution_state, created_at, linked_entity_id, linked_entity_type")
+    .eq("venture_id", ctx.ventureId)
     .eq("resolution_state", "open")
     .order("created_at");
 
@@ -38,6 +41,7 @@ export default async function SyncPage() {
   const { data: decisions } = await supabase
     .from("decisions")
     .select("id, title, context, owner_id, created_at")
+    .eq("venture_id", ctx.ventureId)
     .is("decided_at", null)
     .order("created_at");
 
@@ -45,6 +49,7 @@ export default async function SyncPage() {
   const { data: issues } = await supabase
     .from("issues")
     .select("id, description, severity, owner_id, status, created_at")
+    .eq("venture_id", ctx.ventureId)
     .in("status", ["open", "investigating"])
     .order("severity")
     .order("created_at");
@@ -55,13 +60,15 @@ export default async function SyncPage() {
   const { data: lastWeekCommitments } = await supabase
     .from("commitments")
     .select("id, description, owner_id, due_date, status, created_at")
+    .eq("venture_id", ctx.ventureId)
     .gte("created_at", sevenDaysAgo)
     .order("created_at");
 
   // Team members for commitment assignment
   const { data: team } = await supabase
-    .from("organization_memberships")
+    .from("venture_memberships")
     .select("user_id, role, user_profiles(full_name)")
+    .eq("venture_id", ctx.ventureId)
     .order("role");
 
   const teamMembers = (team ?? []).map((m: Record<string, unknown>) => ({

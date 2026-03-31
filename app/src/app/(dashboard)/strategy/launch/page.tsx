@@ -37,12 +37,17 @@ export default async function LaunchPage() {
   let isSecondVenture = false;
   let firstVentureContext: StepContext | undefined;
 
-  const { data: otherVentures } = await supabase
-    .from("ventures")
-    .select("id, name, settings")
-    .eq("organization_id", ctx.orgId)
-    .neq("id", ctx.ventureId)
-    .limit(1);
+  const otherVentureIds = ctx.ventures
+    .map((venture) => venture.id)
+    .filter((ventureId) => ventureId !== ctx.ventureId);
+
+  const { data: otherVentures } = otherVentureIds.length > 0
+    ? await supabase
+        .from("ventures")
+        .select("id, name, settings")
+        .in("id", otherVentureIds)
+        .limit(1)
+    : { data: [] };
 
   if (otherVentures && otherVentures.length > 0) {
     const otherVenture = otherVentures[0];
