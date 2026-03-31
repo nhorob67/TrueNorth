@@ -280,7 +280,7 @@ function TodoDetailContent({
               value={labelInput}
               onChange={(e) => setLabelInput(e.target.value)}
               placeholder="Add label..."
-              className="w-24 rounded border border-dashed border-line bg-transparent px-2 py-0.5 text-xs text-ink placeholder:text-faded focus:border-accent focus:outline-none"
+              className="w-24 rounded border border-dashed border-line bg-transparent px-2 py-0.5 text-xs text-ink placeholder:text-placeholder focus:border-accent focus:outline-none"
             />
           </form>
         </div>
@@ -295,7 +295,7 @@ function TodoDetailContent({
           onBlur={saveDescription}
           placeholder="Add a description..."
           rows={3}
-          className="w-full rounded-lg border border-line bg-well px-3 py-2 text-sm text-ink placeholder:text-faded resize-y focus:border-line-focus focus:outline-none focus:ring-1 focus:ring-accent-glow/20"
+          className="w-full rounded-lg border border-line bg-well px-3 py-2 text-sm text-ink placeholder:text-placeholder resize-y focus:border-line-focus focus:outline-none focus:ring-1 focus:ring-accent-glow/20"
         />
       </div>
 
@@ -447,7 +447,7 @@ function ChecklistSection({ todoId }: { todoId: string }) {
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
           placeholder="Add an item..."
-          className="flex-1 rounded border border-dashed border-line bg-transparent px-2 py-1 text-sm text-ink placeholder:text-faded focus:border-accent focus:outline-none"
+          className="flex-1 rounded border border-dashed border-line bg-transparent px-2 py-1 text-sm text-ink placeholder:text-placeholder focus:border-accent focus:outline-none"
         />
         {newTitle.trim() && (
           <button

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
 
 interface DialogProps {
   open: boolean;
@@ -12,37 +13,10 @@ interface DialogProps {
 
 export function Dialog({ open, onClose, children, title, description }: DialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
   const [visible, setVisible] = useState(false);
   const [animating, setAnimating] = useState(false);
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-        return;
-      }
-
-      if (e.key === "Tab" && dialogRef.current) {
-        const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        if (focusable.length === 0) return;
-
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    },
-    [onClose]
-  );
+  useFocusTrap(dialogRef, visible && !animating, onClose);
 
   // Handle open/close with animation
   useEffect(() => {
@@ -50,16 +24,9 @@ export function Dialog({ open, onClose, children, title, description }: DialogPr
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setAnimating(true);
       setVisible(true);
-      previousFocusRef.current = document.activeElement as HTMLElement;
-      document.addEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "hidden";
 
       requestAnimationFrame(() => {
         requestAnimationFrame(() => setAnimating(false));
-        const focusable = dialogRef.current?.querySelector<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        focusable?.focus();
       });
     } else if (visible) {
       // Exit animation
@@ -70,13 +37,7 @@ export function Dialog({ open, onClose, children, title, description }: DialogPr
       }, 150);
       return () => clearTimeout(timeout);
     }
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "";
-      previousFocusRef.current?.focus();
-    };
-  }, [open, handleKeyDown, visible]);
+  }, [open, visible]);
 
   if (!visible) return null;
 
@@ -99,7 +60,7 @@ export function Dialog({ open, onClose, children, title, description }: DialogPr
         aria-labelledby={title ? "dialog-title" : undefined}
         aria-describedby={description ? "dialog-description" : undefined}
         className={`relative z-50 w-full max-w-lg mx-4 bg-surface border border-line rounded-xl shadow-xl transition-all ${entering ? "opacity-100 scale-100 duration-250" : "opacity-0 scale-95 duration-150"}`}
-        style={{ transitionTimingFunction: entering ? "cubic-bezier(0.34, 1.56, 0.64, 1)" : "ease-in" }}
+        style={{ transitionTimingFunction: entering ? "var(--easing-spring)" : "ease-in" }}
       >
         {(title || description) && (
           <div className="px-6 pt-6 pb-2">

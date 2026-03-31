@@ -104,20 +104,42 @@ function CockpitSection({
   title,
   count,
   children,
+  defaultExpanded = true,
 }: {
   title: string;
   count: number;
   children: React.ReactNode;
+  defaultExpanded?: boolean;
 }) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
+
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-ink">{title}</h2>
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="flex items-center justify-between w-full text-left"
+        >
+          <div className="flex items-center gap-2">
+            <svg
+              className={`w-4 h-4 text-subtle transition-transform ${expanded ? "rotate-90" : ""}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            </svg>
+            <h2 className="text-sm font-semibold text-ink">{title}</h2>
+          </div>
           <span className="text-xs font-mono text-subtle">{count}</span>
-        </div>
+        </button>
       </CardHeader>
-      <CardContent>{children}</CardContent>
+      <div className={`grid transition-all duration-200 ${expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+        <div className="overflow-hidden">
+          <CardContent>{children}</CardContent>
+        </div>
+      </div>
     </Card>
   );
 }
@@ -147,6 +169,11 @@ function AgentTaskReviewCard({
         ? task.output_data.output_summary
         : JSON.stringify(task.output_data).slice(0, 300);
 
+  const cascadeVariants = (
+    (task.output_data?.structured as Record<string, unknown>)?.variants as
+      Array<{ machine_type: string; title: string; one_ask_conflict?: boolean }> | undefined
+  ) ?? [];
+
   async function handleAction(outcome: "approved" | "rejected") {
     setSubmitting(true);
     await fetch("/api/hermes/tasks", {
@@ -158,6 +185,20 @@ function AgentTaskReviewCard({
         ...(outcome === "rejected" && rejectNotes ? { error_message: rejectNotes } : {}),
       }),
     });
+
+    // Content Cascade: create content_pieces from approved variants
+    if (outcome === "approved" && task.agent_profile === "content-cascade") {
+      try {
+        await fetch("/api/content/cascade/approve", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ taskId: task.id }),
+        });
+      } catch {
+        // Best-effort; task is already approved
+      }
+    }
+
     setSubmitting(false);
     window.location.reload();
   }
@@ -184,6 +225,23 @@ function AgentTaskReviewCard({
       <p className="text-sm text-subtle mt-1 whitespace-pre-wrap line-clamp-4">
         {outputSummary}
       </p>
+
+      {/* Cascade variant details */}
+      {task.agent_profile === "content-cascade" && cascadeVariants.length > 0 && (
+        <div className="mt-2 space-y-1">
+          {cascadeVariants.map((v, i) => (
+            <div key={i} className="flex items-center gap-2 text-xs">
+              <span className="inline-flex items-center rounded bg-well px-1.5 py-0.5 font-mono text-subtle">
+                {v.machine_type}
+              </span>
+              <span className="text-ink truncate">{v.title}</span>
+              {v.one_ask_conflict && (
+                <span className="text-semantic-brick font-medium shrink-0">CTA conflict</span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="flex items-center gap-2 mt-2">
         {!reviewing ? (
@@ -389,9 +447,9 @@ export function CockpitView({
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 stagger-list">
         {/* Drifting KPIs + Stale Artifacts */}
-        <CockpitSection title="What is drifting" count={driftCount}>
+        <CockpitSection title="What is drifting" count={driftCount} defaultExpanded={driftCount > 0}>
           {driftCount === 0 ? (
             <p className="text-sm text-subtle">All systems healthy</p>
           ) : (
@@ -455,6 +513,7 @@ export function CockpitView({
         <CockpitSection
           title="Decisions required"
           count={openDecisions.length}
+          defaultExpanded={openDecisions.length > 0}
         >
           {openDecisions.length === 0 ? (
             <p className="text-sm text-subtle">No pending decisions</p>
@@ -473,7 +532,7 @@ export function CockpitView({
         </CockpitSection>
 
         {/* At-Risk Bets */}
-        <CockpitSection title="Bets at risk" count={atRiskBets.length + stalledBets.length}>
+        <CockpitSection title="Bets at risk" count={atRiskBets.length + stalledBets.length} defaultExpanded={atRiskBets.length + stalledBets.length > 0}>
           {atRiskBets.length === 0 && stalledBets.length === 0 ? (
             <p className="text-sm text-subtle">All bets on track</p>
           ) : (
@@ -505,7 +564,7 @@ export function CockpitView({
         </CockpitSection>
 
         {/* Open Blockers */}
-        <CockpitSection title="Who is blocked" count={openBlockers.length}>
+        <CockpitSection title="Who is blocked" count={openBlockers.length} defaultExpanded={openBlockers.length > 0}>
           {openBlockers.length === 0 ? (
             <p className="text-sm text-subtle">No open blockers</p>
           ) : (
@@ -527,6 +586,7 @@ export function CockpitView({
         <CockpitSection
           title="Upcoming milestones (7 days)"
           count={upcomingMoves.length}
+          defaultExpanded={upcomingMoves.length > 0}
         >
           {upcomingMoves.length === 0 ? (
             <p className="text-sm text-subtle">No upcoming milestones</p>
@@ -549,6 +609,7 @@ export function CockpitView({
         <CockpitSection
           title="Commitments due"
           count={pendingCommitments.length}
+          defaultExpanded={pendingCommitments.length > 0}
         >
           {pendingCommitments.length === 0 ? (
             <p className="text-sm text-subtle">No pending commitments</p>
@@ -572,6 +633,7 @@ export function CockpitView({
         <CockpitSection
           title="Pulse status"
           count={todayPulses.length}
+          defaultExpanded={todayPulses.length > 0}
         >
           {todayPulses.length === 0 ? (
             <p className="text-sm text-subtle">No pulses submitted today</p>
@@ -588,7 +650,7 @@ export function CockpitView({
         </CockpitSection>
 
         {/* Blocked Moves */}
-        <CockpitSection title="Blocked moves" count={blockedMoves.length}>
+        <CockpitSection title="Blocked moves" count={blockedMoves.length} defaultExpanded={blockedMoves.length > 0}>
           {blockedMoves.length === 0 ? (
             <p className="text-sm text-subtle">No blocked moves</p>
           ) : (
@@ -610,6 +672,7 @@ export function CockpitView({
         <CockpitSection
           title="Cadence compliance"
           count={cadenceReport?.metrics.filter((m) => m.is_overdue).length ?? 0}
+          defaultExpanded={(cadenceReport?.metrics.filter((m) => m.is_overdue).length ?? 0) > 0}
         >
           {cadenceReport ? (
             <div className="space-y-3">

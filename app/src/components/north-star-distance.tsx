@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useOptionalUserContext } from "@/hooks/use-user-context";
+import { RadialGauge } from "@/components/ui/radial-gauge";
 
 interface NorthStarData {
   bhag: string | null;
@@ -75,23 +76,18 @@ export function NorthStarDistance() {
         </p>
       </div>
 
-      {/* BHAG text — allow 2 lines, tooltip for full text */}
-      <p
-        className="text-[12px] text-sidebar-text-hover leading-snug line-clamp-2 mb-2"
-        title={data.bhag}
-      >
-        {data.bhag}
-      </p>
-
-      {/* Progress bar — animates from 0 on mount */}
-      <div className="h-1 rounded-full bg-sidebar-divider overflow-hidden mb-1.5">
-        <div
-          className="h-full rounded-full bg-sidebar-text-active"
-          style={{
-            width: mounted ? `${data.progress}%` : "0%",
-            transition: "width 700ms ease-out",
-          }}
-        />
+      {/* Gauge + BHAG row */}
+      <div className="flex items-start gap-2.5 mb-1.5">
+        <RadialGauge value={mounted ? data.progress : 0} size={40} strokeWidth={3} />
+        <div className="flex-1 min-w-0">
+          {/* BHAG text — allow 2 lines, tooltip for full text */}
+          <p
+            className="text-[12px] text-sidebar-text-hover leading-snug line-clamp-2"
+            title={data.bhag}
+          >
+            {data.bhag}
+          </p>
+        </div>
       </div>
 
       {/* KPI count */}

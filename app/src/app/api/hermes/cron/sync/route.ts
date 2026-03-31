@@ -30,9 +30,12 @@ export async function POST(request: Request) {
   const supabase = createServiceClient();
 
   if (type === "config") {
-    // Bulk upsert cron job definitions from the VPS
+    // Bulk upsert cron job definitions from the VPS.
+    // Uses the natural key (org + profile + name) so both VPS proxy cron-manager
+    // jobs (UUID ids) and Hermes native cron jobs (short hex ids) are handled.
     const { jobs } = body.data as {
       jobs: Array<{
+        id?: string;
         agent_profile: string;
         name: string;
         description?: string;
@@ -43,23 +46,37 @@ export async function POST(request: Request) {
       }>;
     };
 
+    let synced = 0;
     for (const job of jobs) {
-      await supabase.from("hermes_cron_jobs").upsert(
-        {
-          organization_id: orgId,
-          agent_profile: job.agent_profile,
-          name: job.name,
-          description: job.description ?? null,
-          prompt: job.prompt ?? null,
-          schedule: job.schedule,
-          delivery_target: job.delivery_target ?? "supabase",
-          enabled: job.enabled ?? true,
-        },
-        { onConflict: "organization_id,agent_profile,name", ignoreDuplicates: false }
+      const row: Record<string, unknown> = {
+        organization_id: orgId,
+        agent_profile: job.agent_profile,
+        name: job.name,
+        description: job.description ?? null,
+        prompt: job.prompt ?? null,
+        schedule: job.schedule,
+        delivery_target: job.delivery_target ?? "supabase",
+        enabled: job.enabled ?? true,
+      };
+
+      // Store the Hermes-side ID for cross-referencing (may be a short hex, not a UUID)
+      if (job.id) {
+        row.hermes_job_id = job.id;
+      }
+
+      const { error } = await supabase.from("hermes_cron_jobs").upsert(
+        row,
+        { onConflict: "hermes_cron_jobs_org_profile_name_key", ignoreDuplicates: false }
       );
+
+      if (error) {
+        console.error(`[hermes/cron/sync] Upsert failed for "${job.name}":`, error.message);
+      } else {
+        synced++;
+      }
     }
 
-    return NextResponse.json({ success: true, synced: jobs.length });
+    return NextResponse.json({ success: true, synced });
   }
 
   if (type === "execution") {

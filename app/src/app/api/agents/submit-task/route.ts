@@ -25,26 +25,40 @@ export async function POST(request: Request) {
   }
 
   // Determine auth: cron secret or user session
-  let supabase;
+  const isCronRequest = verifyCronSecret(request);
+  let dbClient;
   let submittedBy: string | null = null;
+  let effectiveOrgId = orgId;
 
-  if (verifyCronSecret(request)) {
-    supabase = createServiceClient();
+  if (isCronRequest) {
+    dbClient = createServiceClient();
   } else {
-    supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    dbClient = await createClient();
+    const { data: { user } } = await dbClient.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const { data: membership } = await dbClient
+      .from("organization_memberships")
+      .select("organization_id")
+      .eq("user_id", user.id)
+      .limit(1)
+      .single();
+
+    if (!membership || membership.organization_id !== orgId) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     submittedBy = user.id;
+    effectiveOrgId = membership.organization_id;
   }
 
   // Verify agent exists
-  const serviceClient = createServiceClient();
-  const { data: agent } = await serviceClient
+  const { data: agent } = await dbClient
     .from("agents")
     .select("id, automation_level, hermes_enabled")
-    .eq("organization_id", orgId)
+    .eq("organization_id", effectiveOrgId)
     .eq("hermes_profile_name", profile)
     .single();
 
@@ -58,10 +72,10 @@ export async function POST(request: Request) {
   // Determine if human review is required based on automation level
   const requiresReview = agent.automation_level < 3;
 
-  const { data: task, error } = await serviceClient
+  const { data: task, error } = await dbClient
     .from("agent_tasks")
     .insert({
-      organization_id: orgId,
+      organization_id: effectiveOrgId,
       venture_id: ventureId ?? null,
       agent_profile: profile,
       title,

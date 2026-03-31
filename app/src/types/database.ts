@@ -323,6 +323,8 @@ export type ContentLifecycleStatus =
   | "scheduled"
   | "published";
 
+export type ContentCascadeStatus = "pending" | "running" | "completed" | "skipped";
+
 export interface ContentPiece {
   id: string;
   organization_id: string;
@@ -334,6 +336,8 @@ export interface ContentPiece {
   owner_id: string;
   scheduled_at: string | null;
   linked_funnel_id: string | null;
+  cascade_source_id: string | null;
+  cascade_status: ContentCascadeStatus | null;
   created_at: string;
   updated_at: string;
 }
@@ -1028,6 +1032,7 @@ export interface HermesCronJob {
   organization_id: string;
   agent_profile: string;
   name: string;
+  description: string | null;
   prompt: string | null;
   schedule: string;
   delivery_target: string;
@@ -1046,4 +1051,104 @@ export interface HermesCronExecution {
   duration_ms: number | null;
   result: Record<string, unknown>;
   error_message: string | null;
+}
+
+// ============================================================
+// Shared Knowledge Layer
+// ============================================================
+
+export type KnowledgeSourceType = "internal_entity" | "upload" | "web_page" | "connector";
+export type ConnectorType = "google_drive" | "notion" | "slack" | "github" | "web" | "pdf_upload";
+export type KnowledgeSourceStatus = "active" | "paused" | "error";
+export type KnowledgeVisibility = "org" | "venture" | "restricted";
+export type KnowledgeDocumentType = "entity" | "file" | "web_page" | "message_thread" | "generated_artifact";
+export type KnowledgeSyncStatus = "queued" | "running" | "completed" | "failed";
+export type KnowledgeAccessMode = "read" | "read_citations_only";
+
+export interface KnowledgeSource {
+  id: string;
+  organization_id: string;
+  venture_id: string | null;
+  name: string;
+  source_type: KnowledgeSourceType;
+  connector_type: ConnectorType | null;
+  external_ref: string | null;
+  config: Record<string, unknown>;
+  status: KnowledgeSourceStatus;
+  visibility: KnowledgeVisibility;
+  last_synced_at: string | null;
+  last_sync_status: string | null;
+  last_sync_error: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface KnowledgeDocument {
+  id: string;
+  organization_id: string;
+  venture_id: string | null;
+  source_id: string;
+  document_type: KnowledgeDocumentType;
+  entity_type: string | null;
+  entity_id: string | null;
+  title: string;
+  canonical_url: string | null;
+  content_text: string;
+  metadata: Record<string, unknown>;
+  permissions_scope: Record<string, unknown>;
+  checksum: string | null;
+  updated_from_source_at: string | null;
+  indexed_at: string;
+  created_at: string;
+}
+
+export interface KnowledgeChunk {
+  id: string;
+  organization_id: string;
+  venture_id: string | null;
+  document_id: string;
+  chunk_index: number;
+  content_text: string;
+  snippet_text: string | null;
+  token_count: number | null;
+  anchor_label: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface KnowledgeSyncRun {
+  id: string;
+  organization_id: string;
+  source_id: string;
+  status: KnowledgeSyncStatus;
+  documents_created: number;
+  documents_updated: number;
+  documents_deleted: number;
+  error_message: string | null;
+  run_metadata: Record<string, unknown>;
+  started_at: string;
+  completed_at: string | null;
+}
+
+export interface AgentKnowledgeAccess {
+  id: string;
+  organization_id: string;
+  agent_id: string;
+  source_id: string;
+  access_mode: KnowledgeAccessMode;
+  created_at: string;
+}
+
+export interface Citation {
+  id: string;
+  title: string;
+  href: string | null;
+  sourceType: KnowledgeSourceType;
+  sourceId: string;
+  documentId: string;
+  chunkId: string | null;
+  snippet: string;
+  anchorLabel: string | null;
+  retrievedAt: string;
 }

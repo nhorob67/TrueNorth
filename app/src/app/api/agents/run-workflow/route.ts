@@ -20,6 +20,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { data: membership } = await supabase
+    .from("organization_memberships")
+    .select("organization_id, role")
+    .eq("user_id", user.id)
+    .limit(1)
+    .single();
+
+  if (!membership || !["admin", "manager"].includes(membership.role)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const { workflowId, triggerContext } = await request.json();
   if (!workflowId) {
     return NextResponse.json({ error: "Missing workflowId" }, { status: 400 });
@@ -35,6 +46,10 @@ export async function POST(request: Request) {
     .single();
 
   if (templateErr || !template) {
+    return NextResponse.json({ error: "Workflow not found" }, { status: 404 });
+  }
+
+  if (template.organization_id !== membership.organization_id) {
     return NextResponse.json({ error: "Workflow not found" }, { status: 404 });
   }
 

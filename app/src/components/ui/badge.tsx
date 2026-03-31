@@ -63,7 +63,7 @@ export function Badge({
 }: BadgeProps) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[4px] font-mono text-[10.5px] font-semibold tracking-[0.04em] ${statusStyles[status]} ${className}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[var(--radius-sm)] font-mono text-[10.5px] font-semibold tracking-[0.04em] ${statusStyles[status]} ${className}`}
       aria-label={!children ? statusAriaLabels[status] : undefined}
       {...props}
     >

@@ -77,6 +77,8 @@ export function MobileNav() {
         <div className="relative flex-1">
           <button
             onClick={() => setMoreOpen(!moreOpen)}
+            aria-expanded={moreOpen}
+            aria-haspopup="true"
             className={`flex flex-col items-center justify-center gap-0.5 w-full h-14 transition-colors ${
               moreOpen ? "text-sidebar-text-active" : "text-sidebar-text"
             }`}
@@ -90,11 +92,12 @@ export function MobileNav() {
           {moreOpen && (
             <>
               <div className="fixed inset-0 z-30" onClick={() => setMoreOpen(false)} />
-              <div className="absolute bottom-full right-0 mb-2 w-40 bg-surface border border-line rounded-lg shadow-lg z-40 overflow-hidden">
+              <div role="menu" className="absolute bottom-full right-0 mb-2 w-40 bg-surface border border-line rounded-lg shadow-lg z-40 overflow-hidden animate-dropdown-in origin-bottom-right">
                 {moreItems.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
+                    role="menuitem"
                     onClick={() => setMoreOpen(false)}
                     className={`block px-4 py-2.5 text-sm transition-colors ${
                       pathname.startsWith(item.href)

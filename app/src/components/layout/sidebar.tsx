@@ -69,7 +69,7 @@ function ThemeToggle() {
     <button
       type="button"
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover transition-colors w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+      className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover transition-colors w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       aria-label="Toggle theme"
     >
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -100,12 +100,12 @@ export function Sidebar() {
             const isActive =
               item.href === "/"
                 ? pathname === "/"
-                : pathname.startsWith(item.href);
+                : pathname === item.href || pathname.startsWith(item.href + "/");
             return (
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   isActive
                     ? "relative text-sidebar-text-active bg-transparent sidebar-active"
                     : "text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover"
@@ -120,30 +120,32 @@ export function Sidebar() {
 
       {/* Bottom section */}
       <div className="px-3 pb-4 space-y-1">
+        <div className="border-t border-sidebar-divider mt-3 pt-3" />
         <NotificationBell />
 
         {/* Activity feed link */}
         <Link
           href="/activity"
-          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
-            pathname.startsWith("/activity")
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+            pathname === "/activity" || pathname.startsWith("/activity/")
               ? "relative text-sidebar-text-active bg-transparent sidebar-active"
               : "text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover"
           }`}
         >
-          <span className={pathname.startsWith("/activity") ? "opacity-100" : "opacity-40"}>{iconMap.chat}</span>
+          <span className={pathname === "/activity" || pathname.startsWith("/activity/") ? "opacity-100" : "opacity-40"}>{iconMap.chat}</span>
           Activity
         </Link>
 
+        <div className="border-t border-sidebar-divider mt-3 pt-3" />
         <Link
           href="/profile"
-          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
-            pathname.startsWith("/profile")
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+            pathname === "/profile" || pathname.startsWith("/profile/")
               ? "relative text-sidebar-text-active bg-transparent sidebar-active"
               : "text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover"
           }`}
         >
-          <span className={pathname.startsWith("/profile") ? "opacity-100" : "opacity-40"}>{iconMap.user}</span>
+          <span className={pathname === "/profile" || pathname.startsWith("/profile/") ? "opacity-100" : "opacity-40"}>{iconMap.user}</span>
           {userCtx?.fullName || "Profile"}
         </Link>
 

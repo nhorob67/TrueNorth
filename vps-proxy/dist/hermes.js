@@ -1,26 +1,24 @@
 import { execFile } from "child_process";
 import { readFile, writeFile, mkdir } from "fs/promises";
 import { join } from "path";
-const AGENTS_BASE = process.env.HERMES_AGENTS_BASE ?? "/opt/hermes-agents";
-const HERMES_PYTHON = process.env.HERMES_PYTHON ??
-    join(process.env.HOME ?? "/home/nick", ".hermes/hermes-agent/venv/bin/python");
+const HERMES_BIN = process.env.HERMES_BIN ??
+    join(process.env.HOME ?? "/home/nick", ".local/bin/hermes");
+const PROFILES_BASE = process.env.HERMES_PROFILES_BASE ??
+    join(process.env.HOME ?? "/home/nick", ".hermes/profiles");
 /**
- * Resolve the HERMES_HOME for a given profile name.
+ * Resolve the profile directory path.
  */
-export function agentHome(profile) {
-    // Sanitize: only allow alphanumeric, dash, underscore
+export function profileHome(profile) {
     const safe = profile.replace(/[^a-zA-Z0-9_-]/g, "");
-    return join(AGENTS_BASE, safe);
+    return join(PROFILES_BASE, safe);
 }
 /**
- * Run a one-shot hermes chat query for a profile.
+ * Run a one-shot hermes chat query using the -p flag.
  * Returns the agent's text response.
  */
-export function runOneShot(profile, prompt, timeoutMs = 120_000) {
-    const home = agentHome(profile);
+export function runOneShot(profile, prompt, timeoutMs = 300_000) {
     return new Promise((resolve, reject) => {
-        const proc = execFile(HERMES_PYTHON, ["-m", "hermes_cli.main", "chat", "-q", prompt], {
-            env: { ...process.env, HERMES_HOME: home },
+        const proc = execFile(HERMES_BIN, ["-p", profile, "chat", "-q", prompt], {
             timeout: timeoutMs,
             maxBuffer: 1024 * 1024 * 5, // 5MB
         }, (err, stdout, stderr) => {
@@ -28,24 +26,19 @@ export function runOneShot(profile, prompt, timeoutMs = 120_000) {
                 reject(new Error(`Hermes exited with error: ${err.message}\n${stderr}`));
                 return;
             }
-            // Extract session ID from output (line: "Session: <id>")
             const sessionMatch = stdout.match(/Session:\s+(\S+)/);
             const sessionId = sessionMatch?.[1] ?? null;
-            // Extract the agent response (between the hermes header and the session footer)
-            // The actual response is the main content
             resolve({ output: stdout, sessionId });
         });
-        // If the process is killed by timeout, reject
         proc.on("error", reject);
     });
 }
 /**
- * Read token usage from the agent's state.db for the most recent session.
+ * Read token usage from the profile's state.db for the most recent session.
  */
 export async function getLatestSessionTokens(profile) {
-    const home = agentHome(profile);
+    const home = profileHome(profile);
     const dbPath = join(home, "state.db");
-    // Use sqlite3 CLI since we don't want to add a native module dependency
     return new Promise((resolve) => {
         execFile("sqlite3", [
             dbPath,
@@ -70,14 +63,14 @@ export async function getLatestSessionTokens(profile) {
  * Write SOUL.md for a profile.
  */
 export async function writeSoul(profile, content) {
-    const home = agentHome(profile);
+    const home = profileHome(profile);
     await writeFile(join(home, "SOUL.md"), content, "utf-8");
 }
 /**
- * Write a memory entry to the agent's memories/MEMORY.md.
+ * Write a memory entry to the profile's memories/MEMORY.md.
  */
 export async function writeMemory(profile, content) {
-    const home = agentHome(profile);
+    const home = profileHome(profile);
     const memDir = join(home, "memories");
     await mkdir(memDir, { recursive: true });
     await writeFile(join(memDir, "MEMORY.md"), content, "utf-8");
@@ -86,14 +79,14 @@ export async function writeMemory(profile, content) {
  * Read SOUL.md for a profile.
  */
 export async function readSoul(profile) {
-    const home = agentHome(profile);
+    const home = profileHome(profile);
     return readFile(join(home, "SOUL.md"), "utf-8");
 }
 /**
- * Check if a profile home exists.
+ * Check if a profile exists.
  */
 export async function profileExists(profile) {
-    const home = agentHome(profile);
+    const home = profileHome(profile);
     try {
         await readFile(join(home, "config.yaml"), "utf-8");
         return true;

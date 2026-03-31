@@ -15,13 +15,13 @@ export class VpsClientError extends Error {
 }
 
 /**
- * POST to the Hermes VPS API.
+ * Call the Hermes VPS API.
  * Throws VpsClientError on non-2xx responses.
  */
 export async function callVps(
   path: string,
   body: unknown,
-  options?: { timeout?: number }
+  options?: { timeout?: number; method?: string }
 ): Promise<unknown> {
   const vpsUrl = process.env.HERMES_VPS_URL;
   const secret = process.env.HERMES_API_SECRET;
@@ -35,7 +35,7 @@ export async function callVps(
 
   try {
     const res = await fetch(`${vpsUrl}${path}`, {
-      method: "POST",
+      method: options?.method ?? "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${secret}`,

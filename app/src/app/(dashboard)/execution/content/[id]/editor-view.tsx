@@ -25,6 +25,8 @@ import type { SeoSuggestions } from "@/lib/ai/seo-suggestions";
 type MachineType = "newsletter" | "deep_content" | "short_form" | "live_event";
 type ContentLifecycle = "ideation" | "drafting" | "review" | "scheduled" | "published";
 
+type CascadeStatus = "pending" | "running" | "completed" | "skipped";
+
 interface ContentPiece {
   id: string;
   venture_id: string;
@@ -35,6 +37,8 @@ interface ContentPiece {
   body_json: Record<string, unknown>;
   owner_id: string;
   scheduled_at: string | null;
+  cascade_source_id: string | null;
+  cascade_status: CascadeStatus | null;
   created_at: string;
   updated_at: string;
 }
@@ -76,6 +80,64 @@ const stageOrder: ContentLifecycle[] = [
   "scheduled",
   "published",
 ];
+
+// ============================================================
+// Cascade Section
+// ============================================================
+
+function CascadeSection({
+  pieceId,
+  cascadeStatus,
+}: {
+  pieceId: string;
+  cascadeStatus: CascadeStatus | null;
+}) {
+  const [triggering, setTriggering] = useState(false);
+  const router = useRouter();
+
+  async function handleCascade() {
+    setTriggering(true);
+    try {
+      await fetch("/api/content/cascade", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contentPieceId: pieceId }),
+      });
+      router.refresh();
+    } catch {
+      // Best-effort
+    }
+    setTriggering(false);
+  }
+
+  return (
+    <div>
+      <label className="text-xs font-medium text-subtle">Content Cascade</label>
+      {!cascadeStatus && (
+        <Button
+          size="sm"
+          className="w-full mt-1"
+          onClick={handleCascade}
+          disabled={triggering}
+        >
+          {triggering ? "Starting..." : "Cascade This Piece"}
+        </Button>
+      )}
+      {(cascadeStatus === "pending" || cascadeStatus === "running") && (
+        <div className="flex items-center gap-2 mt-1">
+          <Badge status="yellow">Cascade Running</Badge>
+          <span className="text-xs text-subtle">Check Cockpit Inbox</span>
+        </div>
+      )}
+      {cascadeStatus === "completed" && (
+        <Badge status="green">Cascade Complete</Badge>
+      )}
+      {cascadeStatus === "skipped" && (
+        <Badge status="neutral">Cascade Skipped</Badge>
+      )}
+    </div>
+  );
+}
 
 // ============================================================
 // Status Stepper
@@ -450,6 +512,18 @@ export function ContentEditorView({
       } catch {
         // Auto-credit is best-effort; don't block the status change
       }
+
+      // Trigger Content Cascade for flagship pieces
+      if (
+        piece.machine_type === "newsletter" ||
+        piece.machine_type === "deep_content"
+      ) {
+        fetch("/api/content/cascade", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contentPieceId: piece.id }),
+        }).catch(() => {});
+      }
     }
 
     router.refresh();
@@ -621,6 +695,30 @@ export function ContentEditorView({
                   })}
                 </p>
               </div>
+
+              {/* Cascade Source Indicator */}
+              {piece.cascade_source_id && (
+                <div>
+                  <label className="text-xs font-medium text-subtle">
+                    Source
+                  </label>
+                  <a
+                    href={`/execution/content/${piece.cascade_source_id}`}
+                    className="block text-sm text-accent hover:text-accent-warm transition-colors mt-0.5"
+                  >
+                    Derived from source piece →
+                  </a>
+                </div>
+              )}
+
+              {/* Cascade Controls */}
+              {piece.lifecycle_status === "published" &&
+                (piece.machine_type === "newsletter" || piece.machine_type === "deep_content") && (
+                <CascadeSection
+                  pieceId={piece.id}
+                  cascadeStatus={piece.cascade_status}
+                />
+              )}
             </CardContent>
           </Card>
 

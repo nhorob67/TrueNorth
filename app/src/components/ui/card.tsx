@@ -10,10 +10,11 @@ export function Card({ borderColor, interactive = false, className = "", style, 
   return (
     <div
       ref={ref}
-      className={`bg-surface border border-line rounded-[10px] shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all duration-200 ${interactive ? "hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)] hover:translate-y-[-1px] cursor-pointer" : ""} ${className}`}
+      className={`bg-surface border border-line rounded-[var(--radius-lg)] shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all duration-200 ${interactive ? "hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)] hover:translate-y-[-1px] cursor-pointer card-glow" : ""} ${className}`}
       style={{
         ...style,
         ...(borderColor ? { borderLeftWidth: "4px", borderLeftColor: borderColor } : {}),
+        ...(interactive ? { transitionTimingFunction: 'var(--easing-spring)' } : {}),
       }}
       {...props}
     >

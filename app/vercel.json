@@ -18,6 +18,7 @@
     { "path": "/api/cron/vault-archaeologist", "schedule": "0 8 1 * *" },
     { "path": "/api/cron/agent-snapshots", "schedule": "0 0 * * 0" },
     { "path": "/api/cron/agent-drift", "schedule": "0 9 * * 1" },
-    { "path": "/api/cron/market-scout", "schedule": "0 9 * * 1" }
+    { "path": "/api/cron/market-scout", "schedule": "0 9 * * 1" },
+    { "path": "/api/cron/content-cascade", "schedule": "0 10 * * 0" }
   ]
 }

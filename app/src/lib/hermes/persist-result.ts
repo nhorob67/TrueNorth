@@ -109,6 +109,7 @@ function buildTitle(
     funnel_watchdog: "Funnel Health Report",
     community_pulse: "Community Pulse Report",
     content_copilot: "Content Draft",
+    content_cascade: "Content Cascade",
     launch_assistant: "Launch Status",
     market_scout: "Market Scout Report",
   };
@@ -160,6 +161,13 @@ function extractSummary(
     if (total !== undefined) return `${total} ideas resurfaced`;
   }
 
+  if (category === "content_cascade") {
+    const variants = parsed.variants as Array<Record<string, unknown>> | undefined;
+    if (variants?.length) {
+      return `${variants.length} variants generated from "${(parsed.source_title as string)?.slice(0, 80) ?? "source piece"}"`;
+    }
+  }
+
   if (category === "agenda_builder") {
     return (parsed.ai_summary as string)?.slice(0, 200) ?? "Agenda prepared";
   }
@@ -188,6 +196,11 @@ function inferPriority(
     const urgency = parsed.urgency as string | undefined;
     if (urgency === "critical") return "urgent";
     if (urgency === "high") return "high";
+  }
+
+  if (category === "content_cascade") {
+    const oneAsk = parsed.one_ask_summary as Record<string, unknown> | undefined;
+    if (oneAsk && (oneAsk.conflicts_found as number) > 0) return "high";
   }
 
   return "normal";

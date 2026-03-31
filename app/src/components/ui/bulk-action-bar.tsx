@@ -28,7 +28,7 @@ export function BulkActionBar({
   const allSelected = selectedIds.length === totalCount;
 
   return (
-    <div className="sticky top-0 z-20 flex items-center gap-3 px-4 py-2.5 bg-accent/5 border border-accent/20 rounded-[10px] mb-4">
+    <div className="sticky top-0 z-20 flex items-center gap-3 px-4 py-2.5 bg-accent/5 border border-accent/20 rounded-[var(--radius-lg)] mb-4">
       <span className="text-sm font-medium text-ink">
         {selectedIds.length} selected
       </span>

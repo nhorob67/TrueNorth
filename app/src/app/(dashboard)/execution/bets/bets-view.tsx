@@ -197,6 +197,23 @@ function BetCard({ bet }: { bet: Bet }) {
               ))}
           </div>
         )}
+
+        {(bet.proof_by_week6 || bet.kill_criteria) && (
+          <div className="mt-3 pt-3 border-t border-line space-y-1.5">
+            {bet.proof_by_week6 && (
+              <div className="flex items-start gap-2 text-xs">
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-semantic-ochre shrink-0">Proof</span>
+                <span className="text-subtle line-clamp-2">{bet.proof_by_week6}</span>
+              </div>
+            )}
+            {bet.kill_criteria && (
+              <div className="flex items-start gap-2 text-xs">
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-semantic-brick shrink-0">Kill</span>
+                <span className="text-subtle line-clamp-2">{bet.kill_criteria}</span>
+              </div>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -249,7 +266,7 @@ export function BetsWarRoom({ bets }: { bets: Bet[] }) {
           )}
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-list">
         {bets.map((bet) => (
           <a key={bet.id} href={`/execution/bets/${bet.id}`}>
             <BetCard bet={bet} />

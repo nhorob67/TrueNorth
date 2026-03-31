@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
+import { useSwipeToDismiss } from "@/hooks/use-swipe-dismiss";
 
 interface SlideOverProps {
   open: boolean;
@@ -18,64 +20,46 @@ const widthMap = {
 
 export function SlideOver({ open, onClose, title, children, width = "md" }: SlideOverProps) {
   const panelRef = useRef<HTMLDivElement>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const [visible, setVisible] = useState(false);
+  const [animating, setAnimating] = useState(false);
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-        return;
-      }
+  const entering = open && !animating;
+  const exiting = !open && visible;
 
-      if (e.key === "Tab" && panelRef.current) {
-        const focusable = panelRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        if (focusable.length === 0) return;
+  useFocusTrap(panelRef, visible && entering, onClose);
 
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
+  const { offset, swiping } = useSwipeToDismiss(panelRef, onClose, {
+    threshold: 100,
+    enabled: visible && !animating,
+  });
 
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    },
-    [onClose]
-  );
-
+  // Handle open/close with animation
   useEffect(() => {
     if (open) {
-      previousFocusRef.current = document.activeElement as HTMLElement;
-      document.addEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "hidden";
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setAnimating(true);
+      setVisible(true);
 
       requestAnimationFrame(() => {
-        const focusable = panelRef.current?.querySelector<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        focusable?.focus();
+        requestAnimationFrame(() => setAnimating(false));
       });
+    } else if (visible) {
+      setAnimating(true);
+      const timeout = setTimeout(() => {
+        setVisible(false);
+        setAnimating(false);
+      }, 150);
+      return () => clearTimeout(timeout);
     }
+  }, [open, visible]);
 
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "";
-      previousFocusRef.current?.focus();
-    };
-  }, [open, handleKeyDown]);
-
-  if (!open) return null;
+  if (!visible) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-ink/50 transition-opacity duration-200"
+        className={`fixed inset-0 bg-ink/50 transition-opacity duration-200 ${entering ? "opacity-100 animate-fade-in" : "opacity-0"}`}
         onClick={onClose}
         aria-hidden="true"
       />
@@ -86,14 +70,19 @@ export function SlideOver({ open, onClose, title, children, width = "md" }: Slid
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`relative z-50 w-full ${widthMap[width]} bg-surface border-l border-line shadow-xl h-full flex flex-col animate-slide-in-right`}
+        className={`relative z-50 w-full ${widthMap[width]} bg-surface border-l border-line shadow-xl h-full flex flex-col ${entering ? "animate-slide-in-right" : ""} ${exiting ? "animate-slide-out-right" : ""}`}
+        style={{
+          transform: offset > 0 ? `translateX(${offset}px)` : undefined,
+          transition: swiping ? "none" : undefined,
+          touchAction: "pan-y",
+        }}
       >
         {title && (
           <div className="flex items-center justify-between px-6 py-4 border-b border-line">
             <h2 className="text-lg font-semibold font-display text-ink">{title}</h2>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-subtle hover:text-ink hover:bg-hovered transition-colors"
+              className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-subtle hover:text-ink hover:bg-hovered transition-colors"
               aria-label="Close panel"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">

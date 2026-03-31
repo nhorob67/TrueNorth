@@ -65,6 +65,17 @@
   --color-sage: #8B9E82;
   --color-sage-text: #5E7355;
 
+  /* Placeholder (WCAG 4.5:1 on well backgrounds) */
+  --color-placeholder: #7A6E62;
+
+  /* Focus ring (unified token) */
+  --color-ring: rgba(183,78,40,0.45);
+
+  /* Border-radius scale */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+
   /* Typography */
   --font-display: "Bricolage Grotesque", ui-sans-serif, sans-serif;
   --font-sans: "Sora", ui-sans-serif, system-ui, sans-serif;
@@ -133,6 +144,11 @@
   --color-semantic-ochre-text: #E0C35A;
   --color-semantic-brick: #C05A48;
 
+  /* Placeholder (WCAG 4.5:1 on dark well backgrounds) */
+  --color-placeholder: #8A8078;
+
+  /* Focus ring */
+  --color-ring: rgba(204,94,52,0.45);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -539,6 +555,117 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .stagger-list > * {
     animation: none;
+  }
+}
+
+/* ============================================================
+   SlideOver Exit Animation
+   ============================================================ */
+
+@keyframes slide-out-right {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+
+.animate-slide-out-right {
+  animation: slide-out-right 0.15s var(--easing-in) forwards;
+}
+
+/* ============================================================
+   Backdrop Fade-In
+   ============================================================ */
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s var(--easing-out);
+}
+
+/* ============================================================
+   Skeleton Shimmer
+   ============================================================ */
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-line) 25%,
+    color-mix(in srgb, var(--color-line) 60%, var(--color-surface)) 50%,
+    var(--color-line) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* ============================================================
+   Dropdown Entrance
+   ============================================================ */
+
+@keyframes scale-fade-in {
+  from { opacity: 0; transform: scale(0.95) translateY(4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.animate-dropdown-in {
+  animation: scale-fade-in 0.15s var(--easing-out);
+}
+
+/* ============================================================
+   Interactive Card Glow
+   ============================================================ */
+
+.card-glow {
+  transition: box-shadow var(--duration-normal) var(--easing-default);
+}
+
+.card-glow:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06), 0 0 0 1px color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+/* ============================================================
+   Ambient Section Backgrounds
+   ============================================================ */
+
+.section-strategy { background: linear-gradient(135deg, color-mix(in srgb, var(--color-brass) 3%, var(--color-canvas)), var(--color-canvas)); }
+.section-execution { background: linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 2%, var(--color-canvas)), var(--color-canvas)); }
+.section-reviews { background: linear-gradient(135deg, color-mix(in srgb, var(--color-sage) 3%, var(--color-canvas)), var(--color-canvas)); }
+
+/* ============================================================
+   Spring Easing
+   ============================================================ */
+
+@theme inline {
+  --easing-spring: linear(
+    0, 0.006, 0.025, 0.056, 0.1, 0.157, 0.225, 0.304,
+    0.393, 0.49, 0.594, 0.7, 0.806, 0.908, 1.004,
+    1.09, 1.166, 1.23, 1.281, 1.319, 1.344, 1.356,
+    1.356, 1.346, 1.326, 1.299, 1.267, 1.231, 1.194,
+    1.158, 1.122, 1.09, 1.061, 1.036, 1.015, 0.999,
+    0.987, 0.979, 0.975, 0.974, 0.976, 0.979, 0.984,
+    0.989, 0.995, 0.999, 1.002, 1.003, 1.003, 1.001, 1
+  );
+}
+
+/* ============================================================
+   Reduced Motion — New Animations
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-slide-out-right,
+  .animate-fade-in,
+  .animate-shimmer,
+  .animate-dropdown-in {
+    animation: none;
+  }
+  .card-glow:hover {
+    box-shadow: none;
   }
 }
 

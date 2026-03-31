@@ -1,0 +1,87 @@
+/**
+ * Syncs Hermes's native cron jobs (~/.hermes/cron/jobs.json) to TrueNorth.
+ *
+ * Hermes manages its own scheduler independently — jobs are created via Discord
+ * or the CLI. This module reads that file and pushes configs to TrueNorth's
+ * /api/hermes/cron/sync so they appear in the admin UI.
+ */
+import { readFile } from "fs/promises";
+import { join } from "path";
+const HERMES_CRON_PATH = process.env.HERMES_CRON_PATH ??
+    join(process.env.HOME ?? "/home/nick", ".hermes/cron/jobs.json");
+const TRUENORTH_URL = process.env.TRUENORTH_URL ?? "";
+const HERMES_API_SECRET = process.env.HERMES_API_SECRET ?? "";
+const DEFAULT_ORG_ID = process.env.DEFAULT_ORG_ID ?? "";
+// How often to re-sync (ms). Hermes can add/edit jobs at any time via Discord.
+const SYNC_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+async function readHermesNativeJobs() {
+    try {
+        const raw = await readFile(HERMES_CRON_PATH, "utf-8");
+        const data = JSON.parse(raw);
+        return data.jobs ?? [];
+    }
+    catch {
+        return [];
+    }
+}
+export async function syncHermesNativeCrons() {
+    if (!TRUENORTH_URL || !HERMES_API_SECRET || !DEFAULT_ORG_ID) {
+        if (!DEFAULT_ORG_ID) {
+            console.warn("[hermes-sync] DEFAULT_ORG_ID not set — skipping native cron sync");
+        }
+        return 0;
+    }
+    const nativeJobs = await readHermesNativeJobs();
+    if (nativeJobs.length === 0)
+        return 0;
+    const mapped = nativeJobs.map((job) => ({
+        id: job.id,
+        agent_profile: job.skill || job.skills?.[0] || "unknown",
+        name: job.name,
+        prompt: job.prompt || null,
+        schedule: job.schedule?.expr ?? job.schedule_display,
+        delivery_target: job.deliver === "origin" ? "discord" : job.deliver,
+        enabled: job.enabled && job.state !== "paused",
+    }));
+    try {
+        const res = await fetch(`${TRUENORTH_URL}/api/hermes/cron/sync`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${HERMES_API_SECRET}`,
+            },
+            body: JSON.stringify({
+                type: "config",
+                orgId: DEFAULT_ORG_ID,
+                data: { jobs: mapped },
+            }),
+        });
+        if (!res.ok) {
+            const body = await res.text().catch(() => "");
+            console.error(`[hermes-sync] Sync failed (${res.status}): ${body}`);
+            return 0;
+        }
+        const result = await res.json();
+        console.log(`[hermes-sync] Synced ${result.synced ?? mapped.length} native Hermes cron job(s) to TrueNorth`);
+        return result.synced ?? mapped.length;
+    }
+    catch (err) {
+        console.error("[hermes-sync] Sync error:", err instanceof Error ? err.message : err);
+        return 0;
+    }
+}
+let intervalHandle = null;
+export function startPeriodicSync() {
+    // Sync immediately on startup
+    syncHermesNativeCrons().catch((err) => console.error("[hermes-sync] Initial sync failed:", err instanceof Error ? err.message : err));
+    // Re-sync periodically to pick up changes made via Discord/CLI
+    intervalHandle = setInterval(() => {
+        syncHermesNativeCrons().catch((err) => console.error("[hermes-sync] Periodic sync failed:", err instanceof Error ? err.message : err));
+    }, SYNC_INTERVAL_MS);
+}
+export function stopPeriodicSync() {
+    if (intervalHandle) {
+        clearInterval(intervalHandle);
+        intervalHandle = null;
+    }
+}

@@ -137,6 +137,7 @@ TrueNorth uses **Hermes Agent v0.6.0** on a VPS (87.99.128.11) as the AI agent r
 | Content Copilot | production | `content-copilot` | legacy |
 | Launch Assistant | execution | `launch-assistant` | legacy |
 | Market Scout | sensing (external) | `market-scout` | hermes_enabled |
+| Content Cascade | production | `content-cascade` | hermes_enabled |
 
 ### MCP Servers (9 servers, 44 tools)
 | Server | Tools | Data Source |

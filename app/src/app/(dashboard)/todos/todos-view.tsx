@@ -452,6 +452,11 @@ export function TodosView({ todos: initialTodos, orgId }: { todos: TodoWithCount
   const activeTodos = filtered
     .filter((t) => !t.completed)
     .sort((a, b) => {
+      // overdue items first
+      const now = new Date();
+      const aOverdue = a.due_date && new Date(a.due_date) < now && !a.completed ? 1 : 0;
+      const bOverdue = b.due_date && new Date(b.due_date) < now && !b.completed ? 1 : 0;
+      if (aOverdue !== bOverdue) return bOverdue - aOverdue;
       // high priority first
       const pDiff = (priorityOrder[b.priority] ?? 0) - (priorityOrder[a.priority] ?? 0);
       if (pDiff !== 0) return pDiff;

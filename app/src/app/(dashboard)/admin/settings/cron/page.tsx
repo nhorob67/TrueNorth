@@ -39,6 +39,7 @@ export default async function CronSettingsPage() {
     { data: ventures },
     { data: vercelExecs },
     { data: hermesCrons },
+    { data: agentProfiles },
   ] = await Promise.all([
     supabase
       .from("cron_jobs")
@@ -61,6 +62,12 @@ export default async function CronSettingsPage() {
       .select("*")
       .eq("organization_id", orgId)
       .order("created_at", { ascending: false }),
+    // Agents with Hermes profiles — for cron job creation dropdown
+    supabase
+      .from("agents")
+      .select("id, name, hermes_profile_name")
+      .eq("organization_id", orgId)
+      .not("hermes_profile_name", "is", null),
   ]);
 
   // Fetch executions for Discord cron jobs
@@ -90,6 +97,8 @@ export default async function CronSettingsPage() {
       vercelExecs={vercelExecs ?? []}
       hermesCrons={hermesCrons ?? []}
       hermesExecs={hermesExecs ?? []}
+      orgId={orgId}
+      agentProfiles={(agentProfiles ?? []) as Array<{ id: string; name: string; hermes_profile_name: string }>}
     >
       <CronView
         cronJobs={cronJobs ?? []}

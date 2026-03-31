@@ -66,11 +66,16 @@ const DISCOURSE_METRICS = [
 
 function generateWebhookToken(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let token = "";
-  for (let i = 0; i < 48; i++) {
-    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  const cryptoApi = globalThis.crypto;
+
+  if (!cryptoApi?.getRandomValues) {
+    throw new Error("Secure random token generation is unavailable in this browser.");
   }
-  return token;
+
+  const bytes = new Uint8Array(48);
+  cryptoApi.getRandomValues(bytes);
+
+  return Array.from(bytes, (byte) => chars[byte % chars.length]).join("");
 }
 
 // ============================================================

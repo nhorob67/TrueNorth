@@ -6,6 +6,9 @@ import { callVps, isVpsConfigured } from "@/lib/hermes/vps-client";
 
 export const dynamic = "force-dynamic";
 
+const TO_VPS_SYNC_TYPES = new Set(["soul", "memory"]);
+const FROM_VPS_SYNC_TYPES = new Set(["memory", "session_end", "skill_learned"]);
+
 /**
  * POST /api/agents/sync
  *
@@ -57,6 +60,36 @@ async function handleToVps(request: Request, body: Record<string, unknown>) {
     );
   }
 
+  if (!TO_VPS_SYNC_TYPES.has(type)) {
+    return NextResponse.json({ error: "Invalid sync type" }, { status: 400 });
+  }
+
+  const { data: membership } = await supabase
+    .from("organization_memberships")
+    .select("organization_id, role")
+    .eq("user_id", user.id)
+    .limit(1)
+    .single();
+
+  if (!membership || membership.role !== "admin") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { data: agent } = await supabase
+    .from("agents")
+    .select("id, organization_id, hermes_profile_name")
+    .eq("id", agentId)
+    .eq("organization_id", membership.organization_id)
+    .single();
+
+  if (!agent) {
+    return NextResponse.json({ error: "Agent not found" }, { status: 404 });
+  }
+
+  if (agent.hermes_profile_name !== data.profile_name) {
+    return NextResponse.json({ error: "Agent profile mismatch" }, { status: 400 });
+  }
+
   try {
     const result = await callVps(`/api/sync-${type}`, data);
     return NextResponse.json(result);
@@ -84,6 +117,10 @@ async function handleFromVps(request: Request, body: Record<string, unknown>) {
       { error: "Missing required fields: type, profile_name" },
       { status: 400 }
     );
+  }
+
+  if (!FROM_VPS_SYNC_TYPES.has(type)) {
+    return NextResponse.json({ error: "Invalid sync type" }, { status: 400 });
   }
 
   // Look up agent by profile name

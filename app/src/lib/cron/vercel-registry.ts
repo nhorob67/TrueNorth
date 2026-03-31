@@ -145,6 +145,13 @@ export const VERCEL_CRONS: VercelCronDefinition[] = [
     description: "AI agent: weekly competitor monitoring and market intelligence",
     isAiAgent: true,
   },
+  {
+    path: "/api/cron/content-cascade",
+    schedule: "0 10 * * 0",
+    name: "Content Cascade",
+    description: "AI agent: weekly catch-up cascade for published flagship pieces not yet repurposed",
+    isAiAgent: true,
+  },
 ];
 
 /**

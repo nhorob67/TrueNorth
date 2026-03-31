@@ -27,6 +27,7 @@ export default async function HomePage() {
     { data: recentActivity, error: e6 },
     { data: lastMeeting, error: e7 },
     { data: upcomingDeadlines, error: e8 },
+    { data: recentKpiEntries, error: e9 },
   ] = await Promise.all([
     // All active KPIs for scoreboard snapshot
     supabase
@@ -89,10 +90,33 @@ export default async function HomePage() {
       .lte("due_date", weekFromNow)
       .order("due_date")
       .limit(10),
+    // Recent KPI entries for sparklines (last 7 per KPI)
+    supabase
+      .from("kpi_entries")
+      .select("kpi_id, value, recorded_at")
+      .order("recorded_at", { ascending: false })
+      .limit(70),
   ]);
 
-  const firstError = e1 || e2 || e3 || e4 || e5 || e6 || e7 || e8;
+  const firstError = e1 || e2 || e3 || e4 || e5 || e6 || e7 || e8 || e9;
   if (firstError) throw firstError;
+
+  // Group recent KPI entries by kpi_id (max 7 per KPI, ascending order for sparkline)
+  const kpiRecentValues: Record<string, number[]> = {};
+  if (recentKpiEntries) {
+    for (const entry of recentKpiEntries as Array<{ kpi_id: string; value: number; recorded_at: string }>) {
+      if (!kpiRecentValues[entry.kpi_id]) {
+        kpiRecentValues[entry.kpi_id] = [];
+      }
+      if (kpiRecentValues[entry.kpi_id].length < 7) {
+        kpiRecentValues[entry.kpi_id].push(entry.value);
+      }
+    }
+    // Reverse each array so values are in chronological order (oldest first)
+    for (const id of Object.keys(kpiRecentValues)) {
+      kpiRecentValues[id].reverse();
+    }
+  }
 
   // Compute next sync date from last meeting
   let nextSyncLabel: string | null = null;
@@ -105,7 +129,10 @@ export default async function HomePage() {
 
   return (
     <HomeView
-      kpis={kpis ?? []}
+      kpis={(kpis ?? []).map((k) => ({
+        ...k,
+        recent_values: kpiRecentValues[k.id] ?? [],
+      }))}
       atRiskBets={atRiskBets ?? []}
       missedCommitments={missedCommitments ?? []}
       myTodos={myTodos ?? []}

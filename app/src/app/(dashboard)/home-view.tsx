@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/client";
 import { isOverdue, timeAgo, formatKpiValue, PRIORITY_COLOR, healthBadgeStatus } from "@/lib/format";
 import { KpiIconBadge } from "@/lib/kpi-icons";
+import { MiniSparkline } from "@/components/ui/sparkline";
 
 interface HomeProps {
   kpis: Array<{
@@ -19,6 +20,7 @@ interface HomeProps {
     health_status: string;
     icon: string | null;
     display_order: number;
+    recent_values: number[];
   }>;
   atRiskBets: Array<{
     id: string;
@@ -103,7 +105,7 @@ export function HomeView({
           Today Overview
         </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4 stagger-list">
           {kpis.map((kpi) => (
             <Link key={kpi.id} href={`/strategy/scoreboard/${kpi.id}`}>
               <Card className="hover:border-accent/30 transition-colors cursor-pointer">
@@ -118,18 +120,21 @@ export function HomeView({
                   <div className="text-lg font-semibold font-mono">
                     {formatKpiValue(kpi.current_value, kpi.unit)}
                   </div>
-                  {kpi.target != null && (
-                    <div className="text-xs text-subtle">
-                      target: {formatKpiValue(kpi.target, kpi.unit)}
-                    </div>
-                  )}
+                  <div className="flex items-center justify-between">
+                    {kpi.target != null && (
+                      <div className="text-xs text-subtle">
+                        target: {formatKpiValue(kpi.target, kpi.unit)}
+                      </div>
+                    )}
+                    <MiniSparkline data={kpi.recent_values || []} status={kpi.health_status as "green" | "yellow" | "red"} width={60} height={24} />
+                  </div>
                 </CardContent>
               </Card>
             </Link>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 stagger-list">
           {atRiskBets.length > 0 && (
             <Card borderColor="var(--color-semantic-brick)">
               <CardHeader>
@@ -181,7 +186,7 @@ export function HomeView({
           My Work
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 stagger-list">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -277,7 +282,7 @@ export function HomeView({
       </section>
 
       <section>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 stagger-list">
           <div>
             <h2 className="font-mono text-[10px] font-semibold uppercase tracking-[0.10em] text-subtle mb-3">
               Activity

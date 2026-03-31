@@ -131,7 +131,7 @@ export function TodoSlideOver({ open, onClose }: TodoSlideOverProps) {
                 placeholder="Add a todo..."
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                className="flex-1 bg-well text-sm rounded-lg px-3 py-2 text-ink placeholder:text-faded outline-none focus:ring-2 focus:ring-accent/30"
+                className="flex-1 bg-well text-sm rounded-lg px-3 py-2 text-ink placeholder:text-placeholder outline-none focus:ring-2 focus:ring-accent/30"
               />
               <button
                 type="submit"

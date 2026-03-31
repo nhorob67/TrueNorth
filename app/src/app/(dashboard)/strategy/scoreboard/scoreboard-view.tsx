@@ -28,6 +28,7 @@ import { AddToTodoButton } from "@/components/add-to-todo-button";
 import { KpiLinkageMap } from "@/components/kpi-linkage-map";
 import { KPI_TEMPLATES } from "@/lib/kpi-templates";
 import { KpiIconBadge } from "@/lib/kpi-icons";
+import { MiniSparkline } from "@/components/ui/sparkline";
 
 interface KpiEntry {
   value: number;
@@ -155,30 +156,9 @@ function Sparkline({ entries }: { entries: KpiEntry[] }) {
     .slice(-8);
 
   const values = sorted.map((e) => e.value);
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const range = max - min || 1;
-
-  const width = 80;
-  const height = 24;
-  const points = values
-    .map((v, i) => {
-      const x = (i / (values.length - 1)) * width;
-      const y = height - ((v - min) / range) * height;
-      return `${x},${y}`;
-    })
-    .join(" ");
 
   return (
-    <svg width={width} height={height} className="inline-block">
-      <polyline
-        points={points}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        className="text-subtle"
-      />
-    </svg>
+    <MiniSparkline data={values} width={80} height={24} color="currentColor" className="inline-block text-subtle" />
   );
 }
 

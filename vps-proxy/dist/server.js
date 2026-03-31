@@ -1,8 +1,54 @@
 import Fastify from "fastify";
 import { verifySecret } from "./auth.js";
 import { runOneShot, getLatestSessionTokens, writeSoul, writeMemory, readSoul, profileExists, } from "./hermes.js";
+import { loadFromDisk, registerJob, updateJob, removeJob, listJobs, } from "./cron-manager.js";
+import { startPeriodicSync } from "./hermes-cron-sync.js";
 const PORT = parseInt(process.env.PROXY_PORT ?? "3100", 10);
 const HOST = process.env.PROXY_HOST ?? "0.0.0.0";
+const TRUENORTH_URL = process.env.TRUENORTH_URL ?? "";
+/**
+ * Fire-and-forget POST to TrueNorth's /api/hermes/token-usage.
+ * Failures are logged but never block the trigger response.
+ */
+async function syncTokenUsage(profile, orgId, sessionId, tokens) {
+    if (!TRUENORTH_URL || !tokens)
+        return;
+    const secret = process.env.HERMES_API_SECRET;
+    if (!secret)
+        return;
+    try {
+        const res = await fetch(`${TRUENORTH_URL}/api/hermes/token-usage`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${secret}`,
+            },
+            body: JSON.stringify({
+                orgId,
+                hermesProfile: profile,
+                sessionId: sessionId ?? tokens.id ?? null,
+                model: tokens.model ?? "unknown",
+                inputTokens: tokens.input_tokens ?? 0,
+                outputTokens: tokens.output_tokens ?? 0,
+                cacheReadTokens: tokens.cache_read_tokens ?? 0,
+                estimatedCost: tokens.estimated_cost_usd ?? 0,
+                metadata: {
+                    reasoning_tokens: tokens.reasoning_tokens,
+                    cost_status: tokens.cost_status,
+                    started_at: tokens.started_at,
+                    ended_at: tokens.ended_at,
+                },
+            }),
+        });
+        if (!res.ok) {
+            const body = await res.text().catch(() => "");
+            console.error(`Token usage sync failed (${res.status}): ${body}`);
+        }
+    }
+    catch (err) {
+        console.error("Token usage sync error:", err instanceof Error ? err.message : err);
+    }
+}
 const app = Fastify({ logger: true });
 // ── Health check (no auth needed) ────────────────────────────────────
 app.get("/health", async () => ({ status: "ok", service: "truenorth-vps-proxy" }));
@@ -45,6 +91,8 @@ app.post("/api/trigger", async (request, reply) => {
         const result = await runOneShot(profile, prompt);
         // Fetch token usage from the session
         const tokens = await getLatestSessionTokens(profile);
+        // Fire-and-forget: sync token usage to TrueNorth
+        syncTokenUsage(profile, orgId, result.sessionId, tokens).catch(() => { });
         return {
             status: "completed",
             profile,
@@ -105,11 +153,68 @@ app.get("/api/profile/:name", async (request, reply) => {
         latestSession: tokens,
     };
 });
-// ── Start ────────────────────────────────────────────────────────────
-app.listen({ port: PORT, host: HOST }, (err) => {
-    if (err) {
-        app.log.error(err);
-        process.exit(1);
+// ── POST /api/cron/register ──────────────────────────────────────────
+// Called by TrueNorth to register a new cron job on the VPS.
+app.post("/api/cron/register", async (request, reply) => {
+    const config = request.body;
+    if (!config.id || !config.profile || !config.schedule || !config.orgId) {
+        return reply.code(400).send({ error: "Missing required fields: id, profile, schedule, orgId" });
     }
-    app.log.info(`VPS proxy listening on ${HOST}:${PORT}`);
+    try {
+        registerJob(config);
+        return { success: true, jobId: config.id };
+    }
+    catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to register job";
+        return reply.code(400).send({ error: message });
+    }
 });
+// ── PUT /api/cron/update ────────────────────────────────────────────
+// Called by TrueNorth to update an existing cron job.
+app.put("/api/cron/update", async (request, reply) => {
+    const { id, ...updates } = request.body;
+    if (!id) {
+        return reply.code(400).send({ error: "Missing job id" });
+    }
+    try {
+        updateJob(id, updates);
+        return { success: true, jobId: id };
+    }
+    catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to update job";
+        return reply.code(400).send({ error: message });
+    }
+});
+// ── DELETE /api/cron/delete ─────────────────────────────────────────
+// Called by TrueNorth to remove a cron job from the VPS.
+app.delete("/api/cron/delete", async (request, reply) => {
+    const { id } = request.body;
+    if (!id) {
+        return reply.code(400).send({ error: "Missing job id" });
+    }
+    removeJob(id);
+    return { success: true };
+});
+// ── GET /api/cron/list ──────────────────────────────────────────────
+// Diagnostic: list all registered cron jobs.
+app.get("/api/cron/list", async () => {
+    return { jobs: listJobs() };
+});
+// ── Start ────────────────────────────────────────────────────────────
+async function start() {
+    // Restore cron jobs from disk before accepting requests
+    const restored = await loadFromDisk();
+    if (restored > 0) {
+        app.log.info(`Restored ${restored} cron job(s) from disk`);
+    }
+    // Sync Hermes native cron jobs to TrueNorth on startup + every 5 min
+    startPeriodicSync();
+    app.listen({ port: PORT, host: HOST }, (err) => {
+        if (err) {
+            app.log.error(err);
+            process.exit(1);
+        }
+        app.log.info(`VPS proxy listening on ${HOST}:${PORT}`);
+    });
+}
+start();

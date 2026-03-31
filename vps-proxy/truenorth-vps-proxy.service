@@ -1,0 +1,22 @@
+[Unit]
+Description=TrueNorth VPS Proxy (Hermes agent gateway + cron scheduler)
+After=network.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=nick
+WorkingDirectory=/opt/truenorth-vps-proxy
+EnvironmentFile=/opt/truenorth-vps-proxy/.env
+ExecStart=/usr/bin/node /opt/truenorth-vps-proxy/dist/server.js
+Restart=on-failure
+RestartSec=5
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=vps-proxy
+
+[Install]
+WantedBy=multi-user.target

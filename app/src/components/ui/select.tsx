@@ -20,12 +20,14 @@ export function Select({ label, error, className = "", id, children, ref, ...pro
       <select
         ref={ref}
         id={id}
-        className={`block w-full rounded-[8px] border border-line bg-well px-3 py-2 text-sm text-ink focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-accent-glow disabled:cursor-not-allowed disabled:opacity-50 ${error ? "border-semantic-brick focus:border-semantic-brick focus:ring-semantic-brick/20" : ""} ${className}`}
+        aria-invalid={!!error || undefined}
+        aria-describedby={error && id ? `${id}-error` : undefined}
+        className={`block w-full rounded-[var(--radius-md)] border border-line bg-well px-3 py-2.5 min-h-[44px] text-sm text-ink focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 ${error ? "border-semantic-brick focus:border-semantic-brick focus:ring-semantic-brick/20" : ""} ${className}`}
         {...props}
       >
         {children}
       </select>
-      {error && <p className="text-xs text-semantic-brick">{error}</p>}
+      {error && <p id={id ? `${id}-error` : undefined} className="text-xs text-semantic-brick">{error}</p>}
     </div>
   );
 }

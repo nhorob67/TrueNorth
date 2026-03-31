@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useOptionalUserContext } from "@/hooks/use-user-context";
 import { getEntityHref } from "@/lib/format";
 import { useRecentItems } from "@/hooks/use-recent-items";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
 
 interface CommandPaletteProps {
   open: boolean;
@@ -69,6 +70,8 @@ const NAVIGATE_ITEMS: NavItem[] = [
   { label: "Reviews — Pulse", href: "/reviews/pulse", keywords: ["check-in", "streak", "weekly"] },
   { label: "Library — Processes", href: "/library/processes", keywords: ["workflows", "automation"] },
   { label: "Library — Artifacts", href: "/library/artifacts", keywords: ["documents", "staleness"] },
+  { label: "Library — Agents", href: "/library/agents", keywords: ["catalog", "skills", "hermes", "ai"] },
+  { label: "Library — Knowledge", href: "/library/knowledge", keywords: ["search", "sources", "documents", "retrieval"] },
   { label: "Activity", href: "/activity", keywords: ["comments", "feed"] },
   { label: "Todos", href: "/todos", keywords: ["tasks"] },
   { label: "Profile", href: "/profile", keywords: ["role", "settings", "account"] },
@@ -94,6 +97,7 @@ export function CommandPalette({ open, onClose, onOpenQuickTodo, onOpenQuickIdea
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const abortRef = useRef<AbortController | null>(null);
   const { theme, setTheme } = useTheme();
@@ -101,6 +105,8 @@ export function CommandPalette({ open, onClose, onOpenQuickTodo, onOpenQuickIdea
   const { recentItems, addRecentItem, clearRecentItems } = useRecentItems();
 
   const isAdmin = ctx?.orgRole === "admin";
+
+  useFocusTrap(panelRef, open, onClose, inputRef);
 
   const createItems: CreateItem[] = useMemo(
     () => [
@@ -259,7 +265,6 @@ export function CommandPalette({ open, onClose, onOpenQuickTodo, onOpenQuickIdea
       setQuery("");
       setResults([]);
       setSelectedIndex(0);
-      requestAnimationFrame(() => inputRef.current?.focus());
     }
   }, [open]);
 
@@ -279,10 +284,20 @@ export function CommandPalette({ open, onClose, onOpenQuickTodo, onOpenQuickIdea
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setSelectedIndex((i) => Math.min(i + 1, allItems.length - 1));
+      const newIdx = Math.min(selectedIndex + 1, allItems.length - 1);
+      setSelectedIndex(newIdx);
+      requestAnimationFrame(() => {
+        panelRef.current?.querySelector(`[data-index="${newIdx}"]`)
+          ?.scrollIntoView({ block: "nearest" });
+      });
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setSelectedIndex((i) => Math.max(i - 1, 0));
+      const newIdx = Math.max(selectedIndex - 1, 0);
+      setSelectedIndex(newIdx);
+      requestAnimationFrame(() => {
+        panelRef.current?.querySelector(`[data-index="${newIdx}"]`)
+          ?.scrollIntoView({ block: "nearest" });
+      });
     } else if (e.key === "Enter" && allItems[selectedIndex]) {
       e.preventDefault();
       execute(allItems[selectedIndex]);
@@ -326,7 +341,7 @@ export function CommandPalette({ open, onClose, onOpenQuickTodo, onOpenQuickIdea
         onClick={onClose}
         aria-hidden="true"
       />
-      <div className="relative z-50 w-full max-w-lg mx-4 bg-surface border border-line rounded-xl shadow-2xl overflow-hidden">
+      <div ref={panelRef} className="relative z-50 w-full max-w-lg mx-4 bg-surface border border-line rounded-xl shadow-2xl overflow-hidden">
         <div className="flex items-center gap-3 px-4 py-3 border-b border-line">
           <svg className="w-5 h-5 text-subtle flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -341,7 +356,7 @@ export function CommandPalette({ open, onClose, onOpenQuickTodo, onOpenQuickIdea
               setSelectedIndex(0);
             }}
             onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent text-sm text-ink placeholder:text-faded outline-none"
+            className="flex-1 bg-transparent text-sm text-ink placeholder:text-placeholder outline-none"
           />
           {loading && (
             <div className="w-4 h-4 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
@@ -351,7 +366,7 @@ export function CommandPalette({ open, onClose, onOpenQuickTodo, onOpenQuickIdea
           </kbd>
         </div>
 
-        <div className="max-h-80 overflow-y-auto py-2" aria-live="polite">
+        <div className="max-h-80 overflow-y-auto py-2" role="listbox" aria-live="polite">
           {sections.map((section, sIdx) => (
             <div key={section.key}>
               <div className={`flex items-center justify-between px-4 py-1${sIdx > 0 ? " mt-1" : ""}`}>
@@ -373,6 +388,9 @@ export function CommandPalette({ open, onClose, onOpenQuickTodo, onOpenQuickIdea
                 return (
                   <button
                     key={`${item.section}-${globalIdx}`}
+                    role="option"
+                    aria-selected={clampedIndex === globalIdx}
+                    data-index={globalIdx}
                     onClick={() => execute(item)}
                     className={`w-full text-left px-4 py-2 text-sm flex items-center justify-between transition-colors ${
                       clampedIndex === globalIdx
@@ -405,9 +423,13 @@ export function CommandPalette({ open, onClose, onOpenQuickTodo, onOpenQuickIdea
           ))}
 
           {query.length >= 2 && !loading && sections.length === 0 && (
-            <p className="px-4 py-3 text-sm text-subtle text-center">
-              No results found
-            </p>
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <svg className="w-10 h-10 text-faded/40 mb-3" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+              <p className="text-sm text-subtle">No results found</p>
+              <p className="text-xs text-faded mt-1">Try a different search term</p>
+            </div>
           )}
         </div>
       </div>

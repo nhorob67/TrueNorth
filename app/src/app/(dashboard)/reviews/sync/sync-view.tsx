@@ -92,6 +92,13 @@ interface TeamMember {
 
 type Segment = "scoreboard" | "focus" | "blockers" | "commitments";
 
+const SEGMENT_DESCRIPTIONS: Record<Segment, string> = {
+  scoreboard: "Review red & yellow KPIs",
+  focus: "Team assignments & moves",
+  blockers: "Blockers, decisions & issues",
+  commitments: "Last week + new commitments",
+};
+
 const SEGMENT_CONFIG: Array<{
   key: Segment;
   label: string;
@@ -227,6 +234,7 @@ function SegmentNav({
             }`}
           >
             <div>{seg.label}</div>
+            <p className={`text-[11px] mt-0.5 max-w-[120px] leading-tight ${isActive ? "text-white/60" : "text-faded"}`}>{SEGMENT_DESCRIPTIONS[seg.key]}</p>
             <div className={`text-xs mt-0.5 ${isActive ? "text-white/70" : overTime ? "text-semantic-brick" : "text-subtle"}`}>
               {seg.duration} min
             </div>

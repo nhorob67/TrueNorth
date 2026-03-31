@@ -8,6 +8,15 @@ import {
   readSoul,
   profileExists,
 } from "./hermes.js";
+import {
+  loadFromDisk,
+  registerJob,
+  updateJob,
+  removeJob,
+  listJobs,
+  type CronJobConfig,
+} from "./cron-manager.js";
+import { startPeriodicSync } from "./hermes-cron-sync.js";
 
 const PORT = parseInt(process.env.PROXY_PORT ?? "3100", 10);
 const HOST = process.env.PROXY_HOST ?? "0.0.0.0";
@@ -202,11 +211,79 @@ app.get<{
   };
 });
 
-// ── Start ────────────────────────────────────────────────────────────
-app.listen({ port: PORT, host: HOST }, (err) => {
-  if (err) {
-    app.log.error(err);
-    process.exit(1);
+// ── POST /api/cron/register ──────────────────────────────────────────
+// Called by TrueNorth to register a new cron job on the VPS.
+app.post<{ Body: CronJobConfig }>("/api/cron/register", async (request, reply) => {
+  const config = request.body;
+
+  if (!config.id || !config.profile || !config.schedule || !config.orgId) {
+    return reply.code(400).send({ error: "Missing required fields: id, profile, schedule, orgId" });
   }
-  app.log.info(`VPS proxy listening on ${HOST}:${PORT}`);
+
+  try {
+    registerJob(config);
+    return { success: true, jobId: config.id };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to register job";
+    return reply.code(400).send({ error: message });
+  }
 });
+
+// ── PUT /api/cron/update ────────────────────────────────────────────
+// Called by TrueNorth to update an existing cron job.
+app.put<{ Body: Partial<CronJobConfig> & { id: string } }>("/api/cron/update", async (request, reply) => {
+  const { id, ...updates } = request.body;
+
+  if (!id) {
+    return reply.code(400).send({ error: "Missing job id" });
+  }
+
+  try {
+    updateJob(id, updates);
+    return { success: true, jobId: id };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to update job";
+    return reply.code(400).send({ error: message });
+  }
+});
+
+// ── DELETE /api/cron/delete ─────────────────────────────────────────
+// Called by TrueNorth to remove a cron job from the VPS.
+app.delete<{ Body: { id: string } }>("/api/cron/delete", async (request, reply) => {
+  const { id } = request.body;
+
+  if (!id) {
+    return reply.code(400).send({ error: "Missing job id" });
+  }
+
+  removeJob(id);
+  return { success: true };
+});
+
+// ── GET /api/cron/list ──────────────────────────────────────────────
+// Diagnostic: list all registered cron jobs.
+app.get("/api/cron/list", async () => {
+  return { jobs: listJobs() };
+});
+
+// ── Start ────────────────────────────────────────────────────────────
+async function start() {
+  // Restore cron jobs from disk before accepting requests
+  const restored = await loadFromDisk();
+  if (restored > 0) {
+    app.log.info(`Restored ${restored} cron job(s) from disk`);
+  }
+
+  // Sync Hermes native cron jobs to TrueNorth on startup + every 5 min
+  startPeriodicSync();
+
+  app.listen({ port: PORT, host: HOST }, (err) => {
+    if (err) {
+      app.log.error(err);
+      process.exit(1);
+    }
+    app.log.info(`VPS proxy listening on ${HOST}:${PORT}`);
+  });
+}
+
+start();

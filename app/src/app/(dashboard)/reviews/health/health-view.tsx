@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { OperatingHealthReport, OperatingHealthMetric, HealthStatus } from "@/types/database";
+import { MiniSparkline } from "@/components/ui/sparkline";
 
 // ============================================================
 // Types
@@ -55,34 +56,7 @@ const trendIcons: Record<string, string> = {
 };
 
 function Sparkline({ data, status }: { data: number[]; status: HealthStatus }) {
-  if (data.length < 2) return null;
-  const max = Math.max(...data, 100);
-  const min = Math.min(...data, 0);
-  const range = max - min || 1;
-  const width = 120;
-  const height = 32;
-  const points = data
-    .map((v, i) => {
-      const x = (i / (data.length - 1)) * width;
-      const y = height - ((v - min) / range) * height;
-      return `${x},${y}`;
-    })
-    .join(" ");
-
-  const color = status === "green" ? "var(--color-semantic-green)" : status === "yellow" ? "var(--color-semantic-ochre)" : "var(--color-semantic-brick)";
-
-  return (
-    <svg width={width} height={height} className="flex-shrink-0">
-      <polyline
-        points={points}
-        fill="none"
-        stroke={color}
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <MiniSparkline data={data} width={120} height={32} status={status} strokeWidth={2} />;
 }
 
 // ============================================================

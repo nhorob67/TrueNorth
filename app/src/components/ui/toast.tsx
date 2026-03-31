@@ -6,7 +6,7 @@ const variantStyles: Record<string, { border: string; icon: React.ReactNode }> =
   success: {
     border: "border-l-semantic-green",
     icon: (
-      <svg className="w-4 h-4 text-semantic-green" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+      <svg className="w-4 h-4 text-semantic-green" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
       </svg>
     ),
@@ -14,7 +14,7 @@ const variantStyles: Record<string, { border: string; icon: React.ReactNode }> =
   error: {
     border: "border-l-semantic-brick",
     icon: (
-      <svg className="w-4 h-4 text-semantic-brick" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+      <svg className="w-4 h-4 text-semantic-brick" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
       </svg>
     ),
@@ -22,7 +22,7 @@ const variantStyles: Record<string, { border: string; icon: React.ReactNode }> =
   info: {
     border: "border-l-accent",
     icon: (
-      <svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+      <svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
       </svg>
     ),
@@ -45,7 +45,7 @@ export function ToastContainer() {
         return (
           <div
             key={toast.id}
-            className={`flex items-start gap-3 px-4 py-3 bg-surface border border-line ${style.border} border-l-4 rounded-[10px] shadow-[0_4px_12px_rgba(0,0,0,0.08)] animate-slide-in-right`}
+            className={`flex items-start gap-3 px-4 py-3 bg-surface border border-line ${style.border} border-l-4 rounded-[var(--radius-lg)] shadow-[0_4px_12px_rgba(0,0,0,0.08)] animate-slide-in-right`}
           >
             <span className="flex-shrink-0 mt-0.5">{style.icon}</span>
             <p className="flex-1 text-sm text-ink">{toast.message}</p>
